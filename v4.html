@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CelerData Agentic Blueprint v4 — Before & After</title>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2040;
+    --navy-light: #162a50;
+    --gold: #f5a623;
+    --gold-dark: #d4943a;
+    --gold-dim: rgba(245,166,35,0.12);
+    --gold-glow: rgba(245,166,35,0.25);
+    --gold-border: rgba(245,166,35,0.25);
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.85);
+    --white-muted: rgba(255,255,255,0.5);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.1);
+    --blue-border: rgba(59,130,246,0.25);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.1);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.1);
+    --red-border: rgba(239,68,68,0.3);
+    --amber: #f59e0b;
+    --serif: 'Georgia', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* PROGRESS BAR */
+  #progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--blue));
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
+
+  /* NAV DOTS */
+  #nav-dots {
+    position: fixed; right: 1.25rem; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 0.6rem;
+    z-index: 999;
+  }
+  .nav-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    cursor: pointer; transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .nav-dot:hover { background: var(--gold-dark); transform: scale(1.3); }
+  .nav-dot.active { background: var(--gold); transform: scale(1.2); box-shadow: 0 0 8px var(--gold-dark); }
+  .nav-dot-label {
+    position: absolute; right: 1.4rem; top: 50%; transform: translateY(-50%);
+    white-space: nowrap; font-size: 0.62rem; color: var(--white-muted);
+    background: rgba(10,22,40,0.92); padding: 0.2rem 0.5rem;
+    border-radius: 4px; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .nav-dot:hover .nav-dot-label { opacity: 1; }
+
+  /* SECTIONS */
+  .section {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 5rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .container { max-width: 960px; margin: 0 auto; width: 100%; }
+  .container-wide { max-width: 1200px; margin: 0 auto; width: 100%; }
+
+  /* SECTION BACKGROUNDS */
+  #opening   { background: linear-gradient(155deg, #050e1e 0%, #0a1628 55%, #0c1e38 100%); }
+  #yourplan  { background: linear-gradient(155deg, #071220 0%, #0a1628 55%, #0d1f3a 100%); }
+  #layers    { background: linear-gradient(155deg, #0a1628 0%, #0c1e38 55%, #0a1628 100%); }
+  #fullarch  { background: linear-gradient(155deg, #071220 0%, #0a1828 50%, #0c2040 100%); }
+  #pipeline  { background: linear-gradient(155deg, #0a1628 0%, #0d1c35 50%, #0a1628 100%); }
+  #sequence  { background: linear-gradient(155deg, #071428 0%, #0a1a36 50%, #0c2040 100%); }
+  #closing   { background: linear-gradient(155deg, #050e20 0%, #070f1e 55%, #040810 100%); }
+
+  /* BG DOTS */
+  .section::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    opacity: 0.025;
+    background-image: radial-gradient(circle at 20% 80%, var(--gold) 1px, transparent 1px),
+                      radial-gradient(circle at 80% 20%, var(--blue) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* REVEAL */
+  .reveal {
+    opacity: 0; transform: translateY(22px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.22s; }
+  .reveal-delay-3 { transition-delay: 0.36s; }
+  .reveal-delay-4 { transition-delay: 0.52s; }
+  .reveal-delay-5 { transition-delay: 0.68s; }
+  .reveal-delay-6 { transition-delay: 0.84s; }
+
+  /* TYPOGRAPHY */
+  .eyebrow {
+    font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+    font-weight: 800; line-height: 1.08; letter-spacing: -0.025em;
+  }
+  h2 {
+    font-size: clamp(1.7rem, 3.8vw, 3rem);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.015em;
+  }
+  h3 {
+    font-size: clamp(1rem, 2.2vw, 1.45rem);
+    font-weight: 600; line-height: 1.3;
+  }
+  .subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.35rem);
+    color: var(--white-dim); line-height: 1.6; margin-top: 0.85rem;
+  }
+  .body-text {
+    font-size: clamp(0.9rem, 1.7vw, 1.08rem);
+    color: var(--white-dim); line-height: 1.8; max-width: 760px;
+  }
+  .gold { color: var(--gold); }
+  .blue { color: var(--blue); }
+  .green { color: var(--green); }
+  .muted { color: var(--white-muted); }
+
+  .gold-line {
+    width: 56px; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+    border-radius: 2px; margin: 1.4rem 0;
+  }
+
+  /* CALLOUT */
+  .callout {
+    background: linear-gradient(135deg, var(--gold-dim), rgba(245,166,35,0.06));
+    border: 1px solid var(--gold-border); border-radius: 12px;
+    padding: 1.25rem 1.5rem; margin: 1.75rem 0;
+  }
+  .callout p { font-size: 0.95rem; color: var(--white-dim); line-height: 1.7; }
+  .callout strong { color: var(--gold); }
+  .callout-blue {
+    background: linear-gradient(135deg, var(--blue-dim), rgba(59,130,246,0.05));
+    border: 1px solid var(--blue-border);
+  }
+  .callout-blue p strong { color: var(--blue); }
+  .callout-green {
+    background: linear-gradient(135deg, var(--green-dim), rgba(34,197,94,0.05));
+    border: 1px solid rgba(34,197,94,0.25);
+  }
+  .callout-green p strong { color: var(--green); }
+
+  /* METRICS ROW */
+  .metrics-row {
+    display: flex; flex-wrap: wrap; gap: 0.85rem;
+    margin: 1.75rem 0;
+  }
+  .metric-chip {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 0.6rem 1rem;
+    text-align: center; min-width: 100px;
+  }
+  .metric-chip .metric-val {
+    font-size: 1.4rem; font-weight: 800; color: var(--gold); line-height: 1;
+    display: block; margin-bottom: 0.2rem;
+  }
+  .metric-chip .metric-label {
+    font-size: 0.65rem; color: var(--white-muted);
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,166,35,0.2), transparent);
+    margin: 2.5rem 0;
+  }
+
+  /* ─── DIAGRAM STYLES ─── */
+
+  /* Node box — "their plan" style (blue) */
+  .diag-wrap {
+    position: relative;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: rgba(255,255,255,0.018);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+  }
+
+  /* Arch diagram container */
+  .arch-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    font-size: 0.82rem;
+    user-select: none;
+  }
+
+  .diag-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    margin: 0.35rem 0;
+    flex-wrap: wrap;
+  }
+
+  .diag-node {
+    padding: 0.6rem 1.1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    transition: all 0.25s;
+    position: relative;
+    cursor: default;
+  }
+
+  /* Blue — existing plan */
+  .dn-blue {
+    background: var(--blue-dim);
+    border: 1.5px solid var(--blue-border);
+    color: var(--blue);
+  }
+
+  /* Gold — new layers */
+  .dn-gold {
+    background: var(--gold-dim);
+    border: 1.5px solid var(--gold-border);
+    color: var(--gold);
+    box-shadow: 0 0 12px var(--gold-glow);
+  }
+  .dn-gold:hover {
+    box-shadow: 0 0 22px rgba(245,166,35,0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Gray — neutral structural */
+  .dn-gray {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: var(--white-dim);
+  }
+
+  /* Green — output/result */
+  .dn-green {
+    background: var(--green-dim);
+    border: 1.5px solid rgba(34,197,94,0.3);
+    color: var(--green);
+  }
+
+  /* Claude Code bounding box */
+  .claude-box {
+    border: 2px dashed rgba(34,197,94,0.35);
+    border-radius: 14px;
+    padding: 1rem 1.5rem 1.2rem;
+    position: relative;
+    background: rgba(34,197,94,0.03);
+    margin: 0.4rem 0;
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .claude-box-label {
+    position: absolute;
+    top: -0.65rem; left: 1rem;
+    background: var(--navy);
+    padding: 0 0.4rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+
+  /* Arrow */
+  .diag-arrow {
+    color: var(--white-muted);
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .diag-arrow-gold { color: var(--gold); }
+  .diag-arrow-down {
+    text-align: center;
+    width: 100%;
+    font-size: 1rem;
+    color: var(--white-muted);
+    margin: 0.15rem 0;
+  }
+  .diag-arrow-down.gold { color: var(--gold); }
+
+  /* Badge — numbered layer */
+  .layer-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #0a1628;
+    font-size: 0.65rem;
+    font-weight: 900;
+    flex-shrink: 0;
+    margin-right: 0.35rem;
+  }
+
+  /* Tooltip on hover for gold nodes */
+  .dn-gold .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0a1628;
+    border: 1px solid var(--gold-border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.75rem;
+    color: var(--white-dim);
+    line-height: 1.5;
+    width: 220px;
+    z-index: 50;
+    text-align: left;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .dn-gold:hover .tooltip { display: block; }
+  .dn-gold .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--gold-border);
+  }
+
+  /* ─── BEFORE / AFTER CARDS ─── */
+  .ba-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  .ba-card {
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .ba-before {
+    background: var(--blue-dim);
+    border: 1.5px solid var(--blue-border);
+  }
+  .ba-after {
+    background: var(--gold-dim);
+    border: 1.5px solid var(--gold-border);
+    box-shadow: 0 0 20px var(--gold-glow);
+  }
+  .ba-label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .ba-before .ba-label { color: var(--blue); }
+  .ba-after .ba-label { color: var(--gold); }
+  .ba-card h4 {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+    line-height: 1.35;
+  }
+  .ba-card p {
+    font-size: 0.82rem;
+    color: var(--white-dim);
+    line-height: 1.7;
+  }
+
+  /* ─── LAYER CARD ─── */
+  .layer-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 1.75rem;
+    transition: border-color 0.3s, background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .layer-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--gold);
+    border-radius: 16px 0 0 16px;
+  }
+  .layer-card:hover {
+    border-color: var(--gold-border);
+    background: rgba(255,255,255,0.03);
+  }
+  .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+  }
+  .layer-num {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #0a1628;
+    font-size: 0.88rem;
+    font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .layer-title {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.25;
+  }
+  .layer-subtitle {
+    font-size: 0.75rem;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 0.1rem;
+  }
+  .why-block {
+    margin-top: 1rem;
+    padding: 0.85rem 1.1rem;
+    background: rgba(255,255,255,0.025);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.84rem;
+    color: var(--white-dim);
+    line-height: 1.7;
+  }
+  .why-block strong { color: var(--gold); }
+  .metric-line {
+    margin-top: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--green);
+    font-weight: 600;
+  }
+  .metric-line::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* ─── PIPELINE DIAGRAM ─── */
+  .pipe-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1.5rem 0;
+    font-size: 0.8rem;
+  }
+  .pipe-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0.3rem 0;
+  }
+  .pipe-node {
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.76rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .pipe-blue { background: var(--blue-dim); border: 1.5px solid var(--blue-border); color: var(--blue); }
+  .pipe-gold { background: var(--gold-dim); border: 1.5px solid var(--gold-border); color: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+  .pipe-gray { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); color: var(--white-dim); }
+
+  /* ─── IMPLEMENTATION TABLE ─── */
+  .impl-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.86rem;
+  }
+  .impl-table th {
+    text-align: left;
+    padding: 0.7rem 1rem;
+    color: var(--gold);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(245,166,35,0.2);
+  }
+  .impl-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--white-dim);
+    vertical-align: middle;
+    line-height: 1.5;
+  }
+  .impl-table tr:last-child td { border-bottom: none; }
+  .impl-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .impl-table td:first-child { font-weight: 700; color: var(--white); }
+  .check-done { color: var(--green); font-weight: 800; font-size: 1rem; }
+  .num-circle {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-size: 0.65rem;
+    font-weight: 800;
+  }
+  .effort-low { color: var(--green); font-weight: 600; }
+  .effort-med { color: var(--gold); font-weight: 600; }
+  .effort-high { color: var(--red); font-weight: 600; }
+
+  /* ─── CLOSING VISION ITEMS ─── */
+  .vision-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .vision-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 1.4rem;
+    transition: all 0.3s;
+  }
+  .vision-card:hover {
+    border-color: var(--gold-border);
+    background: var(--gold-dim);
+    transform: translateY(-2px);
+  }
+  .vision-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+  .vision-card p {
+    font-size: 0.88rem;
+    color: var(--white-dim);
+    line-height: 1.7;
+  }
+
+  /* ─── CLOSING STATEMENT ─── */
+  .closing-statement {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 3vw, 2.1rem);
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--white-dim);
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  /* ─── STARS ─── */
+  .stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .star {
+    position: absolute; width: 2px; height: 2px;
+    background: white; border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite; opacity: 0;
+  }
+  @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:var(--peak);} }
+
+  /* ─── WHAT'S WORKING CALLOUT ─── */
+  .working-callout {
+    margin-top: 1.25rem;
+    padding: 0.9rem 1.25rem;
+    background: linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.04));
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 8px;
+    font-size: 0.84rem;
+    color: var(--white-dim);
+  }
+  .working-callout strong { color: var(--gold); }
+
+  /* ─── CHIP ─── */
+  .chip {
+    display: inline-block;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 0.22rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .chip-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+  .chip-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue-border); }
+  .chip-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 720px) {
+    .ba-grid { grid-template-columns: 1fr; }
+    .diag-row { gap: 0.4rem; }
+    .diag-node { white-space: normal; }
+    #nav-dots { display: none; }
+    .impl-table { font-size: 0.76rem; }
+    .impl-table th, .impl-table td { padding: 0.55rem 0.65rem; }
+    .claude-box { max-width: 100%; }
+  }
+
+  /* ─── PRINT ─── */
+  @media print {
+    .section { page-break-inside: avoid; min-height: auto; padding: 2rem; }
+    #progress-bar, #nav-dots { display: none; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav id="nav-dots">
+  <div class="nav-dot active" data-target="opening"><span class="nav-dot-label">Opening</span></div>
+  <div class="nav-dot" data-target="yourplan"><span class="nav-dot-label">Your Plan Today</span></div>
+  <div class="nav-dot" data-target="layers"><span class="nav-dot-label">7 Missing Layers</span></div>
+  <div class="nav-dot" data-target="fullarch"><span class="nav-dot-label">Full Architecture</span></div>
+  <div class="nav-dot" data-target="pipeline"><span class="nav-dot-label">Enhanced Pipeline</span></div>
+  <div class="nav-dot" data-target="sequence"><span class="nav-dot-label">Implementation</span></div>
+  <div class="nav-dot" data-target="closing"><span class="nav-dot-label">What Unlocks</span></div>
+</nav>
+
+
+<!-- ══════════════════════════════════════
+     OPENING
+══════════════════════════════════════ -->
+<section class="section" id="opening">
+  <div class="stars" id="star-field"></div>
+  <div class="container">
+
+    <div class="reveal">
+      <div class="eyebrow">CelerData — Agentic Blueprint v4</div>
+      <h1>You Have a Great<br><span class="gold">Foundation.</span></h1>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="gold-line"></div>
+      <p class="subtitle" style="max-width:700px;">
+        Your internal agent plan shows two insights that most teams get wrong for months. Here is what was learned in the next 120 hours — the 7 layers that transform a tool into a thinking partner.
+      </p>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="metrics-row">
+        <div class="metric-chip">
+          <span class="metric-val">534</span>
+          <span class="metric-label">Commits</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-val">120+</span>
+          <span class="metric-label">Hours Building</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-val">7</span>
+          <span class="metric-label">Critical Layers</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-val">100%</span>
+          <span class="metric-label">Forge Correction Rate</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-val">~0%</span>
+          <span class="metric-label">Repeat Error Rate (after loop)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="callout">
+        <p><strong>Where your v1 is:</strong> Your plan is where most teams are after month three of production experience. You are starting from the right place. The two hardest insights — Claude Code as the conductor, and CelerData/StarRocks as the knowledge backbone — you already have. What follows is everything learned in the next 120 hours: the 7 layers that separate a Phase 1 tool from a Phase 4 thinking partner.</p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-5">
+      <div style="display:flex; flex-wrap:wrap; gap:1.5rem; margin-top:1.5rem; font-size:0.88rem; color:var(--white-muted);">
+        <span>1 &rarr; <strong style="color:var(--white)">Your Plan Today</strong></span>
+        <span>2 &rarr; <strong style="color:var(--white)">The 7 Missing Layers</strong></span>
+        <span>3 &rarr; <strong style="color:var(--white)">Complete Architecture</strong></span>
+        <span>4 &rarr; <strong style="color:var(--white)">Enhanced Data Pipeline</strong></span>
+        <span>5 &rarr; <strong style="color:var(--white)">Implementation Sequence</strong></span>
+        <span>6 &rarr; <strong style="color:var(--white)">What Unlocks</strong></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 1: YOUR PLAN TODAY
+══════════════════════════════════════ -->
+<section class="section" id="yourplan">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 1 — Your Current Plan</div>
+      <h2>Your Plan <span class="gold">Today.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Recreated from your internal architecture diagrams — cleaned up and made precise. These are the decisions you have already made correctly.</p>
+    </div>
+
+    <!-- Diagram 1: Agent Architecture -->
+    <div class="reveal reveal-delay-2" style="margin-top:2.5rem;">
+      <h3 style="margin-bottom:0.5rem; color: var(--white-muted); font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase; font-weight:700;">Diagram 1 — Agent Architecture (Your v1)</h3>
+
+      <div class="diag-wrap">
+        <!-- Ideal label -->
+        <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--blue);margin-bottom:1.25rem;opacity:0.7;">Target "Ideal" Architecture</div>
+
+        <div class="arch-diagram">
+          <!-- Top row: Memory + KB -->
+          <div class="diag-row">
+            <div class="diag-node dn-blue">MEMORY</div>
+            <div class="diag-arrow muted">and</div>
+            <div class="diag-node dn-blue">Knowledge Base</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Claude Code box -->
+          <div class="diag-row">
+            <div class="claude-box">
+              <div class="claude-box-label">Claude Code (v1 — they build this first)</div>
+              <div class="diag-row">
+                <div class="diag-node dn-gray">LLM</div>
+                <div class="diag-arrow">&rarr;</div>
+                <div class="diag-node dn-blue" style="font-weight:800;">AGENT</div>
+                <div class="diag-arrow">&rarr;</div>
+                <div class="diag-node dn-gray">Context</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tools row -->
+          <div class="diag-arrow-down">&#8595;</div>
+          <div class="diag-row">
+            <div class="diag-node dn-gray">Tool 1</div>
+            <div class="diag-node dn-gray">Tool 2</div>
+            <div class="diag-node dn-gray">Tool 3</div>
+            <div class="diag-node dn-gray">Tool 4</div>
+          </div>
+        </div>
+
+        <div class="working-callout" style="margin-top:1.5rem;">
+          <strong>What's working:</strong> You recognized that Claude Code IS the conductor — you do not need to build a custom agent framework. Memory and KB are external to Claude Code, which is the right separation. This is the insight most teams miss for 60+ days.
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagram 2: Data Pipeline -->
+    <div class="reveal reveal-delay-3" style="margin-top:2rem;">
+      <h3 style="margin-bottom:0.5rem; color: var(--white-muted); font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase; font-weight:700;">Diagram 2 — Data Pipeline for Knowledge Base</h3>
+
+      <div class="diag-wrap">
+        <div class="pipe-diagram">
+
+          <!-- Sources -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue">Documents</div>
+            <div class="pipe-node pipe-blue">Jira / Zendesk / PagerDuty</div>
+            <div class="pipe-node pipe-blue">HubSpot</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- S3 + Kafka -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray" style="padding:0.55rem 2rem;">S3 Raw Data Lake</div>
+            <div class="pipe-node pipe-gray" style="margin-left:0.5rem;">Kafka (Realtime)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- PreProcessed -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Unstructured Docs</div>
+            <div class="pipe-node pipe-gray">Structured Tables (Iceberg)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- CelerData -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue" style="font-weight:800;">CelerData</div>
+            <div class="diag-arrow muted">&mdash;</div>
+            <div class="pipe-node pipe-blue">Vector Index</div>
+            <div class="pipe-node pipe-blue">Full Text Index</div>
+            <div class="pipe-node pipe-blue">Iceberg / Native Table</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Semantic / SQL -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Semantic Layer</div>
+            <div class="pipe-node pipe-gray">SQL Layer</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Agent retrieval -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue" style="font-weight:800;">AGENT</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Output -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Data Retrieve (Semantic + SQL)</div>
+            <div class="pipe-node pipe-gray">Native Tools (Codebase)</div>
+          </div>
+
+        </div>
+
+        <div class="working-callout" style="margin-top:1rem;">
+          <strong>What's working:</strong> Using CelerData/StarRocks as the KB backbone is the correct call. Vector + full text + semantic layer in one platform means you are not stitching together Pinecone + Elastic + a semantic layer separately. You already own the world's best real-time analytics platform — you are aiming it correctly.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 2: 7 MISSING LAYERS
+══════════════════════════════════════ -->
+<section class="section" id="layers">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 2 — The Missing Layers</div>
+      <h2>The 7 Layers <span class="gold">That Make the Difference.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Each layer is shown as a before/after. The before is what your current plan has. The after is what 120 hours of real building revealed was essential. These are not optional enhancements — they are what separates a static reference library from a learning system.</p>
+    </div>
+
+    <!-- LAYER 1: Learning Loop -->
+    <div class="reveal reveal-delay-2" style="margin-top:2.5rem;">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">1</div>
+          <div>
+            <div class="layer-title">The Learning Loop</div>
+            <div class="layer-subtitle">Feedback writes back to the Knowledge Base</div>
+          </div>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Data flows into the KB. Agent reads from KB. One direction.</h4>
+            <p>Your pipeline is a read-only retrieval system. Data goes in from S3, Kafka, and your sources. The agent queries it. Nothing flows back. Every session starts with the same knowledge it started with on Day 1.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">With the Learning Loop</div>
+            <h4>Every session writes back — mistakes, patterns, preferences, insights.</h4>
+            <p>After each session, the system extracts what was learned and writes it to CelerData. Next session, those learnings are injected before work begins. The KB gets smarter with every interaction. This is not manual — it is automatic and mandatory.</p>
+          </div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why it matters:</strong> "Recording mistakes is not learning. Learning is changed behavior. Without the feedback loop, you have a static reference library, not a learning system." — The mistake files were growing, the same errors kept recurring. The loop only works when writing back is enforced, not optional.
+        </div>
+        <div class="metric-line">After wiring preflight injection: repeat error rate drops from ~75% to near zero within 30 sessions.</div>
+      </div>
+    </div>
+
+    <!-- LAYER 2: Quality Gates -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">2</div>
+          <div>
+            <div class="layer-title">Quality Gates — The Forge Pipeline</div>
+            <div class="layer-subtitle">Worker generates. Observer reviews. Gate validates.</div>
+          </div>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Agent generates output. Output goes to tools. No verification step.</h4>
+            <p>If the agent makes a subtle error in a SQL query, API spec, or configuration — it ships. The only check is human review downstream, which happens after the agent has already committed its work.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">With the Forge Pipeline</div>
+            <h4>Three-agent pipeline: Worker produces, Observer reviews with fresh context, Gate validates before delivery.</h4>
+            <p>The Observer has no attachment to the Worker's output — it is adversarial by design. Fresh context window, no shared blind spots. This structure catches errors that single-agent review cannot, because the reviewer does not share the author's assumptions.</p>
+          </div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why it matters:</strong> "Every enterprise AI fails the same way: appears to work, gets deployed, fails in production invisibly." — A broken launchd plist crashed a production machine. It was caught not by QA but by the sound of the error. Quality gates exist because silent failures are the most expensive kind.
+        </div>
+        <div class="metric-line">100% correction rate across SQL, Python, Bash, and API spec domains. Errors caught before human review.</div>
+      </div>
+    </div>
+
+    <!-- LAYER 3: Trust Engine -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">3</div>
+          <div>
+            <div class="layer-title">Trust Engine — Asymmetric Autonomy</div>
+            <div class="layer-subtitle">Trust earned through demonstrated correctness, not granted by configuration</div>
+          </div>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Permission model: the agent either has access or it doesn't.</h4>
+            <p>Binary permission systems treat a read-only research query the same as a destructive database operation. There is no nuance per action type, no history of correctness factored in, no hard ceiling on irreversible operations.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">With the Trust Engine</div>
+            <h4>Asymmetric scoring per category. Trust earned, not configured. Hard ceilings on destructive operations.</h4>
+            <p>+3 per success, -15 per failure. Read operations reach TRUSTED autonomy quickly. DDL, DELETE, financial operations have permanent hard ceilings — no amount of success unlocks them fully. Trust is quantitative, per-category, and evolves through evidence.</p>
+          </div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why it matters:</strong> "Fully autonomous pipelines fail 41–87% of the time. A single trust level is a single point of failure." — The system that says "done" when nothing was verified is the enterprise AI deployment failure pattern at scale. Trust must be earned through consistent small deliveries, not granted through configuration.
+        </div>
+        <div class="metric-line">60% of routine work handled autonomously. Human review only for high-risk or novel situations.</div>
+      </div>
+    </div>
+
+    <!-- LAYER 4: Context Management -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">4</div>
+          <div>
+            <div class="layer-title">Context Management — The Relay System</div>
+            <div class="layer-subtitle">Transfer the WHY, not just the task status</div>
+          </div>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Agent runs until context window fills. Quality degrades silently.</h4>
+            <p>No budget tracking, no handoff protocol, no structured transfer of understanding between sessions. When context fills, work is lost or compacted — and nuance disappears without any visible signal that it has happened.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">With the Relay System</div>
+            <h4>Explicit budget: 55% prepare / 70% handoff / 85% emergency. Handoffs transfer the WHY — dead ends, insights, open questions.</h4>
+            <p>Sessions are coordination layers, not workspaces. Heavy work goes to sub-agents with fresh context windows. At handoff thresholds, a structured Problem Brief captures what was learned — not just task status, but the reasoning behind decisions and the dead ends that failed.</p>
+          </div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why it matters:</strong> "Context degradation is invisible and fatal. HTTP 200 keeps returning while the agent gets progressively dumber." — The relay system was non-functional for 276 consecutive sessions before discovery. Sessions were running 15x over threshold with no visible failure signal. You cannot trust what you cannot measure.
+        </div>
+        <div class="metric-line">Session context 102KB compressed to 7KB after relay. Zero nuance loss across handoffs.</div>
+      </div>
+    </div>
+
+    <!-- LAYER 5: Multi-Agent Orchestration -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">5</div>
+          <div>
+            <div class="layer-title">Multi-Agent Orchestration</div>
+            <div class="layer-subtitle">Parallel by default. Sequential is malpractice at scale.</div>
+          </div>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Single agent, sequential execution. Complex tasks run one step at a time.</h4>
+            <p>A single agent handling research, implementation, review, and documentation in series. The most expensive model handles everything, including tasks that do not require its capabilities.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">With Auto-Swarm Orchestration</div>
+            <h4>Tasks decompose automatically into parallel agents. Right model for each job. Cheap models scan, expensive models reason.</h4>
+            <p>Three patterns: research (KB-researcher + web-researcher + codebase-scanner in parallel, then synthesizer), build (researcher + architect feed the main agent, then a critic), analysis (investigator + pessimist + pragmatist in parallel, then synthesizer). Model routing: haiku for search/scan, sonnet for architecture/security, free local models for embeddings and scoring.</p>
+          </div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why it matters:</strong> "A haiku agent that takes 2 passes is still cheaper than a sonnet agent that does it in 1. Sequential single-agent work on complex tasks is malpractice when you have the capability to parallelize." — Homogeneous multi-agent debate (same model, same prompt) actually performs worse than a single agent. Diversity and adversarial structure are what produce quality — not simply adding more agents.
+        </div>
+        <div class="metric-line">5–10x throughput improvement on multi-step analysis tasks. Cost discipline enforced at the architecture level.</div>
+      </div>
+    </div>
+
+    <!-- LAYER 6: Preflight Intelligence -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">6</div>
+          <div>
+            <div class="layer-title">Preflight Intelligence — The Cognitive Layer</div>
+            <div class="layer-subtitle">Every prompt is analyzed before the agent starts working</div>
+          </div>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Agent receives prompt. Agent starts working. No prior context injected.</h4>
+            <p>Every session starts cold. Past mistakes are not surfaced. Intent is not classified. The agent that made an error yesterday will make the same error today unless someone explicitly reminds it — and no one does.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">With the Preflight System</div>
+            <h4>Every prompt runs through intent classification, mistake injection, pattern surfacing, and reasoning mode selection before work begins.</h4>
+            <p>The hook fires before the agent processes the prompt. It queries the KB for relevant past mistakes, classifies intent (directive vs. correction vs. invitation vs. emotional), selects the appropriate reasoning mode, and surfaces relevant skills — all in ~250ms. The agent starts with full context it did not have to ask for.</p>
+          </div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why it matters:</strong> "Optional self-check is theater. The preflight system forces context into every session, whether the agent wants to see it or not." — Corrections require a different processing path than requests. Emotional weight requires acknowledgment before reasoning. These distinctions change the quality of the output, and they only happen consistently when they are automatic and mandatory.
+        </div>
+        <div class="metric-line">First-pass quality improvement dramatically measurable within 2 weeks of deployment. Repeat errors approach zero after 30 sessions.</div>
+      </div>
+    </div>
+
+    <!-- LAYER 7: Telemetry -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">7</div>
+          <div>
+            <div class="layer-title">Telemetry and Observability</div>
+            <div class="layer-subtitle">You cannot improve what you cannot measure. You cannot trust what you cannot observe.</div>
+          </div>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>No visibility into what agents are doing, how long operations take, or where they fail.</h4>
+            <p>Agent activity is a black box. You know whether a query completed, but not what decisions were made along the way, how long each step took, what was retried, or where confidence was low. Improvements are guesswork.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">With Agent Telemetry in StarRocks</div>
+            <h4>Every tool call, artifact creation, and decision emits an event. Real-time dashboards. Circuit breakers for runaway sessions.</h4>
+            <p>A JSONL event stream captures every agent action with structured metadata: tool name, input/output size, latency, session, trust category. This flows directly into StarRocks for real-time analytics. Materialized views surface anomalies. Circuit breakers stop sessions that are consuming 15x expected resources. And critically — you already have the infrastructure for this.</p>
+          </div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why it matters:</strong> "You can't improve what you can't measure. And you can't trust what you can't observe." — The telemetry advantage at CelerData is structural: you are not building a new analytics layer to observe your agents. You are pointing your existing analytics platform at agent activity. That is a significant implementation shortcut and a competitive moat.
+        </div>
+        <div class="metric-line">Real-time visibility into all agent activity. Anomalies detected in seconds, not days. Continuous improvement grounded in data, not intuition.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 3: FULL ARCHITECTURE
+══════════════════════════════════════ -->
+<section class="section" id="fullarch">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 3 — The Complete Picture</div>
+      <h2>The Enhanced <span class="gold">Architecture.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Your original architecture (in blue) plus the 7 missing layers (highlighted in gold). Hover over any gold component to see its core insight. The structure is your Diagram 1 — expanded with what comes next.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="diag-wrap" style="margin-top:2rem; padding: 2rem 1.5rem;">
+
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; font-size:0.7rem; align-items:center;">
+          <span><span class="chip chip-blue">Blue</span> &nbsp;Your current plan</span>
+          <span><span class="chip chip-gold">Gold</span> &nbsp;New layers (hover for insight)</span>
+        </div>
+
+        <div class="arch-diagram">
+
+          <!-- Preflight -->
+          <div class="diag-row">
+            <div class="diag-node dn-gold" style="padding:0.75rem 1.5rem;">
+              <span class="layer-badge">6</span>Preflight Intelligence
+              <div class="tooltip">Intent classification, past mistakes injection, reasoning mode selection — fires before the agent processes every prompt. ~250ms. Automatic, not optional.</div>
+            </div>
+          </div>
+          <div class="diag-arrow-down gold">&#8595;</div>
+
+          <!-- Memory + Learning Loop | Claude Code | Tools -->
+          <div class="diag-row" style="align-items:flex-start; gap:1rem; flex-wrap:nowrap;">
+
+            <!-- Left: Memory + Learning Loop -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex-shrink:0; min-width:140px;">
+              <div class="diag-node dn-blue" style="width:100%; text-align:center;">MEMORY</div>
+              <div class="diag-arrow-down" style="width:auto;">&#8597;</div>
+              <div class="diag-node dn-gold" style="width:100%; text-align:center;">
+                <span class="layer-badge">1</span>Learning Loop
+                <div class="tooltip">Agent writes back to KB after every session — mistakes, patterns, preferences. Every session makes the next one smarter. Bidirectional data flow is the difference between a reference library and a learning system.</div>
+              </div>
+            </div>
+
+            <!-- Center: Claude Code -->
+            <div class="claude-box" style="flex:1; min-width:220px; max-width:420px;">
+              <div class="claude-box-label">Claude Code (Conductor)</div>
+              <div class="diag-row">
+                <div class="diag-node dn-gray">LLM</div>
+                <div class="diag-arrow">&rarr;</div>
+                <div class="diag-node dn-blue" style="font-weight:800;">AGENT</div>
+              </div>
+              <div class="diag-row" style="gap:0.5rem; margin-top:0.3rem; flex-wrap:wrap; justify-content:center;">
+                <div class="diag-node dn-gold" style="font-size:0.72rem;">
+                  <span class="layer-badge">3</span>Trust Engine
+                  <div class="tooltip">Asymmetric trust scores per category (+3 success / -15 failure). Hard ceilings on destructive operations. Trust earned through demonstrated correctness, not granted by configuration.</div>
+                </div>
+                <div class="diag-node dn-gold" style="font-size:0.72rem;">
+                  <span class="layer-badge">4</span>Context Relay
+                  <div class="tooltip">55%/70%/85% thresholds. At handoff, a Problem Brief captures the WHY — dead ends, insights, open questions. New session starts with full understanding. Context budget tracked on every tool call.</div>
+                </div>
+              </div>
+              <div class="diag-node dn-gray" style="margin-top:0.3rem; font-size:0.72rem;">Knowledge Base</div>
+            </div>
+
+            <!-- Right: Tools -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; flex-shrink:0; min-width:100px;">
+              <div class="diag-node dn-gray" style="width:100%; text-align:center;">Tool 1</div>
+              <div class="diag-node dn-gray" style="width:100%; text-align:center;">Tool 2</div>
+              <div class="diag-node dn-gray" style="width:100%; text-align:center;">Tool 3</div>
+              <div class="diag-node dn-gray" style="width:100%; text-align:center;">Tool 4&hellip;</div>
+            </div>
+          </div>
+
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Quality Gate + Telemetry -->
+          <div class="diag-row" style="gap:1.5rem;">
+            <div class="diag-node dn-gold" style="padding:0.75rem 1.25rem;">
+              <span class="layer-badge">2</span>Forge Quality Gate
+              <div class="tooltip">Worker generates, Observer reviews with fresh context (no shared blind spots), Gate validates before delivery. 100% correction rate across SQL, Python, Bash, API specs. Auto-triggers on production intent and contract artifacts.</div>
+            </div>
+            <div class="diag-node dn-gold" style="padding:0.75rem 1.25rem;">
+              <span class="layer-badge">7</span>Telemetry (StarRocks)
+              <div class="tooltip">Every tool call emits a structured event. Real-time dashboards via StarRocks materialized views. Circuit breakers stop runaway sessions. You already own the analytics platform — aim it at agent activity.</div>
+            </div>
+          </div>
+
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Multi-Agent Orchestration -->
+          <div class="diag-row">
+            <div class="diag-node dn-gold" style="padding:0.75rem 2rem; font-size:0.84rem;">
+              <span class="layer-badge">5</span>Multi-Agent Orchestration (Auto-Swarm + Parallel Pipelines)
+              <div class="tooltip">Tasks decompose automatically into parallel agents. Three patterns: research, build, analysis. Cheap models (haiku) for search/scan, expensive models (sonnet) for architecture/security. The conductor never does heavy lifting — it coordinates.</div>
+            </div>
+          </div>
+
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Output -->
+          <div class="diag-row">
+            <div class="diag-node dn-green" style="padding:0.75rem 2rem;">Verified Output &rarr; Production</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="callout-blue callout" style="margin-top:0;">
+        <p><strong>The architectural insight:</strong> Your current plan has the center column correct — Claude Code as conductor, LLM + Agent + Context as the core. The 7 layers do not replace that center. They surround it: intelligence before (preflight), intelligence after (quality gate + telemetry), intelligence around it (trust, context, orchestration), and intelligence that compounds over time (learning loop).</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 4: ENHANCED DATA PIPELINE
+══════════════════════════════════════ -->
+<section class="section" id="pipeline">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 4 — The Data Pipeline Enhanced</div>
+      <h2>Your Pipeline, <span class="gold">Extended.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Your Diagram 2 pipeline is sound. Four additions transform it from a one-way retrieval system into a compounding learning infrastructure. Blue is what you have. Gold is what changes.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="diag-wrap" style="margin-top:2rem; padding: 2rem 1.5rem;">
+
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem; font-size:0.7rem; align-items:center;">
+          <span><span class="chip chip-blue">Blue</span> &nbsp;Your current pipeline</span>
+          <span><span class="chip chip-gold">Gold</span> &nbsp;New additions</span>
+        </div>
+
+        <div class="pipe-diagram">
+
+          <!-- NEW: Preflight injection -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gold"><span class="layer-badge">6</span>Prompt + Intent Classification</div>
+          </div>
+          <div class="diag-arrow-down gold">&#8595; Preflight injects relevant KB history before agent starts</div>
+
+          <!-- Sources -->
+          <div class="pipe-row" style="margin-top:0.5rem;">
+            <div class="pipe-node pipe-blue">Documents</div>
+            <div class="pipe-node pipe-blue">Jira / Zendesk / PagerDuty</div>
+            <div class="pipe-node pipe-blue">HubSpot</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- S3 + Kafka -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray" style="padding:0.55rem 2rem;">S3 Raw Data Lake</div>
+            <div class="pipe-node pipe-gray">Kafka (Realtime Change)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- PreProcessed -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Unstructured Docs</div>
+            <div class="pipe-node pipe-gray">Structured Tables (Iceberg)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- CelerData -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue" style="font-weight:800;">CelerData</div>
+            <div class="pipe-node pipe-blue">Vector Index</div>
+            <div class="pipe-node pipe-blue">Full Text Index</div>
+            <div class="pipe-node pipe-blue">Iceberg / Native Table</div>
+            <!-- NEW -->
+            <div class="pipe-node pipe-gold"><span class="layer-badge">1</span>Learnings Table</div>
+            <div class="pipe-node pipe-gold"><span class="layer-badge">7</span>Agent Event Log</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Semantic layer -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Semantic Layer</div>
+            <div class="pipe-node pipe-gray">SQL Layer</div>
+            <!-- NEW -->
+            <div class="pipe-node pipe-gold"><span class="layer-badge">7</span>Real-Time Analytics Views</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Agent -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue" style="font-weight:800; padding:0.75rem 2rem;">AGENT</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Quality Gate NEW -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gold"><span class="layer-badge">2</span>Forge Quality Gate (Worker + Observer + Gate)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Output -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Data Retrieve (Semantic + SQL)</div>
+            <div class="pipe-node pipe-gray">Native Tools (Codebase)</div>
+            <div class="pipe-node pipe-green">Verified Output</div>
+          </div>
+
+          <!-- Feedback arrows back up (gold) -->
+          <div class="diag-arrow-down gold" style="margin-top:1rem;">&#8593; Agent writes learnings back to CelerData (Learnings Table)</div>
+          <div class="diag-arrow-down gold">&#8593; Agent telemetry streams to StarRocks Real-Time Analytics</div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.85rem; margin-top:1.5rem;">
+        <div class="callout callout-blue" style="margin:0; padding:1rem 1.25rem;">
+          <p><strong>Addition 1:</strong> Feedback loop — agent writes learnings BACK to CelerData after each session. Past mistakes and patterns become part of the KB.</p>
+        </div>
+        <div class="callout callout-blue" style="margin:0; padding:1rem 1.25rem;">
+          <p><strong>Addition 2:</strong> Telemetry stream — every agent action flows into StarRocks as a structured event. Real-time dashboards, anomaly detection, cost tracking.</p>
+        </div>
+        <div class="callout callout-blue" style="margin:0; padding:1rem 1.25rem;">
+          <p><strong>Addition 3:</strong> Quality gate — between Agent and Output, the Forge verifies every high-stakes artifact before it reaches production.</p>
+        </div>
+        <div class="callout callout-blue" style="margin:0; padding:1rem 1.25rem;">
+          <p><strong>Addition 4:</strong> Preflight injection — relevant KB history is injected BEFORE the agent starts, not after. The agent starts informed, not cold.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 5: IMPLEMENTATION SEQUENCE
+══════════════════════════════════════ -->
+<section class="section" id="sequence">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 5 — The Sequence</div>
+      <h2>Build Order <span class="gold">Matters.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">You already have the two hardest parts done. What follows is priority order — not by difficulty but by impact. Each layer unlocks the one after it. The sequence is designed to produce measurable ROI within the first 30 days and compound from there.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <table class="impl-table">
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Layer</th>
+            <th>When</th>
+            <th>Engineering Effort</th>
+            <th>Why This Order</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="check-done">&#10003;</span> Done</td>
+            <td>Claude Code as Conductor</td>
+            <td>v1 — complete</td>
+            <td>&mdash;</td>
+            <td>Foundation. The conductor model is correct. Do not replace it with a custom framework.</td>
+          </tr>
+          <tr>
+            <td><span class="check-done">&#10003;</span> Done</td>
+            <td>Data Pipeline &rarr; CelerData KB</td>
+            <td>v1 — complete</td>
+            <td>&mdash;</td>
+            <td>Foundation. The KB backbone is correct. StarRocks as vector + full text + semantic layer.</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">1</span></td>
+            <td><strong style="color:var(--gold);">Learning Loop (feedback &rarr; KB)</strong></td>
+            <td>Week 2–4</td>
+            <td class="effort-med">Medium</td>
+            <td>Highest leverage. Every session after this one compounds. Without it, every session starts at Day 1.</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">2</span></td>
+            <td>Preflight Intelligence</td>
+            <td>Week 3–5</td>
+            <td class="effort-med">Medium</td>
+            <td>Prevents repeat errors from the first day the learning loop has data. The loop and the preflight are a pair — one writes, one reads.</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">3</span></td>
+            <td>Quality Gates (Forge)</td>
+            <td>Week 4–6</td>
+            <td class="effort-med">Medium</td>
+            <td>Catches errors before production. Especially critical for SQL generation, API specs, and configuration artifacts that touch customer systems.</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">4</span></td>
+            <td><strong style="color:var(--green);">Telemetry and Observability</strong></td>
+            <td>Week 4–6</td>
+            <td class="effort-low">Low (StarRocks!)</td>
+            <td>You already have the infrastructure. Pointing StarRocks at agent event streams is an implementation shortcut, not a new build. Do it early — the data accumulates value over time.</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">5</span></td>
+            <td>Trust Engine</td>
+            <td>Week 6–8</td>
+            <td class="effort-med">Medium</td>
+            <td>Enables safe autonomous operation. Needs telemetry data to compute meaningful scores — that is why it comes after observability is live.</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">6</span></td>
+            <td>Multi-Agent Orchestration</td>
+            <td>Week 8–12</td>
+            <td class="effort-high">High</td>
+            <td>Unlocks parallelization and scale. Needs quality gates and trust in place first — autonomous parallel agents without verification is how failures compound.</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">7</span></td>
+            <td>Context Management (Relay)</td>
+            <td>Week 10–14</td>
+            <td class="effort-med">Medium</td>
+            <td>Prevents degradation at scale. Becomes critical as sessions get longer and tasks get more complex — design it early, implement it when the simpler layers are stable.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="callout" style="margin-top:2rem;">
+        <p><strong>The 30-day milestone:</strong> Learning Loop + Preflight Intelligence live by Day 30. From that point, every session is better than the last. Repeat error rate begins its measurable decline. The system is now a learning system, not a retrieval system. That is the transition worth celebrating — and everything after it is additive.</p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="callout-green callout">
+        <p><strong>The StarRocks shortcut (Layer 4):</strong> Telemetry infrastructure that most teams spend 3–6 weeks building from scratch, you already have. StarRocks materialized views, real-time ingestion, and analytical query capabilities map directly onto agent event streams. Treat Layer 4 as a CelerData product advantage — not an engineering task to be sequenced. Ship it as soon as the event schema is defined, not after the other layers.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 6: WHAT UNLOCKS
+══════════════════════════════════════ -->
+<section class="section" id="closing">
+  <div class="stars" id="star-field-2"></div>
+  <div class="container">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 6 — The Compounding Returns</div>
+      <h2>What Unlocks When <span class="gold">You Get This Right.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Each layer produces a measurable near-term result. Taken together, they produce something that compounds: an agentic system that gets smarter every day, catches its own errors before they reach production, and handles an increasing share of routine work autonomously.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="vision-grid">
+        <div class="vision-card">
+          <div class="vision-label">SQL Optimization</div>
+          <p>"Every SQL query teaches the next query." StarRocks observing and learning from its own optimization patterns. New queries benefit from every query that ran before them. This is the native capability of your platform, directed at itself.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">Support Intelligence</div>
+          <p>"Every support ticket makes the next resolution faster." Jira, Zendesk, and PagerDuty data flows into the KB and back. Incident patterns surface before the same incident recurs. Resolution time decreases as the system accumulates case history.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">Code Review Compounding</div>
+          <p>"Every code review compounds." Patterns extracted, injected into preflight, repeat errors approach zero. The review system learns what your codebase is prone to and surfaces those patterns before they enter a pull request.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">The 80% Target</div>
+          <p>Most routine work — SQL optimization, documentation, incident triage, customer Q&A, code review — handled by agents with appropriate human oversight. Human engineers focus on architecture, novel problems, and judgment calls that require genuine expertise.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">The Enterprise Moat</div>
+          <p>"Competitors can copy features. They cannot copy 6 months of accumulated intelligence." Every customer interaction, every optimization pattern, every resolved incident deepens the system's knowledge. Generic AI tools reset to zero with every session. This does not.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">CelerData's Structural Advantage</div>
+          <p>You are not building the analytics layer to observe your agents — you already have it. The telemetry infrastructure, the vector store, the semantic layer, the real-time ingestion — all of it is StarRocks. Your competitors are building what you already own.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="section-divider"></div>
+      <p class="closing-statement">
+        "You have the foundation. You have the data platform. You have the engineering team. And now you have the 7 layers that turn a tool into a thinking partner.<br><span style="color:var(--gold);">Let's build it.</span>"
+      </p>
+    </div>
+
+    <div class="reveal reveal-delay-4" style="margin-top:2.5rem; text-align:center;">
+      <div style="font-size:0.72rem; color:var(--white-muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.5rem;">The sequence in one line</div>
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; align-items:center; font-size:0.8rem;">
+        <span class="chip chip-green">Foundation done</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-gold">1 Learning Loop</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-gold">2 Preflight</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-gold">3 Quality Gates</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-gold">4 Telemetry</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-gold">5 Trust Engine</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-gold">6 Multi-Agent</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-gold">7 Context Relay</span>
+        <span style="color:var(--white-muted);">&rarr;</span>
+        <span class="chip chip-green">Thinking Partner</span>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-5" style="margin-top:3rem; padding-top:2rem; border-top: 1px solid rgba(255,255,255,0.06); text-align:center;">
+      <div style="font-size:0.65rem; color:var(--white-muted); letter-spacing:0.12em; text-transform:uppercase;">
+        534 commits &nbsp;&middot;&nbsp; 120+ hours building &nbsp;&middot;&nbsp; Every lesson in this presentation was paid for the hard way.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<script>
+// ─── STARS ───────────────────────────────────────────────────────────────────
+function makeStars(containerId, count) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    const dur = 2 + Math.random() * 5;
+    const peak = 0.05 + Math.random() * 0.35;
+    s.style.setProperty('--dur', dur + 's');
+    s.style.setProperty('--peak', peak);
+    s.style.animationDelay = Math.random() * dur + 's';
+    c.appendChild(s);
+  }
+}
+makeStars('star-field', 80);
+makeStars('star-field-2', 60);
+
+// ─── PROGRESS BAR ────────────────────────────────────────────────────────────
+const bar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  bar.style.width = Math.min(100, pct) + '%';
+});
+
+// ─── NAV DOTS ────────────────────────────────────────────────────────────────
+const sections = ['opening', 'yourplan', 'layers', 'fullarch', 'pipeline', 'sequence', 'closing'];
+const dots = document.querySelectorAll('.nav-dot');
+
+dots.forEach((dot, i) => {
+  dot.addEventListener('click', () => {
+    const target = document.getElementById(sections[i]);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+function updateActiveDot() {
+  let current = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - window.innerHeight / 2) {
+      current = i;
+    }
+  });
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
+}
+window.addEventListener('scroll', updateActiveDot);
+updateActiveDot();
+
+// ─── KEYBOARD NAV ────────────────────────────────────────────────────────────
+let currentSection = 0;
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    currentSection = Math.min(sections.length - 1, currentSection + 1);
+    document.getElementById(sections[currentSection])?.scrollIntoView({ behavior: 'smooth' });
+    e.preventDefault();
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    currentSection = Math.max(0, currentSection - 1);
+    document.getElementById(sections[currentSection])?.scrollIntoView({ behavior: 'smooth' });
+    e.preventDefault();
+  }
+});
+window.addEventListener('scroll', () => {
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - window.innerHeight / 2) {
+      currentSection = i;
+    }
+  });
+});
+
+// ─── REVEAL ON SCROLL ────────────────────────────────────────────────────────
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+revealEls.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
