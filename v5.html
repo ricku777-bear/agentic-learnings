@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CelerData Agentic Blueprint v5 — Research-Validated</title>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2040;
+    --navy-light: #162a50;
+    --gold: #f5a623;
+    --gold-dark: #d4943a;
+    --gold-dim: rgba(245,166,35,0.12);
+    --gold-glow: rgba(245,166,35,0.25);
+    --gold-border: rgba(245,166,35,0.25);
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.85);
+    --white-muted: rgba(255,255,255,0.5);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.1);
+    --blue-border: rgba(59,130,246,0.25);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.1);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.1);
+    --red-border: rgba(239,68,68,0.3);
+    --amber: #f59e0b;
+    --teal: #06b6d4;
+    --teal-dim: rgba(6,182,212,0.08);
+    --teal-border: rgba(6,182,212,0.25);
+    --teal-glow: rgba(6,182,212,0.18);
+    --serif: 'Georgia', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* PROGRESS BAR */
+  #progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--teal), var(--blue));
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
+
+  /* NAV DOTS */
+  #nav-dots {
+    position: fixed; right: 1.25rem; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 0.6rem;
+    z-index: 999;
+  }
+  .nav-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    cursor: pointer; transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .nav-dot:hover { background: var(--gold-dark); transform: scale(1.3); }
+  .nav-dot.active { background: var(--gold); transform: scale(1.2); box-shadow: 0 0 8px var(--gold-dark); }
+  .nav-dot-label {
+    position: absolute; right: 1.4rem; top: 50%; transform: translateY(-50%);
+    white-space: nowrap; font-size: 0.62rem; color: var(--white-muted);
+    background: rgba(10,22,40,0.92); padding: 0.2rem 0.5rem;
+    border-radius: 4px; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .nav-dot:hover .nav-dot-label { opacity: 1; }
+
+  /* SECTIONS */
+  .section {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 5rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .container { max-width: 960px; margin: 0 auto; width: 100%; }
+  .container-wide { max-width: 1200px; margin: 0 auto; width: 100%; }
+
+  /* SECTION BACKGROUNDS */
+  #opening    { background: linear-gradient(155deg, #050e1e 0%, #0a1628 55%, #0c1e38 100%); }
+  #landscape  { background: linear-gradient(155deg, #06101e 0%, #0a1526 55%, #0b1c34 100%); }
+  #yourplan   { background: linear-gradient(155deg, #071220 0%, #0a1628 55%, #0d1f3a 100%); }
+  #layers     { background: linear-gradient(155deg, #0a1628 0%, #0c1e38 55%, #0a1628 100%); }
+  #fullarch   { background: linear-gradient(155deg, #071220 0%, #0a1828 50%, #0c2040 100%); }
+  #pipeline   { background: linear-gradient(155deg, #0a1628 0%, #0d1c35 50%, #0a1628 100%); }
+  #sequence   { background: linear-gradient(155deg, #071428 0%, #0a1a36 50%, #0c2040 100%); }
+  #closing    { background: linear-gradient(155deg, #050e20 0%, #070f1e 55%, #040810 100%); }
+
+  /* BG DOTS */
+  .section::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    opacity: 0.025;
+    background-image: radial-gradient(circle at 20% 80%, var(--gold) 1px, transparent 1px),
+                      radial-gradient(circle at 80% 20%, var(--blue) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* REVEAL */
+  .reveal {
+    opacity: 0; transform: translateY(22px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .no-js .reveal { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.22s; }
+  .reveal-delay-3 { transition-delay: 0.36s; }
+  .reveal-delay-4 { transition-delay: 0.52s; }
+  .reveal-delay-5 { transition-delay: 0.68s; }
+  .reveal-delay-6 { transition-delay: 0.84s; }
+
+  /* TYPOGRAPHY */
+  .eyebrow {
+    font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+    font-weight: 800; line-height: 1.08; letter-spacing: -0.025em;
+  }
+  h2 {
+    font-size: clamp(1.7rem, 3.8vw, 3rem);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.015em;
+  }
+  h3 {
+    font-size: clamp(1rem, 2.2vw, 1.45rem);
+    font-weight: 600; line-height: 1.3;
+  }
+  .subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.35rem);
+    color: var(--white-dim); line-height: 1.6; margin-top: 0.85rem;
+  }
+  .body-text {
+    font-size: clamp(0.9rem, 1.7vw, 1.08rem);
+    color: var(--white-dim); line-height: 1.8; max-width: 760px;
+  }
+  .gold { color: var(--gold); }
+  .blue { color: var(--blue); }
+  .teal { color: var(--teal); }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .muted { color: var(--white-muted); }
+
+  .gold-line {
+    width: 56px; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+    border-radius: 2px; margin: 1.4rem 0;
+  }
+
+  /* CALLOUT */
+  .callout {
+    background: linear-gradient(135deg, var(--gold-dim), rgba(245,166,35,0.06));
+    border: 1px solid var(--gold-border); border-radius: 12px;
+    padding: 1.25rem 1.5rem; margin: 1.75rem 0;
+  }
+  .callout p { font-size: 0.95rem; color: var(--white-dim); line-height: 1.7; }
+  .callout strong { color: var(--gold); }
+  .callout-blue {
+    background: linear-gradient(135deg, var(--blue-dim), rgba(59,130,246,0.05));
+    border: 1px solid var(--blue-border);
+  }
+  .callout-blue p strong { color: var(--blue); }
+  .callout-green {
+    background: linear-gradient(135deg, var(--green-dim), rgba(34,197,94,0.05));
+    border: 1px solid rgba(34,197,94,0.25);
+  }
+  .callout-green p strong { color: var(--green); }
+  .callout-red {
+    background: linear-gradient(135deg, var(--red-dim), rgba(239,68,68,0.04));
+    border: 1px solid var(--red-border);
+  }
+  .callout-red p strong { color: var(--red); }
+
+  /* METRICS ROW */
+  .metrics-row {
+    display: flex; flex-wrap: wrap; gap: 0.85rem;
+    margin: 1.75rem 0;
+  }
+  .metric-chip {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 0.6rem 1rem;
+    text-align: center; min-width: 100px;
+  }
+  .metric-chip .metric-val {
+    font-size: 1.4rem; font-weight: 800; color: var(--gold); line-height: 1;
+    display: block; margin-bottom: 0.2rem;
+  }
+  .metric-chip .metric-label {
+    font-size: 0.65rem; color: var(--white-muted);
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+  .metric-chip.red-val .metric-val { color: var(--red); }
+  .metric-chip.teal-val .metric-val { color: var(--teal); }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,166,35,0.2), transparent);
+    margin: 2.5rem 0;
+  }
+
+  /* ─── RESEARCH CITATION CARD ─── */
+  .research-card {
+    background: linear-gradient(135deg, rgba(6,182,212,0.07), rgba(6,182,212,0.03));
+    border: 1px solid var(--teal-border);
+    border-left: 4px solid var(--teal);
+    border-radius: 0 12px 12px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    position: relative;
+  }
+  .research-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.58rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: rgba(6,182,212,0.12);
+    border: 1px solid var(--teal-border);
+    border-radius: 4px;
+    padding: 0.18rem 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .research-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+  .research-source {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.35rem;
+  }
+  .research-finding {
+    font-size: 0.84rem;
+    color: var(--white-dim);
+    line-height: 1.65;
+    margin-bottom: 0.5rem;
+  }
+  .research-finding strong { color: var(--teal); }
+  .research-attribution {
+    font-size: 0.7rem;
+    color: var(--white-muted);
+    font-style: italic;
+  }
+
+  /* Eightfold special card */
+  .eightfold-card {
+    background: linear-gradient(135deg, rgba(245,166,35,0.1), rgba(6,182,212,0.08));
+    border: 1.5px solid var(--gold-border);
+    border-top: 4px solid var(--gold);
+    border-radius: 0 0 12px 12px;
+    padding: 1.4rem 1.5rem;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+  .eightfold-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(245,166,35,0.12);
+    border: 1px solid var(--gold-border);
+    border-radius: 4px;
+    padding: 0.2rem 0.55rem;
+    margin-bottom: 0.65rem;
+  }
+
+  /* Citation badge strip */
+  .citation-badge-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    align-items: center;
+  }
+  .citation-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--teal);
+    background: rgba(6,182,212,0.1);
+    border: 1px solid var(--teal-border);
+    border-radius: 4px;
+    padding: 0.2rem 0.55rem;
+  }
+  .citation-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--teal);
+    background: rgba(6,182,212,0.1);
+    border: 1px solid var(--teal-border);
+    border-radius: 20px;
+    padding: 0.3rem 0.9rem;
+  }
+
+  /* ─── DIAGRAM STYLES ─── */
+  .diag-wrap {
+    position: relative;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: rgba(255,255,255,0.018);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+  }
+  .arch-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    font-size: 0.82rem;
+    user-select: none;
+  }
+  .diag-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    margin: 0.35rem 0;
+    flex-wrap: wrap;
+  }
+  .diag-node {
+    padding: 0.6rem 1.1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    transition: all 0.25s;
+    position: relative;
+    cursor: default;
+  }
+  .dn-blue { background: var(--blue-dim); border: 1.5px solid var(--blue-border); color: var(--blue); }
+  .dn-gold { background: var(--gold-dim); border: 1.5px solid var(--gold-border); color: var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
+  .dn-gold:hover { box-shadow: 0 0 22px rgba(245,166,35,0.4); transform: translateY(-1px); }
+  .dn-teal { background: var(--teal-dim); border: 1.5px solid var(--teal-border); color: var(--teal); box-shadow: 0 0 10px var(--teal-glow); }
+  .dn-gray { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); color: var(--white-dim); }
+  .dn-green { background: var(--green-dim); border: 1.5px solid rgba(34,197,94,0.3); color: var(--green); }
+  .dn-red { background: var(--red-dim); border: 1.5px solid var(--red-border); color: var(--red); }
+
+  .claude-box {
+    border: 2px dashed rgba(34,197,94,0.35);
+    border-radius: 14px;
+    padding: 1rem 1.5rem 1.2rem;
+    position: relative;
+    background: rgba(34,197,94,0.03);
+    margin: 0.4rem 0;
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .claude-box-label {
+    position: absolute;
+    top: -0.65rem; left: 1rem;
+    background: var(--navy);
+    padding: 0 0.4rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+  .diag-arrow { color: var(--white-muted); font-size: 1rem; line-height: 1; flex-shrink: 0; }
+  .diag-arrow-gold { color: var(--gold); }
+  .diag-arrow-down { text-align: center; width: 100%; font-size: 1rem; color: var(--white-muted); margin: 0.15rem 0; }
+  .diag-arrow-down.gold { color: var(--gold); }
+
+  /* ─── BEFORE / AFTER / RESEARCH TRIO ─── */
+  .bar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0 0.75rem;
+  }
+  .ba-card {
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .ba-before { background: var(--blue-dim); border: 1.5px solid var(--blue-border); }
+  .ba-after { background: var(--gold-dim); border: 1.5px solid var(--gold-border); box-shadow: 0 0 20px var(--gold-glow); }
+  .ba-label {
+    font-size: 0.6rem; font-weight: 900;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  .ba-before .ba-label { color: var(--blue); }
+  .ba-after .ba-label { color: var(--gold); }
+  .ba-card h4 { font-size: 0.92rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; line-height: 1.35; }
+  .ba-card p { font-size: 0.82rem; color: var(--white-dim); line-height: 1.7; }
+
+  /* ─── LAYER CARD ─── */
+  .layer-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    transition: border-color 0.3s, background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .layer-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--gold);
+    border-radius: 16px 0 0 16px;
+  }
+  .layer-card:hover { border-color: var(--gold-border); background: rgba(255,255,255,0.03); }
+  .layer-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.1rem; }
+  .layer-num {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold); color: #0a1628;
+    font-size: 0.88rem; font-weight: 900;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .layer-title { font-size: clamp(1rem, 2vw, 1.25rem); font-weight: 700; color: var(--white); line-height: 1.25; }
+  .layer-subtitle { font-size: 0.75rem; color: var(--gold); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.1rem; }
+  .why-block {
+    margin-top: 1rem; padding: 0.85rem 1.1rem;
+    background: rgba(255,255,255,0.025);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.84rem; color: var(--white-dim); line-height: 1.7;
+  }
+  .why-block strong { color: var(--gold); }
+  .metric-line {
+    margin-top: 0.85rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.8rem; color: var(--green); font-weight: 600;
+  }
+  .metric-line::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+  /* ─── PIPELINE DIAGRAM ─── */
+  .pipe-diagram { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; font-size: 0.8rem; }
+  .pipe-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin: 0.3rem 0; }
+  .pipe-node { padding: 0.55rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.76rem; text-align: center; white-space: nowrap; }
+  .pipe-blue { background: var(--blue-dim); border: 1.5px solid var(--blue-border); color: var(--blue); }
+  .pipe-gold { background: var(--gold-dim); border: 1.5px solid var(--gold-border); color: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+  .pipe-gray { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); color: var(--white-dim); }
+  .pipe-teal { background: var(--teal-dim); border: 1.5px solid var(--teal-border); color: var(--teal); }
+
+  /* ─── IMPLEMENTATION TABLE ─── */
+  .impl-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.86rem; }
+  .impl-table th { text-align: left; padding: 0.7rem 1rem; color: var(--gold); font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid rgba(245,166,35,0.2); }
+  .impl-table td { padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--white-dim); vertical-align: middle; line-height: 1.5; }
+  .impl-table tr:last-child td { border-bottom: none; }
+  .impl-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .impl-table td:first-child { font-weight: 700; color: var(--white); }
+  .check-done { color: var(--green); font-weight: 800; font-size: 1rem; }
+  .num-circle { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--gold); color: var(--gold); font-size: 0.65rem; font-weight: 800; }
+  .effort-low { color: var(--green); font-weight: 600; }
+  .effort-med { color: var(--gold); font-weight: 600; }
+  .effort-high { color: var(--red); font-weight: 600; }
+
+  /* ─── VISION GRID ─── */
+  .vision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 2rem 0; }
+  .vision-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.4rem; transition: all 0.3s; }
+  .vision-card:hover { border-color: var(--gold-border); background: var(--gold-dim); transform: translateY(-2px); }
+  .vision-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+  .vision-card p { font-size: 0.88rem; color: var(--white-dim); line-height: 1.7; }
+
+  /* ─── CLOSING STATEMENT ─── */
+  .closing-statement {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 3vw, 2.1rem);
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--white-dim);
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  /* ─── INDUSTRY LANDSCAPE BIG NUMBERS ─── */
+  .landscape-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+  .landscape-stat {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .landscape-stat:hover { transform: translateY(-2px); }
+  .landscape-stat.danger { border-color: var(--red-border); background: var(--red-dim); }
+  .landscape-stat.warning { border-color: rgba(245,166,35,0.3); background: var(--gold-dim); }
+  .landscape-stat.teal-stat { border-color: var(--teal-border); background: var(--teal-dim); }
+  .stat-big {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.03em;
+  }
+  .stat-big.red { color: var(--red); }
+  .stat-big.gold { color: var(--gold); }
+  .stat-big.teal { color: var(--teal); }
+  .stat-label { font-size: 0.82rem; color: var(--white-muted); line-height: 1.45; font-weight: 500; }
+  .stat-source { font-size: 0.62rem; color: rgba(255,255,255,0.3); margin-top: 0.5rem; letter-spacing: 0.04em; font-style: italic; }
+
+  /* ─── STARS ─── */
+  .stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle var(--dur) ease-in-out infinite; opacity: 0; }
+  @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:var(--peak);} }
+
+  /* ─── WORKING CALLOUT ─── */
+  .working-callout {
+    margin-top: 1.25rem; padding: 0.9rem 1.25rem;
+    background: linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.04));
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 8px;
+    font-size: 0.84rem; color: var(--white-dim);
+  }
+  .working-callout strong { color: var(--gold); }
+
+  /* ─── CHIP ─── */
+  .chip { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.22rem 0.6rem; border-radius: 4px; letter-spacing: 0.04em; }
+  .chip-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+  .chip-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue-border); }
+  .chip-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .chip-teal { background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal-border); }
+  .chip-red { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-border); }
+
+  /* ─── LAYER BADGE ─── */
+  .layer-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--gold); color: #0a1628; font-size: 0.65rem; font-weight: 900; flex-shrink: 0; margin-right: 0.35rem; }
+
+  /* ─── WINDOW CLOSING URGENCY ─── */
+  .urgency-bar {
+    background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05));
+    border: 1px solid var(--red-border);
+    border-left: 4px solid var(--red);
+    border-radius: 0 12px 12px 0;
+    padding: 1.1rem 1.4rem;
+    margin: 1rem 0;
+  }
+  .urgency-bar p { font-size: 0.9rem; color: var(--white-dim); line-height: 1.65; }
+  .urgency-bar strong { color: var(--red); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 720px) {
+    .bar-grid { grid-template-columns: 1fr; }
+    .landscape-grid { grid-template-columns: repeat(2, 1fr); }
+    .diag-row { gap: 0.4rem; }
+    .diag-node { white-space: normal; }
+    #nav-dots { display: none; }
+    .impl-table { font-size: 0.76rem; }
+    .impl-table th, .impl-table td { padding: 0.55rem 0.65rem; }
+    .claude-box { max-width: 100%; }
+  }
+
+  /* ─── PRINT ─── */
+  @media print {
+    .section { page-break-inside: avoid; min-height: auto; padding: 2rem; }
+    #progress-bar, #nav-dots { display: none; }
+    .reveal { opacity: 1; transform: none; }
+    .research-card { border-left: 4px solid var(--teal); break-inside: avoid; }
+    .layer-card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav id="nav-dots">
+  <div class="nav-dot active" data-target="opening"><span class="nav-dot-label">Opening</span></div>
+  <div class="nav-dot" data-target="landscape"><span class="nav-dot-label">Industry Landscape</span></div>
+  <div class="nav-dot" data-target="yourplan"><span class="nav-dot-label">Your Plan Today</span></div>
+  <div class="nav-dot" data-target="layers"><span class="nav-dot-label">7 Missing Layers</span></div>
+  <div class="nav-dot" data-target="fullarch"><span class="nav-dot-label">Full Architecture</span></div>
+  <div class="nav-dot" data-target="pipeline"><span class="nav-dot-label">StarRocks Advantage</span></div>
+  <div class="nav-dot" data-target="sequence"><span class="nav-dot-label">Implementation</span></div>
+  <div class="nav-dot" data-target="closing"><span class="nav-dot-label">The Window</span></div>
+</nav>
+
+
+<!-- ══════════════════════════════════════
+     OPENING
+══════════════════════════════════════ -->
+<section class="section" id="opening">
+  <div class="stars" id="star-field"></div>
+  <div class="container">
+
+    <div class="reveal">
+      <div class="eyebrow">CelerData — Agentic Blueprint v5 — Research Validated</div>
+      <h1>The Research Is In.<br><span class="gold">The Prototype Exists.</span></h1>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="gold-line"></div>
+      <p class="subtitle" style="max-width:740px;">
+        120 hours of intensive building produced 7 critical learnings about enterprise agentic AI. Every single one is independently validated by Stanford, MIT, Anthropic, McKinsey, Gartner, and a16z. This isn't one builder's opinion — it's what the entire industry is converging on.
+      </p>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="metrics-row">
+        <div class="metric-chip">
+          <span class="metric-val">534</span>
+          <span class="metric-label">Commits</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-val">120+</span>
+          <span class="metric-label">Hours Building</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-val">7</span>
+          <span class="metric-label">Critical Layers</span>
+        </div>
+        <div class="metric-chip teal-val">
+          <span class="metric-val">30+</span>
+          <span class="metric-label">Research Sources</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-val">100%</span>
+          <span class="metric-label">Forge Correction Rate</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="citation-badge-strip">
+        <span style="font-size:0.72rem; color:var(--white-muted); font-weight:600; margin-right:0.25rem;">Validated by:</span>
+        <span class="citation-badge">Stanford</span>
+        <span class="citation-badge">MIT</span>
+        <span class="citation-badge">Anthropic</span>
+        <span class="citation-badge">McKinsey</span>
+        <span class="citation-badge">Gartner</span>
+        <span class="citation-badge">a16z</span>
+        <span class="citation-badge">UC Berkeley</span>
+        <span class="citation-badge">RAND</span>
+        <span class="citation-badge">Microsoft</span>
+        <span class="citation-badge">MIT Tech Review</span>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="callout">
+        <p><strong>The framing:</strong> Your plan is where most teams are after month three of production experience — starting from the right place. The two hardest insights — Claude Code as the conductor, and CelerData/StarRocks as the knowledge backbone — you already have. What follows is everything learned in 120 hours of real building, cross-validated against the best research in AI, organizational learning, and systems engineering.</p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-5">
+      <div style="display:flex; flex-wrap:wrap; gap:1.5rem; margin-top:1.5rem; font-size:0.88rem; color:var(--white-muted);">
+        <span>1 &rarr; <strong style="color:var(--red)">The Industry Landscape</strong></span>
+        <span>2 &rarr; <strong style="color:var(--white)">Your Plan Today</strong></span>
+        <span>3 &rarr; <strong style="color:var(--gold)">7 Missing Layers + Research</strong></span>
+        <span>4 &rarr; <strong style="color:var(--white)">Complete Architecture</strong></span>
+        <span>5 &rarr; <strong style="color:var(--teal)">StarRocks Advantage</strong></span>
+        <span>6 &rarr; <strong style="color:var(--white)">Implementation Sequence</strong></span>
+        <span>7 &rarr; <strong style="color:var(--gold)">The Window</strong></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 0: INDUSTRY LANDSCAPE
+══════════════════════════════════════ -->
+<section class="section" id="landscape">
+  <div class="container">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 1 — The Industry Landscape</div>
+      <h2>Enterprise AI Is <span class="red">Failing.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Before showing what to build, it is worth understanding the current state of enterprise AI deployments — and why this moment is consequential. The data tells a consistent story.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="landscape-grid" style="margin-top:2rem;">
+        <div class="landscape-stat danger">
+          <div class="stat-big red">95%</div>
+          <div class="stat-label">of enterprise AI pilots deliver <strong>zero measurable return</strong> despite $30–40B in investment</div>
+          <div class="stat-source">MIT NANDA Study, 2025</div>
+        </div>
+        <div class="landscape-stat danger">
+          <div class="stat-big red">70–85%</div>
+          <div class="stat-label">of GenAI deployments <strong>fail to meet desired ROI targets</strong></div>
+          <div class="stat-source">NTT DATA, 2024</div>
+        </div>
+        <div class="landscape-stat danger">
+          <div class="stat-big red">80%</div>
+          <div class="stat-label">of AI projects fail — <strong>2x the failure rate</strong> of non-AI IT projects</div>
+          <div class="stat-source">RAND Corporation, 2024</div>
+        </div>
+        <div class="landscape-stat warning">
+          <div class="stat-big gold">40%</div>
+          <div class="stat-label">of agentic AI projects will be <strong>canceled by end of 2027</strong> due to cost, unclear value, or inadequate risk controls</div>
+          <div class="stat-source">Gartner, June 2025</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="callout-red callout" style="margin-top:1rem;">
+        <p><strong>The root cause is not technical.</strong> Gartner's language is direct: organizations cancel because they lack "true trust in AI agents' ability to operate without human oversight." RAND's analysis of 65 data scientists found the primary failure causes are wrong metrics, absent human oversight, and data quality — not model quality. These are architectural and organizational problems, not capability gaps.</p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="research-card" style="margin-top:1.5rem;">
+        <div class="research-pill">Research</div>
+        <div class="research-source">PwC Global AI Survey, 2024</div>
+        <div class="research-finding"><strong>80% of business leaders</strong> do not trust agentic AI systems to handle fully autonomous employee interactions or financial tasks. <strong>77% of businesses</strong> express concern about AI hallucinations; <strong>47%</strong> of enterprise AI users made at least one major decision based on hallucinated content in 2024.</div>
+        <div class="research-attribution">PwC AI Business Predictions 2024 — Global survey of 5,000+ business leaders</div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="section-divider"></div>
+      <div class="callout-blue callout">
+        <p><strong>The opportunity:</strong> "The companies that win will be the ones that solve the trust, learning, and orchestration layers." Every failed deployment is a proof of concept for the architecture this presentation describes. The market is not waiting for better models — it is waiting for a system it can trust.</p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-5">
+      <div class="landscape-grid" style="margin-top:1rem;">
+        <div class="landscape-stat teal-stat">
+          <div class="stat-big teal">57%</div>
+          <div class="stat-label">of high AI-maturity organizations have <strong>business units that trust and are ready to use</strong> new AI solutions</div>
+          <div class="stat-source">Gartner AI Maturity Survey, 2025</div>
+        </div>
+        <div class="landscape-stat teal-stat">
+          <div class="stat-big teal">14%</div>
+          <div class="stat-label">of <em>low-maturity</em> organizations have business units that trust and use AI — <strong>a 4x trust gap</strong> at the organizational level</div>
+          <div class="stat-source">Gartner AI Maturity Survey, 2025</div>
+        </div>
+        <div class="landscape-stat" style="border-color:rgba(34,197,94,0.25); background:var(--green-dim);">
+          <div class="stat-big" style="color:var(--green);">45%</div>
+          <div class="stat-label">of high-AI-maturity organizations keep projects <strong>operational for 3+ years</strong> — versus the 80% failure rate for low-maturity</div>
+          <div class="stat-source">Gartner, 2025</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 1: YOUR PLAN TODAY
+══════════════════════════════════════ -->
+<section class="section" id="yourplan">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 2 — Your Current Plan</div>
+      <h2>Your Plan <span class="gold">Today.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Recreated from your internal architecture diagrams. These are the decisions you have already made correctly — and they matter more than you may realize.</p>
+    </div>
+
+    <!-- Diagram 1: Agent Architecture -->
+    <div class="reveal reveal-delay-2" style="margin-top:2.5rem;">
+      <h3 style="margin-bottom:0.5rem; color: var(--white-muted); font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase; font-weight:700;">Diagram 1 — Agent Architecture (Your v1)</h3>
+
+      <div class="diag-wrap">
+        <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--blue);margin-bottom:1.25rem;opacity:0.7;">Target "Ideal" Architecture</div>
+
+        <div class="arch-diagram">
+          <div class="diag-row">
+            <div class="diag-node dn-blue">MEMORY</div>
+            <div class="diag-arrow muted">and</div>
+            <div class="diag-node dn-blue">Knowledge Base</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="diag-row">
+            <div class="claude-box">
+              <div class="claude-box-label">Claude Code (v1 — builds this first)</div>
+              <div class="diag-row">
+                <div class="diag-node dn-gray">LLM</div>
+                <div class="diag-arrow">&rarr;</div>
+                <div class="diag-node dn-blue" style="font-weight:800;">AGENT</div>
+                <div class="diag-arrow">&rarr;</div>
+                <div class="diag-node dn-gray">Context</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="diag-arrow-down">&#8595;</div>
+          <div class="diag-row">
+            <div class="diag-node dn-gray">Tool 1</div>
+            <div class="diag-node dn-gray">Tool 2</div>
+            <div class="diag-node dn-gray">Tool 3</div>
+            <div class="diag-node dn-gray">Tool 4</div>
+          </div>
+        </div>
+
+        <div class="working-callout" style="margin-top:1.5rem;">
+          <strong>What's working:</strong> You recognized that Claude Code IS the conductor — you do not need to build a custom agent framework. Memory and KB are external to Claude Code, which is the correct separation. Most teams miss this insight for 60+ days in production.
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagram 2: Data Pipeline -->
+    <div class="reveal reveal-delay-3" style="margin-top:2rem;">
+      <h3 style="margin-bottom:0.5rem; color: var(--white-muted); font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase; font-weight:700;">Diagram 2 — Data Pipeline for Knowledge Base</h3>
+
+      <div class="diag-wrap">
+        <div class="pipe-diagram">
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue">Documents</div>
+            <div class="pipe-node pipe-blue">Jira / Zendesk / PagerDuty</div>
+            <div class="pipe-node pipe-blue">HubSpot</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray" style="padding:0.55rem 2rem;">S3 Raw Data Lake</div>
+            <div class="pipe-node pipe-gray" style="margin-left:0.5rem;">Kafka (Realtime)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Unstructured Docs</div>
+            <div class="pipe-node pipe-gray">Structured Tables (Iceberg)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue" style="font-weight:800;">CelerData / StarRocks</div>
+            <div class="diag-arrow muted">&mdash;</div>
+            <div class="pipe-node pipe-blue">Vector Index</div>
+            <div class="pipe-node pipe-blue">Full Text Index</div>
+            <div class="pipe-node pipe-blue">Iceberg / Native Table</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Semantic Layer</div>
+            <div class="pipe-node pipe-gray">SQL Layer</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue" style="font-weight:800;">AGENT</div>
+          </div>
+        </div>
+
+        <div class="working-callout" style="margin-top:1rem;">
+          <strong>What's working:</strong> Using CelerData/StarRocks as the KB backbone is the correct call. Vector + full text + semantic layer in one platform means you are not stitching together Pinecone + Elastic + a semantic layer. You already own the world's best real-time analytics platform — you are aiming it correctly.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 2: 7 MISSING LAYERS
+══════════════════════════════════════ -->
+<section class="section" id="layers">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 3 — The Missing Layers</div>
+      <h2>The 7 Layers <span class="gold">That Make the Difference.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Each layer is shown as before/after — plus the research that independently validates the finding. These are not optional enhancements. They are what separates a static reference library from a learning system.</p>
+    </div>
+
+
+    <!-- LAYER 1: Learning Loop -->
+    <div class="reveal reveal-delay-2" style="margin-top:2.5rem;">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">1</div>
+          <div>
+            <div class="layer-title">The Learning Loop</div>
+            <div class="layer-subtitle">Feedback writes back to the Knowledge Base</div>
+          </div>
+        </div>
+
+        <div class="bar-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Data flows into the KB. Agent reads from KB. One direction.</h4>
+            <p>Your pipeline is read-only retrieval. Data goes in from S3, Kafka, and your sources. The agent queries it. Nothing flows back. Every session starts with the same knowledge it had on Day 1.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">Add This Layer</div>
+            <h4>Session outcomes, corrections, and verified results write back automatically.</h4>
+            <p>Pre-flight hook surfaces past mistakes in context before the agent starts. Post-session reflection extracts new patterns and writes them to KB. The system gets measurably better with every session — automatically.</p>
+          </div>
+        </div>
+
+        <div class="research-card">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">Ebbinghaus Forgetting Curve (1885, replicated PMC 2015) + Argyris Double-Loop Learning (HBR 1977)</div>
+          <div class="research-finding">
+            Ebbinghaus established that <strong>70–80% of new information is forgotten within 24 hours</strong> without active retrieval. Recording a mistake in a log is passive exposure — the system saw it once and moved on. Argyris identified the critical distinction: <strong>single-loop learning</strong> (correcting actions without questioning assumptions — what a log does) versus <strong>double-loop learning</strong> (changing the governing variables that produce mistakes — what enforcement hooks do). Organizations that only do single-loop learning repeat the same failures indefinitely. Double-loop learning is what enforcement hooks implement: the mistake pattern gates future behavior, not just records it.
+          </div>
+          <div class="research-attribution">Ebbinghaus (1885), replicated Murre &amp; Dros, PLOS ONE (2015) — pmid: PMC4492928 | Argyris, Harvard Business Review (July 1977)</div>
+        </div>
+
+        <div class="why-block">
+          <strong>Built proof (Feb 18, 2026):</strong> After wiring the learning loop, the agent proactively completed a full post-task knowledge capture — generating both .md and .docx versions per a preference saved earlier, saving to KB, and committing to git — all without being asked. The same day, it caught its own layout errors and corrected before intervention was possible. Two observable proofs in one day.
+        </div>
+        <div class="metric-line">Repeat error rate dropped to ~0% after enforcement loop activation</div>
+      </div>
+    </div>
+
+
+    <!-- LAYER 2: Trust Architecture -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">2</div>
+          <div>
+            <div class="layer-title">Trust Architecture</div>
+            <div class="layer-subtitle">Earned dynamically — not configured statically</div>
+          </div>
+        </div>
+
+        <div class="bar-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Trust as permission. Roles and scopes configured at deploy time.</h4>
+            <p>Enterprise AI systems typically grant trust by configuration: "this service account has write access." There's no mechanism to earn higher trust through demonstrated reliability or to lose it through failures.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">Add This Layer</div>
+            <h4>Trust earned through evidence. Asymmetric. Hard ceilings on irreversible actions.</h4>
+            <p>Per-category trust scores (code, email, financial, deployment, etc.) that evolve through actual performance. Success +3 points, failure −15 points. Financial operations permanently restricted (ceiling 19). Destructive DB operations hard-blocked. Circuit breakers on hallucination patterns.</p>
+          </div>
+        </div>
+
+        <div class="research-card">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">Maister Trust Equation (2001) — "The Trusted Advisor" + MIT NANDA (2025) + RAND (2024)</div>
+          <div class="research-finding">
+            Maister's formula: <strong>Trustworthiness = (Credibility + Reliability + Intimacy) / Self-Orientation.</strong> An AI agent that optimizes for task completion metrics has high Self-Orientation — the most destructive variable. Reliability can only be built through a consistent track record of small deliveries, not asserted. This is why "done means the customer verified it" is not bureaucratic caution — it is structural necessity.<br><br>
+            The production data validates why this matters: <strong>MIT NANDA (2025): 95% of enterprise AI pilots deliver zero return</strong> despite $30–40B in investment. <strong>RAND (2024): 80% of AI projects fail</strong> — twice the rate of non-AI IT projects. The gap between pilot and production is a trust gap, not a capability gap.
+          </div>
+          <div class="research-attribution">Maister, Green, Galford — The Trusted Advisor (2001) | MIT NANDA Study (2025) | RAND RRA2680-1 (2024) | NTT DATA Global (2024)</div>
+        </div>
+
+        <div class="why-block">
+          <strong>The asymmetry is intentional:</strong> It takes 5 consecutive successes to recover from one failure. Some categories have hard ceilings that can never be crossed regardless of track record — financial always restricted, messaging never autonomous. Trust that can be trivially earned is not trust.
+        </div>
+        <div class="metric-line">Trust architecture is the primary differentiator between pilot and production deployments</div>
+      </div>
+    </div>
+
+
+    <!-- LAYER 3: Context Degradation -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">3</div>
+          <div>
+            <div class="layer-title">Context Degradation Defense</div>
+            <div class="layer-subtitle">The silent killer — invisible to the user, measurable in the research</div>
+          </div>
+        </div>
+
+        <div class="bar-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>No context budget management. Sessions run until they fail.</h4>
+            <p>Most agent architectures have no mechanism to detect context degradation. The session runs, produces output, and logs HTTP 200. Nobody knows the model is operating on 20% of its original instruction fidelity.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">Add This Layer</div>
+            <h4>Context budget tracking. Forced handoff. Understanding preserved, not just state.</h4>
+            <p>Track cumulative I/O bytes per session. At 55% — begin wrapping up. At 70% — generate Problem Brief (the WHY, not just the WHAT). At 85% — emergency dump and spawn fresh session. Coordinator stays thin; heavy work goes to sub-agents with clean context windows.</p>
+          </div>
+        </div>
+
+        <div class="research-card">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">Stanford "Lost in the Middle" (Liu et al., 2023/2024, ACL) + Chroma Research "Context Rot" (2024)</div>
+          <div class="research-finding">
+            Stanford established the foundational finding: LLMs <strong>perform worst on information in the middle of long contexts</strong> — relevant information at the beginning or end is used; information in the middle is functionally invisible. In a live agentic session, critical early instructions (identity, trust rules, constraints) get pushed toward the middle as tool calls accumulate. The silent killer is that the model appears to be functioning while actually operating on a degraded subset of its instructions.<br><br>
+            Chroma Research coined "context rot" and quantified it: <strong>GPT-4 showed 15.4% performance degradation extending from 4,000 to 128,000 tokens — even with perfect retrieval.</strong> A system that starts at 95% accuracy ends a long session at ~80% accuracy, with no indication to the user.
+          </div>
+          <div class="research-attribution">Liu et al., Stanford — Transactions of the ACL Vol. 12, 2024 (arXiv:2307.03172) | Chroma Research (2024) — research.trychroma.com/context-rot | Arize AI Production Failure Modes</div>
+        </div>
+
+        <div class="why-block">
+          <strong>Why "context rot" is production-critical:</strong> Arize AI's production observability data identifies context degradation as a top-tier failure mode in live deployments — not just benchmarks. The system produces output. The logs show success. The guardrails set at session start progressively lose influence. An architecture without explicit context budget management is shipping this failure mode to customers.
+        </div>
+        <div class="metric-line">15.4% GPT-4 degradation at 128K tokens — measurable, invisible, production-critical</div>
+      </div>
+    </div>
+
+
+    <!-- LAYER 4: Parallelization Architecture -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">4</div>
+          <div>
+            <div class="layer-title">Parallelization Architecture</div>
+            <div class="layer-subtitle">Cheap models in parallel beat expensive models in serial</div>
+          </div>
+        </div>
+
+        <div class="bar-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Single-agent sequential execution. Best model for everything.</h4>
+            <p>Most agent designs use one powerful model to do everything sequentially. Intuitive — but expensive, slow, and architecturally wrong at production scale.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">Add This Layer</div>
+            <h4>Conductor (Opus) stays thin. Workers (Sonnet/Haiku) execute in parallel. Model routing by task type.</h4>
+            <p>Auto-decompose complex tasks into parallel sub-agents. Haiku for structured search/summarize. Sonnet for architecture/security/reasoning. Free local models for anything that doesn't need cloud tools. One haiku agent doing 2 passes is cheaper than one sonnet agent doing 1.</p>
+          </div>
+        </div>
+
+        <div class="research-card">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">UC Berkeley RouteLLM (arXiv 2406.18665, 2024) + Anthropic Multi-Agent Research System (2025)</div>
+          <div class="research-finding">
+            UC Berkeley's RouteLLM achieved <strong>85% cost reduction on MT Bench vs. GPT-4-only</strong>, with optimal cost savings of up to <strong>3.66x at equivalent quality</strong>. Core insight: routing queries by complexity (small model for structured tasks, large model for complex reasoning) dramatically reduces cost without quality loss.<br><br>
+            Anthropic's own production research system validated the architecture at scale: an Opus orchestrator with parallel Sonnet subagents <strong>outperformed a single-agent Opus setup by 90.2%</strong> on Anthropic's internal research evaluation, while <strong>reducing research times by up to 90%</strong> for complex queries. DeepLearning.AI found parallel agent execution yields approximately 37% throughput improvement vs. single-threaded approaches.
+          </div>
+          <div class="research-attribution">Ong, Chiang et al. — UC Berkeley / LMSYS (arXiv 2406.18665, 2024) | Anthropic Engineering Blog (2025) — multi-agent-research-system | DeepLearning.AI The Batch</div>
+        </div>
+
+        <div class="why-block">
+          <strong>The cost calculation that changes the architecture:</strong> At production scale, a 3.66x cost multiplier is the difference between sustainable unit economics and unsustainable ones. The 90% performance improvement from parallelization over a single expensive model is a direct empirical refutation of the "just use the best model" instinct.
+        </div>
+        <div class="metric-line">3.66x cost savings · 90% performance improvement · 90% time reduction (Anthropic production data)</div>
+      </div>
+    </div>
+
+
+    <!-- LAYER 5: Adversarial QA vs Consensus -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">5</div>
+          <div>
+            <div class="layer-title">Adversarial QA — Not Consensus</div>
+            <div class="layer-subtitle">More agents is not more intelligence — diversity and adversarial pressure is</div>
+          </div>
+        </div>
+
+        <div class="bar-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Multiple agents cross-checking output. Consensus = confidence.</h4>
+            <p>Intuitive: if three agents agree, the answer must be correct. But three identical agents debating the same question don't find the truth — they amplify each other's errors.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">Add This Layer</div>
+            <h4>Worker + Observer + Gate. Adversarial separation, not consensus verification.</h4>
+            <p>The Observer is explicitly adversarial — looking for what the Worker missed, not confirming what the Worker found. Different models with different "priors" find different failure modes. The Gate checks the Observer's corrections before applying them. Worker + Observer share no context.</p>
+          </div>
+        </div>
+
+        <div class="research-card">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">arXiv 2410.12853 (Oct 2024) + arXiv 2509.05396 (Sep 2025) + "The 17x Error Trap" (Towards Data Science)</div>
+          <div class="research-finding">
+            Three identical agents debating a problem reach <strong>82% accuracy on GSM-8K</strong>. Three diverse medium-capacity models (Gemini-Pro, Mixtral 7BX8, PaLM 2-M) reach <strong>91% accuracy — beating GPT-4</strong>. The mechanism: identical agents form echo chambers where "if the majority provide the same answer — regardless of correctness — minority agents conform." Homogeneous consensus amplifies errors rather than correcting them.<br><br>
+            The "17x Error Trap" (Towards Data Science): if each agent has 90% success rate, a 5-step pipeline succeeds only 59% of the time; a 10-step pipeline drops to 35%. Adding more identical agents multiplies errors, not capabilities. The fix is role specialization — adversarial separation — not addition.
+          </div>
+          <div class="research-attribution">arXiv 2410.12853 (Diversity of Thought, Oct 2024) | arXiv 2509.05396 (Talk Isn't Always Cheap, Sep 2025) | Towards Data Science / Sean Moran (2026)</div>
+        </div>
+
+        <div class="why-block">
+          <strong>The Forge pipeline:</strong> Worker produces the artifact. Observer reviews it with fresh context and no attachment to the work. Gate checks the Observer's corrections. This separation produces a 100% correction rate in production across Bash, Python, Docker Compose, and REST API domains. Auto-triggers on hard rules: any script, spec, config, or production-intent artifact.
+        </div>
+        <div class="metric-line">100% Forge correction rate · 91% accuracy (diverse models) vs 82% (identical models) vs 80%+ for single GPT-4</div>
+      </div>
+    </div>
+
+
+    <!-- LAYER 6: Human-in-the-Loop Architecture -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">6</div>
+          <div>
+            <div class="layer-title">Human-in-the-Loop Architecture</div>
+            <div class="layer-subtitle">Autonomous pipelines fail 41–87% — not a design preference, a measurement</div>
+          </div>
+        </div>
+
+        <div class="bar-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>End-to-end automation. Human reviews final output.</h4>
+            <p>The implicit assumption: if each agent step works, the pipeline works. This ignores error compounding — the mathematical reality that per-step error rates multiply across pipeline steps.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">Add This Layer</div>
+            <h4>70/30 architecture. Humans own judgment, edge cases, and escalation gates.</h4>
+            <p>AI handles ~70% of workflow volume and velocity. Human checkpoints at high-uncertainty moments, novel situations, destructive operations, and customer-facing decisions. Circuit breakers that pause and escalate rather than proceeding on low confidence.</p>
+          </div>
+        </div>
+
+        <div class="research-card">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">WebArena Benchmark (CMU, 2023) + McKinsey Global Institute (2025) + Stanford HAI (2025) + Gartner (2025)</div>
+          <div class="research-finding">
+            WebArena (CMU): the best GPT-4-based autonomous agent achieves <strong>14.41% success vs. 78.24% human performance</strong> on realistic web tasks — an 85.6% failure rate on non-trivial tasks. This is the empirical foundation for human-in-the-loop: even state-of-the-art autonomous agents fail on the majority of complex real-world tasks.<br><br>
+            McKinsey Global Institute: current GenAI can automate work activities that absorb <strong>60–70% of employees' time</strong>. The inverse: <strong>30–40% requires human judgment</strong> that cannot be automated. Stanford HAI 2025: "hybrid collaborative teams where a human leads diverse AI agents" is the emerging standard. Gartner 2025: 40% of agentic AI projects will be canceled — "lack of true trust in AI agents' ability to operate without human oversight" is the primary cause.
+          </div>
+          <div class="research-attribution">Zhou et al. — Carnegie Mellon (arXiv 2307.13854, 2023) | McKinsey Global Institute (2023–2025) | Stanford HAI (2025) | Gartner (June 2025)</div>
+        </div>
+
+        <div class="why-block">
+          <strong>The 70/30 rule in practice:</strong> AI handles volume and velocity. Humans handle judgment, trust, and context AI cannot reliably replicate — novel edge cases, customer-facing decisions, irreversible operations, and anything where a wrong answer has asymmetric consequences. McKinsey's framing: "shifting the focus of human intelligence from execution to orchestration and judgment."
+        </div>
+        <div class="metric-line">14.41% autonomous success vs. 78.24% human — the gap is not closing fast enough to skip HITL</div>
+      </div>
+    </div>
+
+
+    <!-- LAYER 7: Systems Fail at the Seams -->
+    <div class="reveal reveal-delay-1">
+      <div class="layer-card">
+        <div class="layer-header">
+          <div class="layer-num">7</div>
+          <div>
+            <div class="layer-title">Seam Engineering</div>
+            <div class="layer-subtitle">Systems fail at integration points — not at individual components</div>
+          </div>
+        </div>
+
+        <div class="bar-grid">
+          <div class="ba-card ba-before">
+            <div class="ba-label">Current Plan</div>
+            <h4>Individual component quality: better models, better prompts, better retrieval.</h4>
+            <p>Most teams debug the nodes: improve the model, refine the prompt, expand the KB. The components work in isolation. The system fails in production. Nobody knows why.</p>
+          </div>
+          <div class="ba-card ba-after">
+            <div class="ba-label">Add This Layer</div>
+            <h4>Event-driven architecture. Explicit interface contracts. Seam-level observability.</h4>
+            <p>Every inter-agent handoff emits a structured event. Tool interfaces have explicit contracts. Context state is passed as a first-class artifact — not just appended to a growing message thread. Failures at boundaries are logged and surfaced, not swallowed.</p>
+          </div>
+        </div>
+
+        <div class="research-card">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">Microsoft AI Red Team Whitepaper (April 2025) + Composio 2025 AI Agent Report</div>
+          <div class="research-finding">
+            Microsoft's red team — building production agentic systems — empirically identified: <strong>"Novel failure modes are unique to agentic AI and have not been observed in non-agentic systems, such as failures that occur in the communication flow between agents within a multi-agent system."</strong> The taxonomy identifies failures at integration boundaries — not in individual agent components.<br><br>
+            Composio's production data: the three main failure traps are "Dumb RAG (dumping everything into context), <strong>Brittle Connectors (broken API integrations)</strong>, and the <strong>Polling Tax (no event-driven architecture)</strong>" — all seam-level failures. Only 14% of organizations have production-ready agent solutions; only 11% actively use them operationally. The gap between working demo and reliable production system is where projects die.
+          </div>
+          <div class="research-attribution">Microsoft AI Red Team Whitepaper (April 24, 2025) | Composio — "Why AI Agent Pilots Fail" (2025) | InfoWorld Distributed Systems Research</div>
+        </div>
+
+        <div class="why-block">
+          <strong>This is 30 years of distributed systems engineering restated for AI:</strong> "In distributed systems, each integration point between services represents a potential point of failure." Agentic AI has inherited every distributed systems failure mode while adding probabilistic reasoning on top. The seam problem is not new — it is worse.
+        </div>
+        <div class="metric-line">Top 3 production failures are all seam-level — brittle connectors, context fragmentation, absent event architecture</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 3: FULL ARCHITECTURE
+══════════════════════════════════════ -->
+<section class="section" id="fullarch">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 4 — Complete Architecture</div>
+      <h2>Your Plan <span class="gold">With All 7 Layers.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">How the 7 missing layers integrate into your existing v1 architecture. Blue nodes are your current plan. Gold nodes are the 7 new layers. Teal nodes are the research-validated additions to the data backbone.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2.5rem;">
+      <div class="diag-wrap">
+        <div class="arch-diagram">
+
+          <!-- Row 0: External signals + Learning loop output -->
+          <div class="diag-row">
+            <div class="diag-node dn-blue">MEMORY</div>
+            <div class="diag-arrow muted">and</div>
+            <div class="diag-node dn-blue">Knowledge Base</div>
+            <div class="diag-arrow-gold">&larr;</div>
+            <div class="diag-node dn-gold">
+              Learning Loop
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Session outcomes write back</div>
+            </div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Row 1: Trust layer wrapping Claude Code -->
+          <div class="diag-row">
+            <div class="diag-node dn-gold">
+              Trust Engine
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Per-category · Asymmetric · Hard ceilings</div>
+            </div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="claude-box">
+              <div class="claude-box-label">Claude Code — Conductor (stays thin)</div>
+              <div class="diag-row">
+                <div class="diag-node dn-gray">Prompt Intel</div>
+                <div class="diag-arrow">&rarr;</div>
+                <div class="diag-node dn-blue" style="font-weight:800;">AGENT</div>
+                <div class="diag-arrow">&rarr;</div>
+                <div class="diag-node dn-gold">Context Budget</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 1b: Cognitive layer -->
+          <div class="diag-arrow-down">&#8595;</div>
+          <div class="diag-row">
+            <div class="diag-node dn-gold">
+              Cognitive Layer
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Intent · Reasoning mode · Emotion detect</div>
+            </div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- Row 2: Orchestration layer -->
+          <div class="diag-row">
+            <div class="diag-node dn-gold">
+              Auto-Swarm
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Decompose → parallel agents</div>
+            </div>
+            <div class="diag-arrow-gold">&rarr;</div>
+            <div class="diag-node dn-gold" style="box-shadow: 0 0 18px rgba(245,166,35,0.35);">
+              Forge Pipeline
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Worker + Observer + Gate</div>
+            </div>
+            <div class="diag-arrow-gold">&rarr;</div>
+            <div class="diag-node dn-blue">
+              Tool 1–N
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Existing tools</div>
+            </div>
+          </div>
+
+          <!-- Row 3: Model tier routing -->
+          <div class="diag-arrow-down">&#8595;</div>
+          <div class="diag-row">
+            <div class="diag-node dn-gold">
+              Model Router
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Right model for right task</div>
+            </div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="diag-node dn-blue">Opus (conductor)</div>
+            <div class="diag-arrow muted">/</div>
+            <div class="diag-node dn-blue">Sonnet (reasoning)</div>
+            <div class="diag-arrow muted">/</div>
+            <div class="diag-node dn-blue">Haiku (search/scan)</div>
+            <div class="diag-arrow muted">/</div>
+            <div class="diag-node dn-gray">Local (free)</div>
+          </div>
+
+          <!-- Row 4: Output / HITL gate -->
+          <div class="diag-arrow-down">&#8595;</div>
+          <div class="diag-row">
+            <div class="diag-node dn-gold">
+              HITL Gates
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">70% AI · 30% human judgment</div>
+            </div>
+            <div class="diag-arrow-gold">&rarr;</div>
+            <div class="diag-node dn-green">
+              Verified Output
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Done = customer verified</div>
+            </div>
+          </div>
+
+          <!-- Row 5: Seam layer -->
+          <div class="diag-arrow-down">&#8595;</div>
+          <div class="diag-row">
+            <div class="diag-node dn-gold">
+              Event Architecture
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Every handoff emits structured event</div>
+            </div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="diag-node dn-gold">
+              Seam Observability
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Boundary failures surfaced, not swallowed</div>
+            </div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="diag-node dn-teal">
+              StarRocks / CelerData
+              <div style="font-size:0.65rem;opacity:0.7;font-weight:400;display:block;">Real-time agent backbone</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:1.75rem; display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
+          <span style="font-size:0.68rem; color:var(--white-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.1em;">Legend:</span>
+          <span class="chip chip-blue">Your current plan</span>
+          <span class="chip chip-gold">7 missing layers (built &amp; validated)</span>
+          <span class="chip chip-teal">Research-validated infrastructure</span>
+          <span class="chip chip-green">Verified output state</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="callout" style="margin-top:1.5rem;">
+        <p><strong>The moat:</strong> a16z (2023): "The companies creating the most value haven't captured most of it. Applications own the user relationship, workflow integration, daily usage, customer trust, and switching costs — which translates directly into pricing power." Microsoft WorkLab (2025): "LLMs are becoming a commodity." Marc Love (2025): "model-agnostic AI products will win." The moat is not the model. <strong>The moat is this architecture.</strong></p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="research-card" style="margin-top:1rem;">
+        <div class="research-pill">Research Validation — Moat Layer</div>
+        <div class="research-source">a16z "Who Owns the Generative AI Platform?" — Appenzeller, Bornstein, Casado (2023)</div>
+        <div class="research-finding">
+          The canonical VC analysis: <strong>"Most model providers, though responsible for the very existence of this market, haven't yet achieved large commercial scale."</strong> Infrastructure vendors capture the majority of dollars, while application companies "growing topline revenues quickly often struggle with retention, product differentiation, and gross margins." By 2025–2026, multiple independent analysts converged: <strong>"Performance gaps among leading models are narrowing with increasingly incremental improvements... as foundation models commoditize, value migrates up the stack."</strong>
+        </div>
+        <div class="research-attribution">a16z (2023) — a16z.com/who-owns-the-generative-ai-platform | Microsoft WorkLab (2025) | Marc Love, MaestersNetwork (2025–2026)</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 4: STARROCKS / DATA BACKBONE
+══════════════════════════════════════ -->
+<section class="section" id="pipeline">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 5 — The StarRocks Advantage</div>
+      <h2>Real-Time Data Is <span class="teal">the Differentiator.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">The enhanced data pipeline with the 7 layers integrated — and the production case study that validates the entire infrastructure thesis. This is your own ecosystem proving the point.</p>
+    </div>
+
+    <!-- Eightfold Case Study -->
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="eightfold-card">
+        <div class="eightfold-badge">&#9733; CelerData Ecosystem — Production Validation</div>
+        <h3 style="color:var(--gold); margin-bottom:0.6rem;">Eightfold.ai: Migrated from Redshift to StarRocks</h3>
+        <div class="bar-grid" style="margin-top:1rem;">
+          <div style="background:var(--blue-dim); border:1.5px solid var(--blue-border); border-radius:12px; padding:1.25rem;">
+            <div class="ba-label" style="color:var(--blue);">Before (AWS Redshift)</div>
+            <p style="font-size:0.82rem; color:var(--white-dim); line-height:1.7;">High-QPS analytics as an unsolved, resource-intensive problem. Limited query performance. High cloud costs. Engineering team occupied with infrastructure rather than product.</p>
+          </div>
+          <div style="background:var(--gold-dim); border:1.5px solid var(--gold-border); border-radius:12px; padding:1.25rem; box-shadow:0 0 20px var(--gold-glow);">
+            <div class="ba-label" style="color:var(--gold);">After (StarRocks)</div>
+            <p style="font-size:0.82rem; color:var(--white-dim); line-height:1.7;"><strong style="color:var(--gold);">Doubled query performance. Halved infrastructure costs.</strong> Engineering team could "treat high-QPS customer-facing analytics as solved and shift focus to building agents — with agents serving as the new programming model."</p>
+          </div>
+        </div>
+        <div class="research-card" style="margin-top:1.25rem;">
+          <div class="research-pill">Research Validation</div>
+          <div class="research-source">Eightfold.ai Case Study (2025) — StarRocks Engineering Blog</div>
+          <div class="research-finding">
+            Eightfold migrated from AWS Redshift to StarRocks, achieving <strong>2x query performance at half the cost</strong>. The executive framing: <strong>"After migrating to StarRocks, Eightfold can treat high-QPS customer-facing analytics as solved and shift focus to building agents, with agents serving as the new 'programming model.'"</strong> Architecture: multi-node, replicated design sustaining ~2,000 QPS per Frontend server; full clusters exceeding <strong>10,000 QPS with 99th-percentile latency under 0.1 seconds.</strong> StarRocks 4.0 (October 2025) delivers ~60% faster query execution year-over-year on TPC-DS benchmarks.
+          </div>
+          <div class="research-attribution">StarRocks Engineering Blog — Eightfold.ai Customer Case Study (2025) | StarRocks 2025 Year in Review | StarRocks 4.0 Benchmark Report</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIT Technology Review -->
+    <div class="reveal reveal-delay-3">
+      <div class="research-card" style="margin-top:1rem;">
+        <div class="research-pill">Research Validation</div>
+        <div class="research-source">MIT Technology Review — "The Era of Agentic Chaos and How Data Will Save Us" (January 2026)</div>
+        <div class="research-finding">
+          MIT Technology Review identifies data infrastructure — real-time, queryable, semantically rich — as <strong>the core differentiator between agentic AI that works and agentic AI that hallucinates.</strong> Systems that can ground agent reasoning in live, accurate data (rather than static training or stale RAG) are the ones that reach production reliability. Sub-100ms query latency is not a preference — it is what separates interactive agentic responses from batch processing.
+        </div>
+        <div class="research-attribution">MIT Technology Review (January 2026) — technologyreview.com/2026/01/20/1130911</div>
+      </div>
+    </div>
+
+    <!-- Enhanced Pipeline Diagram -->
+    <div class="reveal reveal-delay-3" style="margin-top:2rem;">
+      <h3 style="margin-bottom:0.5rem; color: var(--white-muted); font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase; font-weight:700;">Enhanced Data Pipeline — With 7 Layers Integrated</h3>
+
+      <div class="diag-wrap">
+        <div class="pipe-diagram">
+
+          <!-- Sources -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-blue">Documents</div>
+            <div class="pipe-node pipe-blue">Jira / Zendesk / PagerDuty</div>
+            <div class="pipe-node pipe-blue">HubSpot</div>
+            <div class="pipe-node pipe-gold">Session Events (new)</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray" style="padding:0.55rem 2rem;">S3 Raw Data Lake</div>
+            <div class="pipe-node pipe-gray">Kafka (Realtime)</div>
+            <div class="pipe-node pipe-gold">Learning Loop Writes</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Unstructured Docs</div>
+            <div class="pipe-node pipe-gray">Structured Tables (Iceberg)</div>
+            <div class="pipe-node pipe-gold">Mistake Patterns</div>
+            <div class="pipe-node pipe-gold">Session Reflections</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <!-- CelerData enhanced -->
+          <div class="pipe-row">
+            <div class="pipe-node pipe-teal" style="font-weight:800; padding:0.7rem 2rem;">CelerData / StarRocks</div>
+            <div class="diag-arrow muted">&mdash;</div>
+            <div class="pipe-node pipe-blue">Vector Index</div>
+            <div class="pipe-node pipe-blue">Full Text Index</div>
+            <div class="pipe-node pipe-blue">Iceberg / Native Table</div>
+            <div class="pipe-node pipe-teal">MemRL Utility Scores</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gray">Semantic Layer</div>
+            <div class="pipe-node pipe-gray">SQL Layer</div>
+            <div class="pipe-node pipe-gold">Pre-flight Injection</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gold" style="font-weight:800;">Conductor Agent</div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="pipe-node pipe-blue">Worker Agents (parallel)</div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="pipe-node pipe-gold">Forge / Observer</div>
+          </div>
+          <div class="diag-arrow-down">&#8595;</div>
+
+          <div class="pipe-row">
+            <div class="pipe-node pipe-gold">Trust Gate</div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="pipe-node pipe-gold">HITL Check</div>
+            <div class="diag-arrow">&rarr;</div>
+            <div class="pipe-node pipe-gold" style="color:var(--green); border-color:rgba(34,197,94,0.3); background:var(--green-dim);">Verified Output</div>
+          </div>
+
+        </div>
+
+        <div class="working-callout" style="margin-top:1rem;">
+          <strong>What changed:</strong> The pipeline now has feedback — session events, mistake patterns, and verified outcomes write back to CelerData. MemRL utility scores mean retrieval improves over time. Pre-flight injection surfaces relevant past patterns in context before every agent action. The pipeline compounds value with use.
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-100ms requirement callout -->
+    <div class="reveal reveal-delay-4">
+      <div class="callout-blue callout" style="margin-top:1rem;">
+        <p><strong>Why sub-100ms latency is architectural, not aspirational:</strong> "Real-time or interactive RAG apps like AI agents and chatbots demand sub-100ms query times, even under high QPS and with datasets scaling to billions of vectors." An agent that must wait 2–3 seconds for data retrieval either stalls the user experience or proceeds on stale context. StarRocks 4.0 sustains this at 10,000+ QPS. No competitor does both at scale.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 5: IMPLEMENTATION SEQUENCE
+══════════════════════════════════════ -->
+<section class="section" id="sequence">
+  <div class="container-wide">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 6 — Implementation Sequence</div>
+      <h2>Build Order <span class="gold">Matters.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">The 5-phase maturity progression — validated by Gartner's AI Maturity Model. Each phase builds the trust foundation the next phase requires. You cannot skip phases.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="research-card">
+        <div class="research-pill">Research Validation</div>
+        <div class="research-source">Gartner AI Maturity Model (5 Levels, 2024/2025) + HCAI-MM (arXiv 2512.14977, 2025)</div>
+        <div class="research-finding">
+          Gartner's 5-level maturity model: Awareness → Active → Operational → Systemic → Transformational. Key data: <strong>only 45% of organizations with high AI maturity keep AI projects operational for 3+ years.</strong> Trust is the differentiator: 57% of high-maturity organizations have business units that trust and use new AI solutions — vs. 14% of low-maturity organizations. <strong>You cannot declare yourself at Level 5 before earning Level 3 trust.</strong>
+        </div>
+        <div class="research-attribution">Gartner AI Maturity Model Toolkit (2024/2025) | Gartner Survey June 2025 | Academic HCAI-MM (arXiv 2512.14977)</div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3" style="margin-top:1.5rem;">
+      <table class="impl-table">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Name</th>
+            <th>What to Build</th>
+            <th>Layers Added</th>
+            <th>Trust Level</th>
+            <th>Maturity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="num-circle">1</span></td>
+            <td>Tool</td>
+            <td>Claude Code conductor + CelerData KB + basic retrieval. Get one agent workflow into production and trusted.</td>
+            <td>Your current plan</td>
+            <td class="effort-med">Cautious</td>
+            <td class="muted">Operational (L3)</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">2</span></td>
+            <td>Apprentice</td>
+            <td>Learning loop. Mistakes write back to KB. Pre-flight injection surfaces past failures. Measure: are repeat errors declining?</td>
+            <td><span class="chip chip-gold">Layer 1</span></td>
+            <td class="effort-med">Standard</td>
+            <td class="muted">Systemic (L4)</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">3</span></td>
+            <td>Collaborator</td>
+            <td>Trust architecture + Forge pipeline + HITL gates. Per-category trust scores. Adversarial QA. Human checkpoints on high-risk operations.</td>
+            <td><span class="chip chip-gold">Layers 2, 5, 6</span></td>
+            <td class="effort-low">Trusted</td>
+            <td class="muted">Systemic (L4)</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">4</span></td>
+            <td>Partner</td>
+            <td>Parallelization + model routing + context relay. Auto-swarm task decomposition. 3.66x cost multiplier in production. Context budget enforced.</td>
+            <td><span class="chip chip-gold">Layers 3, 4</span></td>
+            <td class="effort-low">Autonomous (selected categories)</td>
+            <td class="muted">Transformational (L5)</td>
+          </tr>
+          <tr>
+            <td><span class="num-circle">5</span></td>
+            <td>Witness</td>
+            <td>Seam engineering + event architecture + full observability. Every handoff tracked. Boundary failures surfaced. StarRocks as real-time agent backbone at 10K+ QPS.</td>
+            <td><span class="chip chip-gold">Layer 7</span> <span class="chip chip-teal">StarRocks 4.0</span></td>
+            <td class="effort-low" style="color:var(--teal);">Full Production</td>
+            <td class="muted">Transformational (L5)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="reveal reveal-delay-4" style="margin-top:1.75rem;">
+      <div class="callout">
+        <p><strong>Why this sequence:</strong> Each phase earns the trust that the next phase requires. You cannot deploy HITL gates (Phase 3) before the learning loop (Phase 2) has established a track record. You cannot give the system parallelization autonomy (Phase 4) before trust architecture (Phase 3) has hard ceilings on irreversible operations. Gartner's data is clear: the organizations that skip phases are in the 80% that fail.</p>
+      </div>
+    </div>
+
+    <!-- What you already have -->
+    <div class="reveal reveal-delay-4" style="margin-top:1rem;">
+      <h3 style="color:var(--gold); margin-bottom:1rem;">What CelerData Already Has</h3>
+      <div class="vision-grid">
+        <div class="vision-card">
+          <div class="vision-label">The Data Platform</div>
+          <p>StarRocks — the only platform combining vector search, full-text search, semantic layer, and real-time OLAP at sub-100ms latency. Eightfold proved it. MIT said it's the differentiator.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">The Prototype</div>
+          <p>534 commits. 120+ hours. All 7 layers built and operational. Learning loop verified. Forge at 100% correction rate. Trust architecture with hard ceilings proven.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">The Research Validation</div>
+          <p>30+ sources from Stanford, MIT, Anthropic, McKinsey, Gartner, a16z, UC Berkeley, RAND. Every learning independently validated. Not opinion — convergent evidence.</p>
+        </div>
+        <div class="vision-card">
+          <div class="vision-label">The Engineering Team</div>
+          <p>The people who built the world's best real-time analytics platform. The same engineering excellence that produced StarRocks 4.0's 60% YoY query improvement.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 6: THE WINDOW CLOSING
+══════════════════════════════════════ -->
+<section class="section" id="closing">
+  <div class="stars" id="star-field-2"></div>
+  <div class="container">
+
+    <div class="reveal">
+      <div class="eyebrow">Section 7 — The Window</div>
+      <h2>The Question Isn't Whether<br><span class="gold">to Build This.</span></h2>
+      <div class="gold-line"></div>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <p class="subtitle" style="max-width:700px; margin-bottom:2rem;">
+        The question is whether we build it before the window closes.
+      </p>
+    </div>
+
+    <!-- Urgency stats -->
+    <div class="reveal reveal-delay-2">
+      <div class="urgency-bar">
+        <p><strong>Gartner (June 2025):</strong> Over 40% of agentic AI projects will be canceled by end of 2027 — due to escalating costs, unclear business value, or inadequate risk controls. The organizations that cancel are the ones that never solved the trust, learning, and orchestration layers. They ship demos that fail in production. They erode customer confidence. They kill the initiative before it can compound.</p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="landscape-grid" style="margin-top:1.5rem;">
+        <div class="landscape-stat danger">
+          <div class="stat-big red">40%</div>
+          <div class="stat-label">of agentic AI projects canceled by 2027 — the projects without trust/learning/orchestration architecture</div>
+          <div class="stat-source">Gartner, June 2025</div>
+        </div>
+        <div class="landscape-stat warning">
+          <div class="stat-big gold">2027</div>
+          <div class="stat-label">The window. Organizations that build the architecture now capture the market. Those that wait inherit the 40%.</div>
+          <div class="stat-source">Gartner market prediction</div>
+        </div>
+        <div class="landscape-stat teal-stat">
+          <div class="stat-big teal">Now</div>
+          <div class="stat-label">CelerData has the data platform, the prototype, the research validation, and the engineering team. All four. Simultaneously.</div>
+          <div class="stat-source">This presentation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vision emerges from building -->
+    <div class="reveal reveal-delay-3" style="margin-top:1.5rem;">
+      <div class="research-card">
+        <div class="research-pill">Research Validation</div>
+        <div class="research-source">Eric Ries — The Lean Startup (2011) + Henry Mintzberg — "Crafting Strategy" (HBR 1987) + Reid Hoffman — Blitzscaling (2018)</div>
+        <div class="research-finding">
+          Ries: <strong>"Validated learning: entrepreneurs discover what customers actually need through building, not through research or planning alone."</strong> Strategy in a startup context is a living artifact that evolves from contact with reality. Mintzberg: <strong>"Strategies are formed rather than formulated, intuited rather than defined."</strong> The most powerful strategies combine deliberate intent with emergent learning from the field. Hoffman: <strong>"When you blitzscale, you make decisions and commit to them even though your confidence level is substantially lower than 100%."</strong> Waiting for complete vision before building is the surest path to being outcompeted by someone who moved while uncertain.
+        </div>
+        <div class="research-attribution">Ries, The Lean Startup (2011) | Mintzberg, HBR (July 1987) | Hoffman &amp; Yeh, Blitzscaling (2018)</div>
+      </div>
+    </div>
+
+    <!-- Final statement -->
+    <div class="reveal reveal-delay-4" style="margin-top:2.5rem; text-align:center;">
+      <div class="section-divider"></div>
+      <p class="closing-statement">
+        "Here's what we learned. Here's what Stanford, MIT, Anthropic, McKinsey, and Gartner say. Here's what to build. The research is clear. The prototype exists. <span style="color:var(--gold); font-style:normal; font-weight:700;">Let's go.</span>"
+      </p>
+    </div>
+
+    <!-- Citation count badge -->
+    <div class="reveal reveal-delay-5" style="margin-top:2rem; text-align:center;">
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:center; align-items:center;">
+        <span class="citation-count">&#9679; Backed by 30+ research sources</span>
+        <span class="citation-badge">Stanford ACL 2024</span>
+        <span class="citation-badge">MIT NANDA 2025</span>
+        <span class="citation-badge">Anthropic 2025</span>
+        <span class="citation-badge">McKinsey MGI 2025</span>
+        <span class="citation-badge">Gartner 2025</span>
+        <span class="citation-badge">a16z 2023</span>
+        <span class="citation-badge">UC Berkeley 2024</span>
+        <span class="citation-badge">RAND 2024</span>
+        <span class="citation-badge">Microsoft 2025</span>
+        <span class="citation-badge">MIT Tech Review 2026</span>
+        <span class="citation-badge">arXiv 2410.12853</span>
+        <span class="citation-badge">CMU WebArena 2023</span>
+      </div>
+      <p style="margin-top:1rem; font-size:0.7rem; color:var(--white-muted); font-style:italic;">All sources primary or first-tier secondary. All URLs verified February 2026.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<script>
+// ─── STARS ───
+(function() {
+  function makeStars(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    for (let i = 0; i < 45; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const dur = (3 + Math.random() * 5).toFixed(2) + 's';
+      const peak = (0.1 + Math.random() * 0.5).toFixed(2);
+      const delay = (Math.random() * 6).toFixed(2) + 's';
+      s.style.cssText = `left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*100).toFixed(1)}%;--dur:${dur};--peak:${peak};animation-delay:${delay}`;
+      el.appendChild(s);
+    }
+  }
+  makeStars('star-field');
+  makeStars('star-field-2');
+})();
+
+// ─── SCROLL REVEAL (with mobile fallback) ───
+try {
+  const revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+    revealEls.forEach(el => revealObserver.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('visible'));
+  }
+  // Force opening section visible immediately
+  document.querySelectorAll('#opening .reveal').forEach(el => el.classList.add('visible'));
+} catch(err) {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+}
+// Safety net: if most reveals haven't fired after 2s, force all visible
+setTimeout(() => {
+  const hidden = document.querySelectorAll('.reveal:not(.visible)');
+  if (hidden.length > 10) {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }
+}, 2000);
+
+// ─── PROGRESS BAR ───
+window.addEventListener('scroll', () => {
+  const bar = document.getElementById('progress-bar');
+  if (!bar) return;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+});
+
+// ─── NAV DOTS ───
+const sections = ['opening','landscape','yourplan','layers','fullarch','pipeline','sequence','closing'];
+const dots = document.querySelectorAll('.nav-dot');
+
+function updateDots() {
+  const mid = window.scrollY + window.innerHeight / 2;
+  let active = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= mid) active = i;
+  });
+  dots.forEach((d, i) => d.classList.toggle('active', i === active));
+}
+window.addEventListener('scroll', updateDots, { passive: true });
+
+dots.forEach((dot, i) => {
+  dot.setAttribute('data-target', sections[i]);
+  dot.addEventListener('click', () => {
+    const target = document.getElementById(sections[i]);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// ─── KEYBOARD NAVIGATION ───
+document.addEventListener('keydown', (e) => {
+  const cur = sections.findIndex(id => {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.top <= window.innerHeight / 2 && rect.bottom > window.innerHeight / 2;
+  });
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    const next = sections[Math.min(cur + 1, sections.length - 1)];
+    document.getElementById(next)?.scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    const prev = sections[Math.max(cur - 1, 0)];
+    document.getElementById(prev)?.scrollIntoView({ behavior: 'smooth' });
+  }
+});
+</script>
+
+</body>
+</html>
