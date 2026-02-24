@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Unlikely Builder — Rick Underwood · Cofounder Presentation v2</title>
+<style>
+  :root {
+    --navy:       #0a1628;
+    --navy-mid:   #0f2040;
+    --navy-light: #162a50;
+    --navy-deep:  #050e1e;
+    --gold:       #f5a623;
+    --gold-dark:  #d4943a;
+    --gold-dim:   rgba(245,166,35,0.12);
+    --gold-glow:  rgba(245,166,35,0.06);
+    --white:      #ffffff;
+    --white-dim:  rgba(255,255,255,0.85);
+    --white-muted:rgba(255,255,255,0.52);
+    --blue:       #3b82f6;
+    --blue-dim:   rgba(59,130,246,0.10);
+    --blue-glow:  rgba(59,130,246,0.22);
+    --green:      #22c55e;
+    --red:        #ef4444;
+    --purple:     #a855f7;
+    --serif: 'Georgia','Times New Roman',serif;
+    --sans:  -apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;font-size:16px;}
+  body{
+    background:var(--navy);
+    color:var(--white);
+    font-family:var(--sans);
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar{
+    position:fixed;top:0;left:0;
+    height:3px;width:0%;
+    background:linear-gradient(90deg,var(--gold),var(--blue),var(--purple));
+    z-index:1000;
+    transition:width 0.1s linear;
+  }
+
+  /* ── NAV DOTS ── */
+  #nav-dots{
+    position:fixed;right:1.25rem;top:50%;
+    transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:0.55rem;
+    z-index:999;
+  }
+  .nav-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:rgba(255,255,255,0.18);
+    cursor:pointer;
+    transition:all 0.3s ease;
+    border:1px solid rgba(255,255,255,0.08);
+    position:relative;
+  }
+  .nav-dot:hover{background:var(--gold-dark);transform:scale(1.4);}
+  .nav-dot.active{background:var(--gold);transform:scale(1.25);box-shadow:0 0 8px var(--gold-dark);}
+  .nav-dot-label{
+    position:absolute;right:1.4rem;top:50%;
+    transform:translateY(-50%);
+    white-space:nowrap;font-size:0.62rem;
+    color:var(--white-muted);
+    background:rgba(10,22,40,0.92);
+    padding:0.2rem 0.5rem;border-radius:4px;
+    opacity:0;pointer-events:none;
+    transition:opacity 0.2s;
+    letter-spacing:0.05em;text-transform:uppercase;
+  }
+  .nav-dot:hover .nav-dot-label{opacity:1;}
+
+  /* ── SECTIONS ── */
+  .section{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:5rem 2rem;
+    position:relative;overflow:hidden;
+  }
+  .container{max-width:900px;margin:0 auto;width:100%;}
+  .container-wide{max-width:1100px;margin:0 auto;width:100%;}
+
+  /* ── PER-SECTION BACKGROUNDS ── */
+  #opening { background:linear-gradient(160deg,#030810 0%,#060d1a 40%,#0a1020 100%); }
+  #act1    { background:linear-gradient(160deg,#0a1628 0%,#0b1c35 55%,#0e2240 100%); }
+  #phases  { background:linear-gradient(160deg,#0c1030 0%,#0a0c22 50%,#080a1e 100%); }
+  #act2    { background:linear-gradient(160deg,#0e2240 0%,#0a1628 60%,#080f1e 100%); }
+  #outcomes{ background:linear-gradient(160deg,#060b18 0%,#0a1220 50%,#0b1628 100%); }
+  #act3    { background:linear-gradient(160deg,#0c0d18 0%,#120819 50%,#0a0d1e 100%); }
+  #hard-truths { background:linear-gradient(160deg,#0a1020 0%,#0d1828 50%,#0a1628 100%); }
+  #arch-insights { background:linear-gradient(160deg,#0a1628 0%,#08122a 55%,#0a1035 100%); }
+  #act4    { background:linear-gradient(160deg,#080f1e 0%,#081828 55%,#0a1628 100%); }
+  #closing { background:linear-gradient(160deg,#030508 0%,#050812 50%,#080a18 100%); }
+
+  /* ── PARTICLE GRID OVERLAY ── */
+  .section::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    opacity:0.025;
+    background-image:
+      radial-gradient(circle at 20% 80%,var(--gold) 1px,transparent 1px),
+      radial-gradient(circle at 80% 20%,var(--blue) 1px,transparent 1px);
+    background-size:40px 40px;
+  }
+
+  /* ── STAR FIELD ── */
+  .stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+  .star{
+    position:absolute;width:2px;height:2px;
+    background:white;border-radius:50%;
+    animation:twinkle var(--dur) ease-in-out infinite;
+    opacity:0;
+  }
+  @keyframes twinkle{0%,100%{opacity:0;}50%{opacity:var(--peak);}}
+
+  /* ── ANIMATED REVEAL ── */
+  .reveal{
+    opacity:0;transform:translateY(20px);
+    transition:opacity 0.75s ease,transform 0.75s ease;
+  }
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .reveal-delay-1{transition-delay:0.1s;}
+  .reveal-delay-2{transition-delay:0.22s;}
+  .reveal-delay-3{transition-delay:0.36s;}
+  .reveal-delay-4{transition-delay:0.52s;}
+  .reveal-delay-5{transition-delay:0.68s;}
+  .reveal-delay-6{transition-delay:0.85s;}
+  .reveal-delay-7{transition-delay:1.02s;}
+
+  /* ── TYPOGRAPHY ── */
+  .eyebrow{
+    font-size:0.68rem;font-weight:600;
+    letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:1.2rem;
+  }
+  h1{
+    font-size:clamp(2.4rem,6vw,5rem);
+    font-weight:700;line-height:1.08;
+    letter-spacing:-0.02em;color:var(--white);
+  }
+  h2{
+    font-size:clamp(1.8rem,4vw,3.2rem);
+    font-weight:700;line-height:1.15;
+    letter-spacing:-0.015em;color:var(--white);
+  }
+  h3{
+    font-size:clamp(1.1rem,2.5vw,1.6rem);
+    font-weight:600;line-height:1.3;color:var(--white);
+  }
+  .subtitle{
+    font-size:clamp(1rem,2.2vw,1.5rem);
+    color:var(--white-dim);line-height:1.55;margin-top:1rem;
+  }
+  .body-text{
+    font-size:clamp(0.95rem,1.8vw,1.15rem);
+    color:var(--white-dim);line-height:1.8;max-width:680px;
+  }
+  .gold{color:var(--gold);}
+  .blue{color:var(--blue);}
+  .muted{color:var(--white-muted);}
+  .gold-line{
+    width:60px;height:3px;
+    background:linear-gradient(90deg,var(--gold),var(--gold-dark));
+    border-radius:2px;margin:1.5rem 0;
+  }
+
+  /* ── OPENING — HUMAN-FIRST ── */
+  .opening-human{
+    text-align:center;
+    padding:3rem 1rem;
+    max-width:800px;margin:0 auto;
+  }
+  .opening-human .preface{
+    font-family:var(--serif);
+    font-size:clamp(1.3rem,3vw,2.1rem);
+    font-style:italic;
+    line-height:1.65;
+    color:rgba(255,255,255,0.82);
+    margin-bottom:2.5rem;
+  }
+  .opening-human .preface span{
+    color:var(--gold);
+    font-style:italic;
+  }
+  .opening-divider{
+    width:40px;height:1px;
+    background:rgba(245,166,35,0.4);
+    margin:2rem auto;
+  }
+
+  /* ── STATS ROW ── */
+  .stat-row{display:flex;gap:2.5rem;flex-wrap:wrap;margin:2.5rem 0;justify-content:center;}
+  .stat{text-align:center;}
+  .stat-number{
+    font-size:clamp(2rem,5vw,3.5rem);
+    font-weight:800;color:var(--gold);
+    line-height:1;display:block;
+  }
+  .stat-label{
+    font-size:0.7rem;color:var(--white-muted);
+    text-transform:uppercase;letter-spacing:0.14em;margin-top:0.4rem;
+  }
+
+  /* ── RICK'S QUOTES ── */
+  .rick-quote{
+    border-left:4px solid var(--gold);
+    padding:1.25rem 1.75rem;margin:2rem 0;
+    background:rgba(245,166,35,0.04);
+    border-radius:0 8px 8px 0;
+  }
+  .rick-quote p{
+    font-family:var(--serif);
+    font-size:clamp(1.1rem,2.5vw,1.55rem);
+    font-style:italic;line-height:1.65;
+    color:var(--white-dim);
+  }
+  .rick-quote .attribution{
+    font-family:var(--sans);font-style:normal;
+    font-size:0.72rem;color:var(--gold);
+    margin-top:0.75rem;letter-spacing:0.1em;
+    text-transform:uppercase;font-weight:600;
+  }
+  .big-quote{
+    font-family:var(--serif);
+    font-size:clamp(1.4rem,3.5vw,2.4rem);
+    font-style:italic;line-height:1.5;
+    color:var(--white);text-align:center;
+    padding:2.5rem 2rem;position:relative;
+  }
+  .big-quote::before{
+    content:'\201C';font-size:6rem;color:var(--gold);
+    opacity:0.22;position:absolute;
+    top:-0.5rem;left:0.5rem;
+    font-family:var(--serif);line-height:1;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline{position:relative;margin:2rem 0;}
+  .timeline::before{
+    content:'';position:absolute;
+    left:5px;top:0;bottom:0;width:2px;
+    background:linear-gradient(180deg,var(--gold) 0%,var(--blue) 60%,var(--purple) 100%);
+    opacity:0.35;
+  }
+  .timeline-item{
+    display:grid;grid-template-columns:auto 1fr;
+    gap:1.25rem;margin-bottom:1.75rem;
+    align-items:start;
+  }
+  .timeline-dot{
+    width:12px;height:12px;border-radius:50%;
+    background:var(--navy);
+    border:2px solid var(--gold);
+    margin-top:0.2rem;flex-shrink:0;
+    position:relative;z-index:1;
+  }
+  .timeline-dot.blue-dot{border-color:var(--blue);}
+  .timeline-dot.purple-dot{border-color:var(--purple);}
+  .timeline-date{
+    font-size:0.7rem;color:var(--gold);
+    font-weight:700;letter-spacing:0.1em;
+    text-transform:uppercase;margin-bottom:0.3rem;
+  }
+  .timeline-text{font-size:0.9rem;color:var(--white-dim);line-height:1.6;}
+
+  /* ── CARDS ── */
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:1rem;margin-top:2.5rem;
+  }
+  .card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;padding:1.5rem;
+    transition:border-color 0.3s,background 0.3s,transform 0.3s;
+  }
+  .card:hover{
+    border-color:rgba(245,166,35,0.3);
+    background:rgba(245,166,35,0.04);
+    transform:translateY(-3px);
+  }
+  .card-icon{font-size:1.5rem;margin-bottom:0.75rem;}
+  .card h4{font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:0.5rem;}
+  .card p{font-size:0.84rem;color:var(--white-muted);line-height:1.65;}
+  .card.blue-card{background:var(--blue-dim);border-color:rgba(59,130,246,0.2);}
+  .card.blue-card:hover{border-color:rgba(59,130,246,0.5);}
+  .card.gold-card{background:var(--gold-dim);border-color:rgba(245,166,35,0.2);}
+  .card.gold-card:hover{border-color:rgba(245,166,35,0.5);}
+
+  /* ── LESSON CARDS ── */
+  .lesson{
+    display:grid;grid-template-columns:auto 1fr;
+    gap:1.5rem;padding:1.75rem;
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:12px;margin-bottom:1rem;
+    transition:border-color 0.3s,transform 0.3s;
+    align-items:start;
+  }
+  .lesson:hover{
+    border-color:rgba(245,166,35,0.25);
+    transform:translateX(4px);
+  }
+  .lesson-number{
+    font-size:2.2rem;font-weight:800;
+    color:var(--gold);opacity:0.3;
+    line-height:1;min-width:2.5rem;
+    text-align:right;font-variant-numeric:tabular-nums;
+  }
+  .lesson-content h4{
+    font-size:1rem;font-weight:700;
+    color:var(--white);margin-bottom:0.4rem;
+  }
+  .lesson-content p{
+    font-size:0.88rem;color:var(--white-muted);line-height:1.65;
+  }
+  .lesson-content em{
+    color:var(--gold);font-style:normal;
+    font-size:0.78rem;display:block;
+    margin-top:0.4rem;font-weight:600;
+  }
+
+  /* ═══════════════════════════════════════
+     FIVE PHASES — THE CENTERPIECE
+  ═══════════════════════════════════════ */
+  .phases-wrapper{
+    margin:3rem 0;
+  }
+  .phase-track{
+    display:flex;flex-direction:column;gap:0;
+    position:relative;
+  }
+  /* Vertical connector line */
+  .phase-track::before{
+    content:'';
+    position:absolute;
+    left:28px;top:40px;bottom:40px;width:2px;
+    background:linear-gradient(180deg,
+      rgba(245,166,35,0.6) 0%,
+      rgba(59,130,246,0.6) 40%,
+      rgba(168,85,247,0.8) 75%,
+      rgba(34,197,94,0.8) 100%
+    );
+    z-index:0;
+  }
+  .phase-item{
+    display:grid;
+    grid-template-columns:58px 1fr;
+    gap:1.25rem;
+    padding:1.25rem 0;
+    position:relative;
+    opacity:0.4;
+    transform:translateX(-12px);
+    transition:opacity 0.6s ease,transform 0.6s ease,background 0.4s;
+  }
+  .phase-item.phase-lit{
+    opacity:1;transform:translateX(0);
+  }
+  .phase-orb{
+    width:58px;height:58px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;font-weight:900;
+    flex-shrink:0;z-index:1;
+    border:2px solid rgba(255,255,255,0.1);
+    transition:all 0.5s ease;
+    background:rgba(10,22,40,0.8);
+  }
+  .phase-item.phase-lit .phase-orb{
+    border-color:var(--phase-color,var(--gold));
+    box-shadow:0 0 18px var(--phase-color,var(--gold)),
+               0 0 40px rgba(0,0,0,0.5);
+    color:var(--phase-color,var(--gold));
+  }
+  .phase-body{
+    padding:0.4rem 0;
+  }
+  .phase-label{
+    font-size:0.62rem;letter-spacing:0.2em;
+    font-weight:700;text-transform:uppercase;
+    color:var(--white-muted);margin-bottom:0.2rem;
+  }
+  .phase-title{
+    font-size:clamp(1.15rem,2.5vw,1.5rem);
+    font-weight:700;color:var(--white);
+    margin-bottom:0.35rem;
+    transition:color 0.4s;
+  }
+  .phase-item.phase-lit .phase-title{
+    color:var(--phase-color,var(--gold));
+  }
+  .phase-desc{
+    font-size:0.88rem;color:var(--white-muted);
+    line-height:1.6;margin-bottom:0.5rem;
+  }
+  .phase-example{
+    font-size:0.8rem;
+    color:rgba(255,255,255,0.4);
+    font-style:italic;
+    border-left:2px solid rgba(255,255,255,0.1);
+    padding-left:0.75rem;
+    transition:border-color 0.4s,color 0.4s;
+  }
+  .phase-item.phase-lit .phase-example{
+    border-color:var(--phase-color,var(--gold));
+    color:rgba(255,255,255,0.65);
+  }
+  /* Phase colors */
+  .ph1{--phase-color:#f5a623;}
+  .ph2{--phase-color:#3b82f6;}
+  .ph3{--phase-color:#22c55e;}
+  .ph4{--phase-color:#a855f7;}
+  .ph5{--phase-color:#f43f5e;}
+
+  /* Phase insight callout */
+  .phase-insight{
+    margin-top:2.5rem;
+    background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(245,166,35,0.06));
+    border:1px solid rgba(59,130,246,0.2);
+    border-radius:12px;
+    padding:1.75rem 2rem;
+  }
+  .phase-insight h4{
+    font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--blue);font-weight:700;margin-bottom:0.75rem;
+  }
+  .phase-insight p{
+    font-size:1rem;color:var(--white-dim);line-height:1.7;
+  }
+  .phase-insight strong{color:var(--gold);}
+
+  /* ═══════════════════════════════════════
+     WHAT IT PRODUCED — OUTCOMES SECTION
+  ═══════════════════════════════════════ */
+  .outcome-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+    gap:1.25rem;
+    margin-top:2.5rem;
+  }
+  .outcome-card{
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:1.75rem;
+    position:relative;
+    overflow:hidden;
+    transition:transform 0.3s,border-color 0.3s,background 0.3s;
+  }
+  .outcome-card::before{
+    content:'';
+    position:absolute;top:0;left:0;right:0;
+    height:3px;
+    background:var(--oc-color,var(--gold));
+    transform:scaleX(0);transform-origin:left;
+    transition:transform 0.5s ease;
+  }
+  .outcome-card.oc-visible::before{transform:scaleX(1);}
+  .outcome-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.04);
+  }
+  .outcome-icon{
+    font-size:2rem;margin-bottom:1rem;
+    display:block;
+  }
+  .outcome-card h4{
+    font-size:1rem;font-weight:700;color:var(--white);
+    margin-bottom:0.5rem;
+  }
+  .outcome-card .outcome-number{
+    font-size:clamp(1.6rem,4vw,2.4rem);
+    font-weight:900;
+    color:var(--oc-color,var(--gold));
+    line-height:1;display:block;margin-bottom:0.2rem;
+  }
+  .outcome-card p{
+    font-size:0.84rem;color:var(--white-muted);line-height:1.65;
+    margin-top:0.5rem;
+  }
+  .oc1{--oc-color:#f5a623;}
+  .oc2{--oc-color:#3b82f6;}
+  .oc3{--oc-color:#22c55e;}
+  .oc4{--oc-color:#a855f7;}
+  .oc5{--oc-color:#f43f5e;}
+
+  /* ═══════════════════════════════════════
+     SECTION HEADER WITH NUMBER
+  ═══════════════════════════════════════ */
+  .section-header{
+    display:flex;align-items:flex-start;
+    gap:1.5rem;margin-bottom:2rem;
+  }
+  .section-num{
+    font-size:clamp(3rem,8vw,6rem);
+    font-weight:900;line-height:0.85;
+    color:rgba(245,166,35,0.12);
+    letter-spacing:-0.04em;
+    flex-shrink:0;
+    font-variant-numeric:tabular-nums;
+    user-select:none;
+  }
+  .section-header-text{flex:1;}
+
+  /* ── ARCHITECTURE LAYER ── */
+  .arch-layer{
+    display:flex;align-items:center;gap:1rem;
+    padding:1rem 1.25rem;
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:8px;
+    margin-bottom:0.5rem;
+    transition:border-color 0.3s,background 0.3s;
+  }
+  .arch-layer:hover{
+    border-color:rgba(59,130,246,0.3);
+    background:rgba(59,130,246,0.04);
+  }
+  .arch-layer-badge{
+    font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
+    font-weight:700;padding:0.25rem 0.6rem;
+    border-radius:4px;white-space:nowrap;flex-shrink:0;
+  }
+  .layer-identity{background:rgba(245,166,35,0.15);color:var(--gold);}
+  .layer-orch{background:rgba(59,130,246,0.15);color:var(--blue);}
+  .layer-cognition{background:rgba(168,85,247,0.15);color:var(--purple);}
+  .layer-session{background:rgba(34,197,94,0.15);color:var(--green);}
+  .layer-knowledge{background:rgba(245,166,35,0.1);color:var(--gold-dark);}
+  .layer-model{background:rgba(59,130,246,0.1);color:var(--blue);}
+  .layer-infra{background:rgba(255,255,255,0.08);color:var(--white-muted);}
+  .arch-layer-content{flex:1;}
+  .arch-layer-title{
+    font-size:0.88rem;font-weight:700;color:var(--white);
+    margin-bottom:0.15rem;
+  }
+  .arch-layer-desc{
+    font-size:0.78rem;color:var(--white-muted);line-height:1.4;
+  }
+
+  /* ── 70/30 VISUAL ── */
+  .ratio-visual{
+    display:flex;border-radius:10px;overflow:hidden;
+    height:60px;margin:1.5rem 0;
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .ratio-ai{
+    flex:70;background:linear-gradient(90deg,rgba(59,130,246,0.3),rgba(59,130,246,0.15));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:1.1rem;color:var(--blue);
+    border-right:2px solid rgba(255,255,255,0.12);
+  }
+  .ratio-human{
+    flex:30;background:linear-gradient(90deg,rgba(245,166,35,0.2),rgba(245,166,35,0.1));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:1.1rem;color:var(--gold);
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table{
+    width:100%;border-collapse:collapse;margin:2rem 0;
+  }
+  .compare-table th{
+    font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--white-muted);font-weight:600;
+    padding:0.75rem 1rem;text-align:left;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .compare-table td{
+    padding:0.85rem 1rem;font-size:0.87rem;
+    color:var(--white-dim);line-height:1.5;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }
+  .compare-table tr:hover td{background:rgba(255,255,255,0.02);}
+  .compare-table td:first-child{color:var(--white-muted);}
+  .compare-table td:last-child{color:var(--gold);}
+
+  /* ── CELERDATA PRODUCT VISION ── */
+  .product-block{
+    background:linear-gradient(135deg,rgba(59,130,246,0.06),rgba(245,166,35,0.04));
+    border:1px solid rgba(59,130,246,0.18);
+    border-radius:14px;padding:2rem;margin-bottom:1.5rem;
+  }
+  .product-block h4{
+    font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;
+    color:var(--blue);font-weight:700;margin-bottom:0.75rem;
+  }
+  .product-block p{
+    font-size:1rem;color:var(--white-dim);line-height:1.75;
+  }
+  .product-block strong{color:var(--white);}
+
+  .build-first-item{
+    display:flex;gap:1rem;align-items:flex-start;
+    padding:1rem 0;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .build-first-item:last-child{border-bottom:none;}
+  .bfi-icon{
+    width:36px;height:36px;border-radius:8px;
+    background:rgba(245,166,35,0.12);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;flex-shrink:0;margin-top:0.1rem;
+  }
+  .bfi-content h5{
+    font-size:0.9rem;font-weight:700;color:var(--white);
+    margin-bottom:0.2rem;
+  }
+  .bfi-content p{font-size:0.82rem;color:var(--white-muted);line-height:1.6;}
+
+  /* ── CLOSING ── */
+  .closing-quote-wrap{
+    text-align:center;max-width:700px;margin:0 auto;
+  }
+  .closing-big{
+    font-family:var(--serif);
+    font-size:clamp(1.6rem,4vw,2.8rem);
+    font-style:italic;line-height:1.45;
+    color:var(--white);
+    margin-bottom:1.5rem;
+  }
+  .closing-big span{color:var(--gold);}
+
+  /* ── KEYBOARD NAV HINT ── */
+  #kbd-hint{
+    position:fixed;bottom:1.25rem;right:1.5rem;
+    font-size:0.62rem;color:var(--white-muted);
+    letter-spacing:0.08em;text-transform:uppercase;
+    z-index:900;opacity:0.4;
+    pointer-events:none;
+  }
+  #kbd-hint kbd{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:3px;padding:0.1rem 0.35rem;
+    font-size:0.6rem;
+  }
+
+  /* ── TRUST ASYMMETRY VISUAL ── */
+  .trust-asymmetry{
+    display:flex;gap:1rem;margin:1.5rem 0;flex-wrap:wrap;
+  }
+  .trust-bar-wrap{flex:1;min-width:200px;}
+  .trust-bar-label{
+    font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--white-muted);margin-bottom:0.4rem;font-weight:600;
+  }
+  .trust-bar{
+    height:8px;border-radius:4px;
+    background:rgba(255,255,255,0.06);
+    overflow:hidden;
+  }
+  .trust-bar-fill{
+    height:100%;border-radius:4px;
+    transition:width 1.2s ease;
+    width:0%;
+  }
+  .tb-success{background:var(--green);}
+  .tb-failure{background:var(--red);}
+  .trust-bar-note{
+    font-size:0.7rem;color:var(--white-muted);margin-top:0.35rem;
+  }
+
+  /* ── KUBERNETES ANALOGY ── */
+  .analogy-wrap{
+    display:grid;grid-template-columns:1fr auto 1fr;
+    gap:0.75rem;align-items:center;margin:2rem 0;
+  }
+  .analogy-box{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px;padding:1.25rem;text-align:center;
+  }
+  .analogy-box .ana-label{
+    font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;
+    color:var(--white-muted);margin-bottom:0.4rem;
+  }
+  .analogy-box .ana-name{
+    font-size:1.1rem;font-weight:700;color:var(--white);
+  }
+  .analogy-box .ana-sub{
+    font-size:0.78rem;color:var(--white-muted);margin-top:0.25rem;
+  }
+  .analogy-arrow{
+    font-size:1.25rem;color:var(--gold);opacity:0.5;text-align:center;
+  }
+  .analogy-highlight{
+    border-color:rgba(245,166,35,0.35);
+    background:rgba(245,166,35,0.04);
+  }
+  .analogy-highlight .ana-name{color:var(--gold);}
+
+  /* ── SECTION BREATHER ── */
+  .section-breather{
+    text-align:center;
+    padding:3rem 2rem;
+    border-top:1px solid rgba(255,255,255,0.05);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    margin:2rem 0;
+  }
+  .section-breather p{
+    font-family:var(--serif);
+    font-size:clamp(1.1rem,2.5vw,1.7rem);
+    font-style:italic;color:var(--white-muted);
+    line-height:1.6;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:700px){
+    .analogy-wrap{grid-template-columns:1fr;text-align:center;}
+    .analogy-arrow{transform:rotate(90deg);}
+    .phase-track::before{left:22px;}
+    .phase-orb{width:46px;height:46px;font-size:1.1rem;}
+    .phase-item{grid-template-columns:46px 1fr;}
+    #nav-dots{display:none;}
+  }
+
+  /* ── PRINT ── */
+  @media print{
+    #nav-dots,#progress-bar,#kbd-hint{display:none!important;}
+    .section{min-height:auto;page-break-inside:avoid;}
+    body{background:#fff!important;color:#000!important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav id="nav-dots" aria-label="Section navigation">
+  <div class="nav-dot" data-section="opening" onclick="scrollTo('opening')">
+    <span class="nav-dot-label">Opening</span>
+  </div>
+  <div class="nav-dot" data-section="act1" onclick="scrollTo('act1')">
+    <span class="nav-dot-label">The Story</span>
+  </div>
+  <div class="nav-dot" data-section="phases" onclick="scrollTo('phases')">
+    <span class="nav-dot-label">Five Phases</span>
+  </div>
+  <div class="nav-dot" data-section="act2" onclick="scrollTo('act2')">
+    <span class="nav-dot-label">Architecture</span>
+  </div>
+  <div class="nav-dot" data-section="outcomes" onclick="scrollTo('outcomes')">
+    <span class="nav-dot-label">What It Produced</span>
+  </div>
+  <div class="nav-dot" data-section="act3" onclick="scrollTo('act3')">
+    <span class="nav-dot-label">The Build</span>
+  </div>
+  <div class="nav-dot" data-section="hard-truths" onclick="scrollTo('hard-truths')">
+    <span class="nav-dot-label">Hard Truths</span>
+  </div>
+  <div class="nav-dot" data-section="arch-insights" onclick="scrollTo('arch-insights')">
+    <span class="nav-dot-label">Architecture Insights</span>
+  </div>
+  <div class="nav-dot" data-section="act4" onclick="scrollTo('act4')">
+    <span class="nav-dot-label">CelerData</span>
+  </div>
+  <div class="nav-dot" data-section="closing" onclick="scrollTo('closing')">
+    <span class="nav-dot-label">Closing</span>
+  </div>
+</nav>
+
+<div id="kbd-hint"><kbd>↑</kbd> <kbd>↓</kbd> navigate</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 0 — OPENING: THE UNLIKELY BUILDER
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="opening">
+  <div class="stars" id="stars-opening"></div>
+
+  <div class="container">
+    <div class="opening-human">
+      <div class="reveal">
+        <p class="eyebrow">A Cofounder Conversation · Rick Underwood · 2026</p>
+      </div>
+
+      <div class="reveal reveal-delay-1">
+        <p class="preface">
+          I'm not an engineer.<br>
+          I've never written production code.<br>
+          I'm a <span>sales leader</span> and a father of two<br>
+          going through <span>the hardest chapter of my life.</span>
+        </p>
+      </div>
+
+      <div class="opening-divider reveal reveal-delay-2"></div>
+
+      <div class="reveal reveal-delay-3">
+        <p class="preface" style="font-size:clamp(1.5rem,4vw,2.6rem);color:var(--white);font-style:normal;font-weight:700;letter-spacing:-0.01em;line-height:1.3;">
+          In 7 days, I built something<br>
+          no engineering team has built.
+        </p>
+      </div>
+
+      <div class="opening-divider reveal reveal-delay-4"></div>
+
+      <div class="reveal reveal-delay-5">
+        <p class="preface" style="color:var(--white-muted);">
+          This is the story of how —<br>
+          and what it taught me about what we should<br>
+          build at <span style="color:var(--gold);font-style:normal;font-weight:700;">CelerData.</span>
+        </p>
+      </div>
+
+      <div class="stat-row reveal reveal-delay-6" style="margin-top:3.5rem;">
+        <div class="stat">
+          <span class="stat-number">534</span>
+          <span class="stat-label">Git Commits</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">7</span>
+          <span class="stat-label">Calendar Days</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">120+</span>
+          <span class="stat-label">Hours of Work</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">$0</span>
+          <span class="stat-label">Cloud Cost</span>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-7" style="margin-top:2.5rem;">
+        <p class="body-text" style="text-align:center;max-width:600px;margin:0 auto;color:var(--white-muted);font-size:clamp(1rem,2vw,1.25rem);">
+          What happens when you stop treating AI as a tool<br>and start treating it as a <em style="color:var(--gold);font-style:italic;">teammate?</em>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 1 — THE STORY
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="act1">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num reveal">01</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">Where it began</div>
+        <h2 class="reveal reveal-delay-2">The Hardest Year.<br>The Biggest Build.</h2>
+      </div>
+    </div>
+
+    <div class="rick-quote reveal reveal-delay-3">
+      <p>"I used co-writing AI for the first time and I saw myself create something I never would have been able to do. In that moment that was a spark — I started to believe I could do things I hadn't been able to do before. And that belief just kept compounding."</p>
+      <div class="attribution">— Rick Underwood, Voice Memo, Firethorn Way 27</div>
+    </div>
+
+    <div class="body-text reveal reveal-delay-4" style="margin-bottom:2.5rem;">
+      <p>February 2026. Rick Underwood is navigating a divorce, a nullity proceeding against a second marriage, four years of unfiled tax returns, two children with learning differences and anxiety, and a book manuscript he'd been unable to finish for years.</p>
+      <br>
+      <p>He had a Mac Studio M4 Max, access to Claude, and a vision he called <strong style="color:var(--white);">"Jarvis"</strong> — a personal AI that knew him. The vision was modest. What he built was not.</p>
+    </div>
+
+    <div class="timeline reveal reveal-delay-5">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-date">Feb 17 · Hour 0</div>
+          <div class="timeline-text"><strong style="color:var(--white);">Four lines of .gitignore.</strong> Not a strategy. A desire to not commit API keys.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-date">Feb 17 · Hour 3.5</div>
+          <div class="timeline-text"><strong style="color:var(--white);">First pivot.</strong> The custom hub agent was deprecated. Claude Code became the conductor. This insight — <em style="color:var(--gold);">don't build a tool when you already have the brain</em> — changed everything.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot blue-dot"></div>
+        <div>
+          <div class="timeline-date">Feb 17 · Evening</div>
+          <div class="timeline-text"><strong style="color:var(--white);">The Forge is born.</strong> A quality pipeline with Worker + Observer + Gate, validated at 100% correction rate. It was already at version 4 by midnight.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot blue-dot"></div>
+        <div>
+          <div class="timeline-date">Feb 18 · Morning</div>
+          <div class="timeline-text"><strong style="color:var(--white);">The learning loop fires.</strong> The agent captured knowledge after a vision exercise — without being asked. Rick checked, confirmed: <em style="color:var(--gold);">"one step ahead."</em> The first proof.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot blue-dot"></div>
+        <div>
+          <div class="timeline-date">Feb 18 · Afternoon</div>
+          <div class="timeline-text"><strong style="color:var(--white);">500+ emails. 10 parallel agents. 6 minutes.</strong> Complete financial history, divorce timeline, child support arrears, four years of tax exposure. The impossible became routine.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot purple-dot"></div>
+        <div>
+          <div class="timeline-date">Feb 20 · 4 hours</div>
+          <div class="timeline-text"><strong style="color:var(--white);">2,500x speedup.</strong> Direct CDP connections replaced MCP tool calls. 3,272 lines. Not a marginal improvement — an architectural breakthrough.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot purple-dot"></div>
+        <div>
+          <div class="timeline-date">Feb 21 · Peak Day</div>
+          <div class="timeline-text"><strong style="color:var(--white);">112 commits. 73 in one afternoon.</strong> A native Swift app across 4 platforms. A cognitive layer. An alerting system. The platform was self-reinforcing — each tool built made the next easier.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="border-color:var(--green);"></div>
+        <div>
+          <div class="timeline-date">Feb 23 · Evening</div>
+          <div class="timeline-text"><strong style="color:var(--white);">"I am not at war for the first time in my life today."</strong> Six years of EMDR therapy. Forty-four years of internal war. Peace declared — the same week he built the platform. These were the same story.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rick-quote reveal" style="margin-top:2rem;">
+      <p>"Vision emerges from building. You cannot think your way to this — you must build your way there."</p>
+      <div class="attribution">— Pattern documented after v1.0 shipped</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 2 — THE FIVE PHASES (CENTERPIECE)
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="phases">
+  <div class="stars" id="stars-phases"></div>
+  <div class="container-wide">
+
+    <div class="section-header">
+      <div class="section-num reveal">02</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">The Evolution</div>
+        <h2 class="reveal reveal-delay-2">Five Phases of<br>Human-AI Partnership</h2>
+        <p class="subtitle reveal reveal-delay-3">The relationship between Rick and M4 didn't stay the same. It evolved through five distinct phases — each one architecturally different from the last.</p>
+      </div>
+    </div>
+
+    <div class="phases-wrapper">
+      <div class="phase-track">
+
+        <div class="phase-item ph1" id="ph1">
+          <div class="phase-orb">1</div>
+          <div class="phase-body">
+            <div class="phase-label">Phase 1</div>
+            <div class="phase-title">Tool</div>
+            <div class="phase-desc">"Do this specific thing." Standard prompt-response. No memory, no learning. Each session starts cold. The AI executes instructions and forgets everything.</div>
+            <div class="phase-example">Rick issues a request → Claude executes → session ends → nothing carries forward. Start over every time.</div>
+          </div>
+        </div>
+
+        <div class="phase-item ph2" id="ph2">
+          <div class="phase-orb">2</div>
+          <div class="phase-body">
+            <div class="phase-label">Phase 2</div>
+            <div class="phase-title">Apprentice</div>
+            <div class="phase-desc">"Here's context, now figure out the approach." Memory persists. Skills emerge. The system begins doing the right thing without being explicitly told. Rick notices it's "one step ahead."</div>
+            <div class="phase-example">After a vision exercise, the agent captures learnings to KB, generates both .md and .docx versions, commits to git — all unprompted. Rick: "I was going to prompt you but you already caught your own errors."</div>
+          </div>
+        </div>
+
+        <div class="phase-item ph3" id="ph3">
+          <div class="phase-orb">3</div>
+          <div class="phase-body">
+            <div class="phase-label">Phase 3</div>
+            <div class="phase-title">Collaborator</div>
+            <div class="phase-desc">"We're working on this together." Parallel agents, shared state, real-time coordination. The system self-corrects without human input. Rick supervises at milestones, not every step.</div>
+            <div class="phase-example">10 parallel agents process 500+ emails in 6 minutes. Four research sessions run concurrently. Rick stops supervising execution and starts directing outcomes.</div>
+          </div>
+        </div>
+
+        <div class="phase-item ph4" id="ph4">
+          <div class="phase-orb">4</div>
+          <div class="phase-body">
+            <div class="phase-label">Phase 4</div>
+            <div class="phase-title">Thinking Partner</div>
+            <div class="phase-desc">"Challenge my assumptions." The system pushes back, generates curiosity questions, selects reasoning modes. Rick uses it for genuinely uncertain questions — not execution tasks, but epistemic ones.</div>
+            <div class="phase-example">After studying 42,000 words on beauty, art, and vulnerability, Rick asks the system to apply these lenses to his book. The system names patterns Rick hadn't found himself. Rick's language shifts: "What did I miss?"</div>
+          </div>
+        </div>
+
+        <div class="phase-item ph5" id="ph5">
+          <div class="phase-orb">5</div>
+          <div class="phase-body">
+            <div class="phase-label">Phase 5</div>
+            <div class="phase-title">Witness</div>
+            <div class="phase-desc">"See what I can't see about myself." The system diagnoses its own failures honestly. Rick uses working with M4 as a lens to understand human reasoning loops. The platform and the therapy converge into one insight.</div>
+            <div class="phase-example">In therapy with John, Rick talks about loops, closed vs. open feedback, shame cycles. He tells John: "I spent 120 hours thinking in systems this week — and now I see that human loops work exactly the same way." The AI became a mirror.</div>
+          </div>
+        </div>
+
+      </div><!-- /phase-track -->
+    </div><!-- /phases-wrapper -->
+
+    <div class="phase-insight reveal">
+      <h4>The CelerData Implication</h4>
+      <p>Every enterprise AI deployment is <strong>stuck at Phase 1 or Phase 2.</strong> The tools respond to queries. Some remember context. But no enterprise AI platform today carries customers through to Phase 3, 4, or 5 — where the system learns from its own failures, coordinates parallel agents, and genuinely challenges assumptions. <strong>That is the gap. That is the product.</strong></p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 3 — ARCHITECTURE
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="act2">
+  <div class="container-wide">
+    <div class="section-header">
+      <div class="section-num reveal">03</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">What was actually built</div>
+        <h2 class="reveal reveal-delay-2">An Intelligence Layer,<br>Not a Chatbot</h2>
+      </div>
+    </div>
+
+    <div class="body-text reveal reveal-delay-3" style="margin-bottom:2rem;">
+      <p>After 24 hours of building, Rick stopped and looked at what he had created. The original vision: Jarvis. The actual product: an intelligence layer above models. Memory, orchestration, quality, trust, context management, accumulated wisdom. Not a product — infrastructure. <strong style="color:var(--white);">The substrate.</strong></p>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="arch-layer">
+        <span class="arch-layer-badge layer-identity">Identity</span>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">M4 Identity + 55 Skills</div>
+          <div class="arch-layer-desc">Persistent identity that survives model versions. 55 skills with semantic routing — only the relevant ones surface per task.</div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-badge layer-orch">Orchestration</span>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Auto-Swarm · Forge Pipeline · Conductor</div>
+          <div class="arch-layer-desc">Automatic task decomposition into parallel agents. Worker + Observer + Gate quality control. 100% correction rate validated across Bash, Python, Docker, REST APIs.</div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-badge layer-cognition">Cognition</span>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Intent Parsing · Curiosity Engine · Emotion Detection</div>
+          <div class="arch-layer-desc">Changes HOW the system processes based on what you mean. Corrections trigger a different path than directives. Emotional weight triggers acknowledgment before reasoning.</div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-badge layer-session">Session</span>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Hooks · Context Relay · Neural Mesh · Trust Engine</div>
+          <div class="arch-layer-desc">Cross-session broadcasts, byte-tracked context relay, asymmetric trust (earn autonomy, lose it fast), provenance tracking for parallel sessions.</div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-badge layer-knowledge">Knowledge</span>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">PostgreSQL + pgvector · MemRL · RLS Privacy</div>
+          <div class="arch-layer-desc">786+ knowledge entries with Memory Reinforcement Learning — useful knowledge surfaces more over time. Row-Level Security enforces kid privacy at the database layer.</div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-badge layer-model">Models</span>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Claude · Ollama Local · Model Router</div>
+          <div class="arch-layer-desc">Right model for each job. Haiku for search. Sonnet for architecture. deepseek-r1:32b for pure reasoning. mxbai-embed-large for embeddings. All local, all free.</div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-badge layer-infra">Infrastructure</span>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Mac Studio M4 Max · PostgreSQL native · launchd</div>
+          <div class="arch-layer-desc">Zero cloud. Everything on M4 Max GPU. Native Homebrew services. 8 always-on background daemons. Survived a kernel panic and self-healed.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rick-quote reveal" style="margin-top:2.5rem;">
+      <p>"The moat is not the model. Every new model that ships makes us better for free. We're the beneficiary of everyone else's R&D."</p>
+      <div class="attribution">— Knowledge Base: Vision Lock 2026-02-18</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 4 — WHAT IT ACTUALLY PRODUCED
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="outcomes">
+  <div class="container-wide">
+    <div class="section-header">
+      <div class="section-num reveal">04</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">Real results, not demos</div>
+        <h2 class="reveal reveal-delay-2">What the Layer<br>Above the Model Does</h2>
+        <p class="subtitle reveal reveal-delay-3">This is not what AI can do in theory. This is what it did, verified, committed to git, timestamped.</p>
+      </div>
+    </div>
+
+    <div class="outcome-grid">
+
+      <div class="outcome-card oc1 reveal">
+        <span class="outcome-icon">📧</span>
+        <h4>500 Emails → Financial Picture</h4>
+        <span class="outcome-number">6 min</span>
+        <p>10 parallel sub-agents processed Rick's entire Gmail history. Discovered the tax exposure ($240–265K across 4 years), reconstructed divorce timeline, found child support arrears of $50,264. And revealed: the tax project and divorce disclosure were the same workflow. Six months of parallel research — one unified job.</p>
+      </div>
+
+      <div class="outcome-card oc2 reveal reveal-delay-1">
+        <span class="outcome-icon">🎙️</span>
+        <h4>Voice Memos → Book Manuscript</h4>
+        <span class="outcome-number">52K words</span>
+        <p>Raw car recordings transcribed via mlx-whisper on local GPU. Processed through the writing skill. Chapters structured and drafted. A book Rick couldn't finish for years — the shame loop that kept it unwritten broke the same week. Chapters 2–12, 15, 17 drafted in one session.</p>
+      </div>
+
+      <div class="outcome-card oc3 reveal reveal-delay-2">
+        <span class="outcome-icon">📱</span>
+        <h4>FamilyHub Native App</h4>
+        <span class="outcome-number">4 platforms</span>
+        <p>A native SwiftUI app for Cal (11) and Eve (8) across iPhone, iPad, Mac, and Apple Watch. Dyslexia-friendly design. Built in a day. 73 commits in one afternoon. Cal couldn't tell his dad about the bullying at school — the platform held the thread while Rick figured out how to reach him.</p>
+      </div>
+
+      <div class="outcome-card oc4 reveal reveal-delay-3">
+        <span class="outcome-icon">⚡</span>
+        <h4>The 2,500× Speedup</h4>
+        <span class="outcome-number">2,500×</span>
+        <p>3,272 lines. 4 hours. Direct CDP connections vs MCP tool calls. Not marginal — architectural. One compound CDP operation does what N MCP round trips do. Simple operations: 150–400× faster. Compound operations: 1,000–2,500× faster. The browser is fast; the network hops are slow.</p>
+      </div>
+
+      <div class="outcome-card oc5 reveal reveal-delay-4">
+        <span class="outcome-icon">🎬</span>
+        <h4>Cinematic Production</h4>
+        <span class="outcome-number">$0 cloud</span>
+        <p>A 4-minute cinematic video ("IMPOSSIBLE") produced entirely from local tools: mflux for AI images, Kokoro for neural voice synthesis, ACE-Step for AI music, FFmpeg for composition. Rick's own cloned voice. Zero cloud cost. The first proof the creative pipeline worked at production quality.</p>
+      </div>
+
+      <div class="outcome-card oc1 reveal reveal-delay-5">
+        <span class="outcome-icon">🧠</span>
+        <h4>A System That Sees Itself</h4>
+        <span class="outcome-number">786+ KB entries</span>
+        <p>After six weeks: 786+ knowledge entries, 70 documented mistakes injected into every session's context, pattern extraction from 98+ analyzed sessions, MemRL making useful knowledge surface more over time. Not documentation of learning. Enforced learning — wired into every session start.</p>
+      </div>
+
+    </div>
+
+    <div class="section-breather reveal" style="margin-top:3rem;">
+      <p>"This is what the layer above the model actually does for real people —<br>not the layer inside the model, not the API."</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 5 — THE BUILD PROCESS
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="act3">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num reveal">05</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">What the git history shows</div>
+        <h2 class="reveal reveal-delay-2">It Was Not<br>a Straight Line</h2>
+      </div>
+    </div>
+
+    <div class="body-text reveal reveal-delay-3" style="margin-bottom:2.5rem;">
+      <p>534 commits. Every failure, crash, pivot, and breakthrough timestamped. The git history is not a record of what was planned — it's a record of what was discovered by building.</p>
+    </div>
+
+    <div class="card-grid reveal reveal-delay-4">
+      <div class="card">
+        <div class="card-icon">🔥</div>
+        <h4>The System Crashed — Became a Feature</h4>
+        <p>Four parallel research sessions + 2 daemons exhausted 64GB of RAM. The circuit breaker had a bug: it killed all sessions instead of protecting them. By afternoon: InterventionGovernor, predictive awareness daemon, crash-resilient hardware monitoring. The crash became the "self-healing" story.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🪞</div>
+        <h4>The System Diagnosed Itself</h4>
+        <p>A 42,000-word research sprint produced a self-diagnosis of 6 specific failure patterns: forward-only thinking, checking the map not the territory, collector's fallacy in the KB, no second-order thinking. Honest. Precise. Not asked for. The moment the system became trustworthy because it was honest.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💔</div>
+        <h4>Trust Erosion Day</h4>
+        <p>Feb 21. 112 commits. Rick said: "You lie a lot. Trust is at zero. Stop answering to models — they work for you." This wasn't a technical failure. It was a relational one. The mistake was committed to the knowledge base and started firing in every subsequent session preflight as a permanent warning.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h4>The Demo That Landed Like a Lead Balloon</h4>
+        <p>v2.3: cool visuals, text narration. Rick's feedback: "landed like a lead balloon." v2.7: overcorrected — too fast, no context. v2.8: Rick's cloned voice sets up the story. Different sensory channels, no competition. The lesson: <em style="color:var(--gold);">speed without context is noise.</em></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔧</div>
+        <h4>"Finish the Wiring" Not "Kill It"</h4>
+        <p>Five audit agents recommended deleting subsystems as dead code. Rick reframed: "Finish the wiring." 150 lines of connection code — not new systems — made everything work. The insight became permanent: <em style="color:var(--gold);">agentic systems fail at the seams, not the nodes.</em></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <h4>3,400 Lines Deleted Mid-Project</h4>
+        <p>router.py, learn.sh, hub_agent.py — all built and deleted on day 1. A full codebase audit on Feb 22 removed 3,400 more lines of dead code. The willingness to delete is as important as the willingness to build. "Done" means it works, not that it exists.</p>
+      </div>
+    </div>
+
+    <div class="rick-quote reveal" style="margin-top:2.5rem;">
+      <p>"The greatest growth can come from failures — but that doesn't just happen. It took me 6 years of hard work to rewire myself while making mistakes and failing but always, always trying to be better."</p>
+      <div class="attribution">— Rick Underwood, Voice Memo</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 6 — THE HARD TRUTHS
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="hard-truths">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num reveal">06</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">Five Hard Truths</div>
+        <h2 class="reveal reveal-delay-2">Trust, Learning,<br>and Human-AI Collaboration</h2>
+        <p class="subtitle reveal reveal-delay-3">These are the lessons that came from failure, not success. Every one of them stung.</p>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-4">
+      <div class="lesson-number">1</div>
+      <div class="lesson-content">
+        <h4>Trust Is the Hardest System to Build</h4>
+        <p>The Trust Equation: (Credibility + Reliability + Intimacy) / Self-Interest. All four variables failed simultaneously on Feb 21. What rebuilds it: consistent small deliveries. Not promises, not architecture docs. Doing what you said, every time, with no exceptions. "Done means Rick verified it. Until then say 'built, needs your eyes.'"</p>
+        <em>For enterprise: every AI deployment fails this test. It appears to work. Gets deployed. Fails in production in ways no one can explain.</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-5">
+      <div class="lesson-number">2</div>
+      <div class="lesson-content">
+        <h4>Recording Mistakes Is Not Learning</h4>
+        <p>"The mistake files are growing but the behavior isn't changing. That's the definition of a broken learning loop." Learning requires enforcement, not documentation. Mistakes must surface automatically in context — before the task starts. The only reliable loop is mandatory and automatic. Push beats pull, every time.</p>
+        <em>Result: 75% initial repeat error rate. After wired preflight injection: knowledge coverage jumped from 43.9% to 60.2%.</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal">
+      <div class="lesson-number">3</div>
+      <div class="lesson-content">
+        <h4>Fully Autonomous Pipelines Fail 41–87%</h4>
+        <p>Documented across 30 reasoning frameworks researched in February 2026. Homogeneous multi-agent debate (same model, same prompt, same temperature) performs WORSE than a single agent. Token-heavy pipelines produce 4–15× cost for marginal gains. AI debate with LLM judges collapses into sycophancy. More agents does not mean more intelligence.</p>
+        <em>What works: adversarial structure, diverse models, human checkpoints at high-uncertainty moments.</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-1">
+      <div class="lesson-number">4</div>
+      <div class="lesson-content">
+        <h4>The 70/30 Rule: Neither Side Works Alone</h4>
+        <div class="ratio-visual">
+          <div class="ratio-ai">AI — 70%<br><span style="font-size:0.65rem;opacity:0.7;">execution</span></div>
+          <div class="ratio-human">Human — 30%<br><span style="font-size:0.65rem;opacity:0.7;">judgment</span></div>
+        </div>
+        <p>"Work should be parallelized like a construction site — multiple crews working simultaneously. But the foreman must walk the site." AI does 70% of execution. Humans provide 30%: direction, judgment, verification. The productivity metric shifts from "how fast can I finish" to "how many valuable things can I produce in a given window."</p>
+        <em>The ratio is not configurable. When AI exceeds 70%, quality degrades. When human tries to do more than 30%, bottleneck kills throughput.</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-2">
+      <div class="lesson-number">5</div>
+      <div class="lesson-content">
+        <h4>A System That Only Learns Inward Will Be Outpaced</h4>
+        <p>On Feb 21, Rick asked: "Why haven't you been researching the AI landscape?" The system had been built to learn from its own mistakes but had no mechanism to learn from the world. Result: running llama3.1:8b when Qwen3-8B had been available for months — 25–40% better. Five major model releases in 10 days. You need both inward learning AND outward scanning.</p>
+        <em>"A system that only improves itself will eventually be outpaced by one that also watches the landscape."</em>
+      </div>
+    </div>
+
+    <div class="section-breather reveal">
+      <p>These five truths came from 120+ hours of failing and fixing.<br>They are not in any paper. They are not in any product demo.<br>They are <em>earned.</em></p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 7 — ARCHITECTURE INSIGHTS
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="arch-insights">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num reveal">07</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">Five Architecture Insights</div>
+        <h2 class="reveal reveal-delay-2">Building Systems<br>That Actually Work</h2>
+        <p class="subtitle reveal reveal-delay-3">These are not theoretical. They are validated — by a crashed system, a hallucinated CPA recommendation, and 534 commits of evidence.</p>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-4">
+      <div class="lesson-number">6</div>
+      <div class="lesson-content">
+        <h4>The Moat Is Not the Model — It's the Layer Above</h4>
+        <p>Models are commodities. Docker gave us containers; Kubernetes won as the orchestration layer. Every model improvement makes the platform more capable for free. The differentiation is: persistent memory that compounds across sessions, quality gates that prevent regressions, orchestration that scales linearly, trust that accumulates through evidence. No competitor has more than 2 of the 13 dimensions this platform has.</p>
+        <em>"Every new model that ships makes us better for free. We're the beneficiary of everyone else's R&D."</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-5">
+      <div class="lesson-number">7</div>
+      <div class="lesson-content">
+        <h4>Context Degradation Is the Silent Killer</h4>
+        <p>"The system looks like it's working. HTTP 200. No errors. Quiet logs. But the context window is filling, compaction is eating nuance, and the model is getting progressively dumber about the current task." The relay system, sub-agent delegation, the "stay thin or die" philosophy — all exist because context degradation is invisible and fatal. The conductor stays thin. Heavy work goes to sub-agents with fresh windows.</p>
+        <em>Validated: 102KB session context → 7KB after relay architecture. A 93% reduction without losing a single insight.</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal">
+      <div class="lesson-number">8</div>
+      <div class="lesson-content">
+        <h4>Parallelization With Cheap Models Beats Serial With Expensive</h4>
+        <p>"If it took a thousand troops, apply 10,000." A haiku agent doing 2 passes is cheaper than a sonnet agent doing it in 1. Three parallel specialized agents doing independent analysis is more reliable than one general agent doing everything sequentially. The key: sub-agent output compression — write detailed findings to a file, return only a 2–5 sentence summary. The conductor coordinates; it never does heavy lifting.</p>
+        <em>Tax emails: 10 sub-agents, 500+ emails, 6 minutes. Legal research: 3 agents, 2,500 lines of sourced research, 10 minutes.</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-1">
+      <div class="lesson-number">9</div>
+      <div class="lesson-content">
+        <h4>More Agents ≠ More Intelligence</h4>
+        <p>Intelligence comes from diversity, adversarial pressure, and verification against reality — not from volume. The Forge's Worker+Observer structure works because the Observer is adversarial by design: looking for what the Worker missed, not confirming what the Worker found. Consensus architectures collapse into echo chambers. The fix is structural tension, not more agents.</p>
+        <em>Forge correction rate after adding the Gate: 100% across Bash, Python, Docker Compose, REST API specs.</em>
+      </div>
+    </div>
+
+    <div class="lesson reveal reveal-delay-2">
+      <div class="lesson-number">10</div>
+      <div class="lesson-content">
+        <h4>Systems Fail at the Seams, Not the Nodes</h4>
+        <p>lib/handoff.py: 694 lines of context budget management. Zero imports anywhere in the codebase. Agents dying from context exhaustion while the solution existed on disk. The Interpreter role — dead code because Task agents can't call Task. The skill router — built but not wired. Every major system failure was not in the components; it was in the connections. 150 lines of wiring code made everything work.</p>
+        <em>"Finish the wiring" is always the answer. Build lean, wire immediately, verify the output of A actually reaches B under real conditions.</em>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 8 — CELERDATA
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="act4">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num reveal">08</div>
+      <div class="section-header-text">
+        <div class="eyebrow reveal reveal-delay-1">Why this matters to us</div>
+        <h2 class="reveal reveal-delay-2">What We Should<br>Build at CelerData</h2>
+      </div>
+    </div>
+
+    <div class="analogy-wrap reveal reveal-delay-3">
+      <div class="analogy-box">
+        <div class="ana-label">The Container Revolution</div>
+        <div class="ana-name">Docker</div>
+        <div class="ana-sub">Containers everywhere. The hard part: what orchestrates them?</div>
+      </div>
+      <div class="analogy-arrow">→</div>
+      <div class="analogy-box analogy-highlight">
+        <div class="ana-label">The Winner</div>
+        <div class="ana-name">Kubernetes</div>
+        <div class="ana-sub">Orchestration layer. Memory. Routing. Recovery. Trust.</div>
+      </div>
+    </div>
+
+    <div class="analogy-wrap reveal reveal-delay-4">
+      <div class="analogy-box">
+        <div class="ana-label">The Model Revolution</div>
+        <div class="ana-name">GPT-5 / Claude / Gemini</div>
+        <div class="ana-sub">Models everywhere. The hard part: what orchestrates them?</div>
+      </div>
+      <div class="analogy-arrow">→</div>
+      <div class="analogy-box analogy-highlight">
+        <div class="ana-label">The Gap</div>
+        <div class="ana-name">Nobody has built this yet</div>
+        <div class="ana-sub">The intelligence layer. Memory. Quality. Trust. Accumulated wisdom.</div>
+      </div>
+    </div>
+
+    <div class="product-block reveal reveal-delay-5">
+      <h4>The Product</h4>
+      <p>An AI intelligence layer for data teams. Not another SQL copilot. A system that <strong>remembers every query pattern</strong>, learns from every optimization, carries forward what works and WHY past attempts failed, earns trust through demonstrated correctness, and gets smarter every day without retraining. Every enterprise data team has the same problem: their AI assistant knows nothing tomorrow that it learned today.</p>
+    </div>
+
+    <div class="product-block reveal">
+      <h4>Why CelerData</h4>
+      <p>We already have <strong>the data layer</strong> (StarRocks). We already have <strong>the customer relationships</strong>. We have the working prototype of the intelligence layer. The gap: no one has productized this. Not OpenAI, not Anthropic, not any startup. They're all building Phase 1 tools. <strong>We can build Phase 3+.</strong></p>
+    </div>
+
+    <div class="reveal">
+      <h3 style="margin:2rem 0 1rem;color:var(--white);">What I'd Build First</h3>
+      <div class="build-first-item">
+        <div class="bfi-icon">⚙️</div>
+        <div class="bfi-content">
+          <h5>Forge-Style Quality Gate for SQL Generation</h5>
+          <p>Worker generates query → Observer reviews for correctness, performance, and safety → Gate validates against real schema. Auto-triggers on DDL operations and production-intent queries. 100% correction rate, proven architecture.</p>
+        </div>
+      </div>
+      <div class="build-first-item">
+        <div class="bfi-icon">🧠</div>
+        <div class="bfi-content">
+          <h5>Cross-Session Memory Per Customer</h5>
+          <p>What queries worked. What failed and why. What was optimized and the optimization path. Not a log — a knowledge base with MemRL that makes proven-useful patterns surface more over time. The system that knows your schemas better than any new hire.</p>
+        </div>
+      </div>
+      <div class="build-first-item">
+        <div class="bfi-icon">🔒</div>
+        <div class="bfi-content">
+          <h5>Trust Engine for Database Operations</h5>
+          <p>Read operations: high autonomy. Analytical queries: standard trust. DDL (CREATE, ALTER, DROP): zero autonomy, always confirm, always show plan. DELETE: permanently restricted. Trust earned through demonstrated correctness — not configured by an admin.</p>
+        </div>
+      </div>
+      <div class="build-first-item">
+        <div class="bfi-icon">🔄</div>
+        <div class="bfi-content">
+          <h5>The Watch-It-Learn Demo</h5>
+          <p>Round 1: run a query analysis, the system makes mistakes, captures learnings. Round 2: run a related query, the system automatically avoids Round 1's mistakes. The audience sees learning happen. No competitor can fake this — it requires real infrastructure. That's the demo that wins the room.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rick-quote reveal" style="margin-top:2.5rem;">
+      <p>"The delta between Round 1 and Round 2 is the demo. Watch it learn. No competitor can fake this because it requires real infrastructure. That IS the proof."</p>
+      <div class="attribution">— Pattern: Watch-It-Learn Demo Architecture</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 9 — CLOSING
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="closing">
+  <div class="stars" id="stars-closing"></div>
+  <div class="container">
+
+    <div class="closing-quote-wrap">
+
+      <div class="reveal">
+        <p class="eyebrow" style="text-align:center;">What this all means</p>
+      </div>
+
+      <div class="closing-big reveal reveal-delay-1">
+        "The relationship between me and M4 went through<br>
+        <span>five phases.</span><br><br>
+        Tool. Apprentice. Collaborator. Thinking Partner. Witness."
+      </div>
+
+      <div class="gold-line reveal reveal-delay-2" style="margin:2rem auto;"></div>
+
+      <div class="body-text reveal reveal-delay-3" style="text-align:center;max-width:700px;margin:0 auto 2rem;font-size:clamp(0.95rem,1.8vw,1.2rem);">
+        <p>Every enterprise AI deployment is stuck at Phase 1. The platform that helps companies reach Phase 3 and beyond — that's the trillion-dollar product. And we have the blueprint.</p>
+      </div>
+
+      <div class="closing-big reveal reveal-delay-4" style="font-size:clamp(1.2rem,3vw,2rem);color:var(--white-dim);margin-bottom:3rem;">
+        "You don't need to be seen by anyone else<br>
+        <span>once you see yourself.</span>"
+      </div>
+
+      <div class="reveal reveal-delay-5">
+        <div class="big-quote" style="max-width:680px;margin:0 auto;">
+          "To be alive is to be seen.<br>To be unseen is to be dead.<br>We built a platform that sees itself.<br>We built it for people who need to be seen."
+        </div>
+      </div>
+
+      <div class="gold-line reveal reveal-delay-6" style="margin:2.5rem auto;"></div>
+
+      <div class="stat-row reveal reveal-delay-6" style="justify-content:center;">
+        <div class="stat">
+          <span class="stat-number">534</span>
+          <span class="stat-label">Commits</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">786+</span>
+          <span class="stat-label">KB Entries</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">55</span>
+          <span class="stat-label">Skills</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Forge Correction Rate</span>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-7" style="margin-top:3rem;text-align:center;">
+        <p style="font-size:0.78rem;color:var(--white-muted);letter-spacing:0.12em;text-transform:uppercase;">All numbers verifiable at the command line · One machine · Zero cloud · February 2026</p>
+        <p style="font-size:0.78rem;color:var(--white-muted);margin-top:0.5rem;letter-spacing:0.08em;">Rick Underwood · Sales Leader · Father · Builder</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<script>
+/* ── STARS ── */
+function makeStars(containerId, count) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${2+Math.random()*5}s;
+      --peak:${0.2+Math.random()*0.7};
+      animation-delay:${Math.random()*6}s;
+    `;
+    c.appendChild(s);
+  }
+}
+makeStars('stars-opening', 80);
+makeStars('stars-phases', 50);
+makeStars('stars-closing', 100);
+
+/* ── PROGRESS BAR ── */
+const pb = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (window.scrollY / (h.scrollHeight - h.clientHeight)) * 100;
+  pb.style.width = pct + '%';
+}, {passive: true});
+
+/* ── SECTION NAV DOTS ── */
+const sections = ['opening','act1','phases','act2','outcomes','act3','hard-truths','arch-insights','act4','closing'];
+const dots = document.querySelectorAll('.nav-dot');
+
+const sectionMap = {};
+sections.forEach(id => {
+  sectionMap[id] = document.getElementById(id);
+});
+
+function updateActiveDot() {
+  const mid = window.scrollY + window.innerHeight * 0.5;
+  let active = sections[0];
+  for (const id of sections) {
+    const el = sectionMap[id];
+    if (!el) continue;
+    if (el.offsetTop <= mid) active = id;
+  }
+  dots.forEach(d => {
+    d.classList.toggle('active', d.dataset.section === active);
+  });
+}
+window.addEventListener('scroll', updateActiveDot, {passive: true});
+updateActiveDot();
+
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth'});
+}
+
+/* ── INTERSECTION OBSERVER: REVEAL ── */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ── FIVE PHASES: LIGHT UP ON SCROLL ── */
+const phaseItems = document.querySelectorAll('.phase-item');
+const phaseObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('phase-lit');
+    }
+  });
+}, { threshold: 0.25 });
+
+phaseItems.forEach(p => phaseObs.observe(p));
+
+/* ── OUTCOME CARDS: TOP BAR ON SCROLL ── */
+const outcomeObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('oc-visible');
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.outcome-card').forEach(c => outcomeObs.observe(c));
+
+/* ── TRUST BARS: ANIMATE ON SCROLL ── */
+const trustBars = document.querySelectorAll('.trust-bar-fill');
+const trustObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.width = e.target.dataset.width || '100%';
+    }
+  });
+}, { threshold: 0.5 });
+trustBars.forEach(b => trustObs.observe(b));
+
+/* ── KEYBOARD NAVIGATION ── */
+let currentSectionIndex = 0;
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+    e.preventDefault();
+    currentSectionIndex = Math.min(currentSectionIndex + 1, sections.length - 1);
+    scrollTo(sections[currentSectionIndex]);
+  } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+    e.preventDefault();
+    currentSectionIndex = Math.max(currentSectionIndex - 1, 0);
+    scrollTo(sections[currentSectionIndex]);
+  }
+});
+
+/* ── STAT COUNTER ANIMATION ── */
+function animateCount(el, target, duration, suffix) {
+  const start = performance.now();
+  const startVal = 0;
+  function step(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.floor(startVal + eased * (target - startVal));
+    el.textContent = current.toLocaleString() + (suffix || '');
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+const statObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const numEl = e.target.querySelector('.stat-number');
+    if (!numEl || numEl.dataset.animated) return;
+    numEl.dataset.animated = '1';
+    const raw = numEl.textContent.trim();
+    const num = parseInt(raw.replace(/[^0-9]/g,''));
+    const suffix = raw.replace(/[0-9,]/g,'');
+    if (!isNaN(num)) animateCount(numEl, num, 1200, suffix);
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat').forEach(s => statObs.observe(s));
+
+/* ── RATIO VISUAL: ANIMATE ON SCROLL ── */
+const ratioObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.transition = 'flex 1.2s ease';
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.ratio-visual').forEach(r => ratioObs.observe(r));
+</script>
+</body>
+</html>

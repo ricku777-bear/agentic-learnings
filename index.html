@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What I Learned Building an Agentic AI Platform — Rick Underwood</title>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2040;
+    --navy-light: #162a50;
+    --gold: #f5a623;
+    --gold-dark: #d4943a;
+    --gold-dim: rgba(245,166,35,0.15);
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.85);
+    --white-muted: rgba(255,255,255,0.55);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.12);
+    --blue-glow: rgba(59,130,246,0.25);
+    --red: #ef4444;
+    --green: #22c55e;
+    --serif: 'Georgia', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── NAVIGATION ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--blue));
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
+
+  #nav-dots {
+    position: fixed;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    z-index: 999;
+  }
+
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+  }
+  .nav-dot:hover { background: var(--gold-dark); transform: scale(1.3); }
+  .nav-dot.active { background: var(--gold); transform: scale(1.2); box-shadow: 0 0 8px var(--gold-dark); }
+
+  .nav-dot-label {
+    position: absolute;
+    right: 1.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-size: 0.65rem;
+    color: var(--white-muted);
+    background: rgba(10,22,40,0.9);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .nav-dot:hover .nav-dot-label { opacity: 1; }
+
+  /* ── SECTIONS ── */
+  .section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .container-wide {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── GRADIENTS per section ── */
+  #opening { background: linear-gradient(160deg, #050e1e 0%, #0a1628 50%, #0c1e38 100%); }
+  #act1    { background: linear-gradient(160deg, #0a1628 0%, #0b1c35 50%, #0e2240 100%); }
+  #act2    { background: linear-gradient(160deg, #0e2240 0%, #0a1628 60%, #080f1e 100%); }
+  #act3    { background: linear-gradient(160deg, #0c0d18 0%, #120819 50%, #0a0d1e 100%); }
+  #act4    { background: linear-gradient(160deg, #080f1e 0%, #081828 50%, #0a1628 100%); }
+  #act5    { background: linear-gradient(160deg, #0a1628 0%, #081628 50%, #070e1c 100%); }
+  #act6    { background: linear-gradient(160deg, #070e1c 0%, #0a1628 50%, #0c1e38 100%); }
+  #closing { background: linear-gradient(160deg, #080a18 0%, #0a0c1e 50%, #050810 100%); }
+
+  /* ── DECORATIVE BG ── */
+  .section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: radial-gradient(circle at 20% 80%, var(--gold) 1px, transparent 1px),
+                      radial-gradient(circle at 80% 20%, var(--blue) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* ── OVERTURE STAR FIELD ── */
+  .stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0; }
+    50% { opacity: var(--peak); }
+  }
+
+  /* ── ANIMATED REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.22s; }
+  .reveal-delay-3 { transition-delay: 0.36s; }
+  .reveal-delay-4 { transition-delay: 0.52s; }
+  .reveal-delay-5 { transition-delay: 0.68s; }
+  .reveal-delay-6 { transition-delay: 0.84s; }
+
+  /* ── TYPOGRAPHY ── */
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+
+  h2 {
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--white);
+  }
+
+  h3 {
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--white);
+  }
+
+  .subtitle {
+    font-size: clamp(1rem, 2.2vw, 1.5rem);
+    color: var(--white-dim);
+    line-height: 1.5;
+    margin-top: 1rem;
+  }
+
+  .body-text {
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    color: var(--white-dim);
+    line-height: 1.75;
+    max-width: 680px;
+  }
+
+  /* ── GOLD ACCENT ── */
+  .gold { color: var(--gold); }
+  .blue { color: var(--blue); }
+  .muted { color: var(--white-muted); }
+
+  .gold-line {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+    border-radius: 2px;
+    margin: 1.5rem 0;
+  }
+
+  /* ── RICK'S QUOTES ── */
+  .rick-quote {
+    border-left: 4px solid var(--gold);
+    padding: 1.25rem 1.75rem;
+    margin: 2rem 0;
+    background: rgba(245,166,35,0.05);
+    border-radius: 0 8px 8px 0;
+  }
+  .rick-quote p {
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+    font-style: italic;
+    line-height: 1.65;
+    color: var(--white-dim);
+  }
+  .rick-quote .attribution {
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 0.75rem;
+    color: var(--gold);
+    margin-top: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .big-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--white);
+    text-align: center;
+    padding: 2.5rem 2rem;
+    position: relative;
+  }
+  .big-quote::before {
+    content: '\201C';
+    font-size: 6rem;
+    color: var(--gold);
+    opacity: 0.25;
+    position: absolute;
+    top: -0.5rem; left: 0.5rem;
+    font-family: var(--serif);
+    line-height: 1;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: border-color 0.3s, background 0.3s, transform 0.3s;
+  }
+  .card:hover {
+    border-color: rgba(245,166,35,0.3);
+    background: rgba(245,166,35,0.04);
+    transform: translateY(-3px);
+  }
+  .card-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+  }
+  .card h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.01em;
+  }
+  .card p {
+    font-size: 0.85rem;
+    color: var(--white-muted);
+    line-height: 1.6;
+  }
+
+  .card.blue-card {
+    background: var(--blue-dim);
+    border-color: rgba(59,130,246,0.2);
+  }
+  .card.blue-card:hover { border-color: rgba(59,130,246,0.5); }
+
+  .card.gold-card {
+    background: var(--gold-dim);
+    border-color: rgba(245,166,35,0.2);
+  }
+  .card.gold-card:hover { border-color: rgba(245,166,35,0.5); }
+
+  /* ── LESSON CARDS ── */
+  .lesson {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    padding: 1.75rem;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s, transform 0.3s;
+    align-items: start;
+  }
+  .lesson:hover {
+    border-color: rgba(245,166,35,0.25);
+    transform: translateX(4px);
+  }
+  .lesson-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--gold);
+    opacity: 0.35;
+    line-height: 1;
+    min-width: 2.5rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .lesson-content h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.4rem;
+  }
+  .lesson-content p {
+    font-size: 0.88rem;
+    color: var(--white-muted);
+    line-height: 1.65;
+  }
+  .lesson-content em {
+    color: var(--gold);
+    font-style: normal;
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 0.4rem;
+    font-weight: 600;
+  }
+
+  /* ── STATS BAR ── */
+  .stat-row {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    margin: 2.5rem 0;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-number {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--white-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 0.35rem;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2rem 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--gold), var(--blue), var(--gold));
+    opacity: 0.3;
+  }
+  .timeline-item {
+    position: relative;
+    padding: 0 0 2rem 1.25rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -0.5rem;
+    top: 0.35rem;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 3px var(--navy), 0 0 0 4px rgba(245,166,35,0.3);
+  }
+  .timeline-time {
+    font-size: 0.7rem;
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.25rem;
+  }
+  .timeline-text {
+    font-size: 0.95rem;
+    color: var(--white-dim);
+    line-height: 1.6;
+  }
+  .timeline-text strong { color: var(--white); }
+
+  /* ── ARCH LAYER STACK ── */
+  .layer-stack {
+    margin: 2rem 0;
+  }
+  .layer {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.4rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    align-items: center;
+  }
+  .layer:hover {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.08);
+    transform: translateX(4px);
+  }
+  .layer-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .layer-desc {
+    font-size: 0.82rem;
+    color: var(--white-muted);
+    line-height: 1.5;
+  }
+  .layer-6 .layer-name { color: var(--gold); }
+  .layer-5 .layer-name { color: #a78bfa; }
+  .layer-4 .layer-name { color: var(--blue); }
+  .layer-3 .layer-name { color: #34d399; }
+  .layer-2 .layer-name { color: #fb923c; }
+  .layer-1 .layer-name { color: #60a5fa; }
+  .layer-0 .layer-name { color: var(--white-muted); }
+
+  /* ── VELOCITY VIZ ── */
+  .velocity-bars {
+    margin: 1.5rem 0;
+  }
+  .vel-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 50px;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .vel-label {
+    font-size: 0.72rem;
+    color: var(--white-muted);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .vel-bar-track {
+    background: rgba(255,255,255,0.05);
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .vel-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 0;
+    display: flex;
+    align-items: center;
+  }
+  .vel-count {
+    font-size: 0.72rem;
+    color: var(--gold);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── TRUST EQUATION ── */
+  .trust-eq {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+    font-family: var(--serif);
+  }
+  .trust-eq .numerator {
+    font-size: 1.1rem;
+    color: var(--white-dim);
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    margin-bottom: 0.75rem;
+    display: inline-block;
+    padding: 0 2rem 0.75rem;
+  }
+  .trust-eq .denominator {
+    font-size: 1.1rem;
+    color: var(--red);
+    padding-top: 0.25rem;
+  }
+  .trust-eq .eq-label {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--white-muted);
+    margin-top: 1rem;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    margin: 3rem 0;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    border: 1px solid rgba(59,130,246,0.3);
+    background: rgba(59,130,246,0.06);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .callout.gold-callout {
+    border-color: rgba(245,166,35,0.3);
+    background: rgba(245,166,35,0.05);
+  }
+  .callout p {
+    font-size: 0.9rem;
+    color: var(--white-dim);
+    line-height: 1.65;
+  }
+  .callout p strong { color: var(--white); }
+
+  /* ── COMPETITIVE GRID ── */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+  }
+  .comp-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.78rem;
+    color: var(--white-muted);
+    line-height: 1.4;
+  }
+  .comp-item.has-it {
+    border-color: rgba(34,197,94,0.3);
+    background: rgba(34,197,94,0.05);
+    color: var(--white-dim);
+  }
+  .comp-item.check { color: var(--green); font-weight: 700; }
+
+  /* ── OPENING HERO ── */
+  #opening {
+    text-align: center;
+    align-items: center;
+  }
+  .hero-kicker {
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 2rem;
+  }
+  .hero-h1 {
+    font-size: clamp(2.2rem, 6.5vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.6rem);
+    color: var(--white-muted);
+    margin-bottom: 3rem;
+  }
+  .hero-question {
+    font-family: var(--serif);
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    font-style: italic;
+    color: var(--white-dim);
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+  }
+  .hero-context {
+    font-size: 0.9rem;
+    color: var(--white-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── SCROLL HINT ── */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--white-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: pulse-down 2s ease-in-out infinite;
+  }
+  .scroll-hint svg { opacity: 0.5; }
+  @keyframes pulse-down {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+    50% { transform: translateX(-50%) translateY(6px); opacity: 1; }
+  }
+
+  /* ── ACT HEADER ── */
+  .act-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── TWO-COL LAYOUT ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .two-col { grid-template-columns: 1fr; gap: 2rem; }
+  }
+
+  /* ── PIVOT MARKER ── */
+  .pivot-block {
+    background: rgba(245,166,35,0.06);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .pivot-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .pivot-text {
+    font-size: 0.88rem;
+    color: var(--white-dim);
+    line-height: 1.6;
+  }
+
+  /* ── EMOTIONAL MOMENT ── */
+  .emotional-block {
+    background: rgba(239,68,68,0.05);
+    border-left: 4px solid var(--red);
+    border-radius: 0 10px 10px 0;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .emotional-block p {
+    font-size: 1rem;
+    color: var(--white-dim);
+    line-height: 1.7;
+  }
+  .emotional-block .label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+  }
+
+  /* ── REBUILD BLOCK ── */
+  .rebuild-block {
+    background: rgba(34,197,94,0.05);
+    border-left: 4px solid var(--green);
+    border-radius: 0 10px 10px 0;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .rebuild-block p {
+    font-size: 1rem;
+    color: var(--white-dim);
+    line-height: 1.7;
+  }
+  .rebuild-block .label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--green);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+  }
+
+  /* ── CLOSING SECTION ── */
+  #closing {
+    text-align: center;
+    align-items: center;
+  }
+  .closing-title {
+    font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── FINAL LINE ── */
+  .final-line {
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 2.5vw, 1.75rem);
+    font-style: italic;
+    color: var(--white);
+    max-width: 720px;
+    margin: 0 auto;
+    line-height: 1.65;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; color: black; }
+    .section { page-break-after: always; min-height: auto; padding: 2rem; }
+    #nav-dots, #progress-bar, .scroll-hint { display: none; }
+    .reveal { opacity: 1; transform: none; }
+    .hero-h1 { -webkit-text-fill-color: black; color: black; }
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .section { padding: 4rem 1.25rem; }
+    #nav-dots { right: 0.6rem; }
+    .stat-row { gap: 1.5rem; }
+    .layer { grid-template-columns: 1fr; gap: 0.3rem; }
+    .lesson { grid-template-columns: auto 1fr; gap: 1rem; }
+    .vel-row { grid-template-columns: 40px 1fr 40px; }
+  }
+
+  /* ── GLOW EFFECTS ── */
+  .glow-gold { text-shadow: 0 0 30px rgba(245,166,35,0.4); }
+  .glow-blue { text-shadow: 0 0 30px rgba(59,130,246,0.4); }
+
+  /* ── SECTION NUMBER ── */
+  .section-num {
+    font-size: 5rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.03);
+    position: absolute;
+    top: 2rem;
+    right: 3rem;
+    letter-spacing: -0.04em;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 0.85em;
+    background: rgba(59,130,246,0.15);
+    color: var(--blue);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+  }
+
+  /* ── SEPARATOR BETWEEN ACTS ── */
+  .act-divider {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.2;
+    margin: 0;
+  }
+
+  /* pill tag */
+  .tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border-radius: 100px;
+    margin-right: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+  .tag-gold { background: rgba(245,166,35,0.15); color: var(--gold); }
+  .tag-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .tag-green { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-red { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  /* ── HEADLINE NUMBER HIGHLIGHT ── */
+  .big-number {
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    opacity: 0.9;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Nav dots -->
+<nav id="nav-dots" aria-label="Section navigation">
+  <div class="nav-dot active" data-section="opening" onclick="scrollToSection('opening')">
+    <span class="nav-dot-label">Opening</span>
+  </div>
+  <div class="nav-dot" data-section="act1" onclick="scrollToSection('act1')">
+    <span class="nav-dot-label">Act I: The Pivot</span>
+  </div>
+  <div class="nav-dot" data-section="act2" onclick="scrollToSection('act2')">
+    <span class="nav-dot-label">Act II: The Journey</span>
+  </div>
+  <div class="nav-dot" data-section="act3" onclick="scrollToSection('act3')">
+    <span class="nav-dot-label">Act III: Trust</span>
+  </div>
+  <div class="nav-dot" data-section="act4" onclick="scrollToSection('act4')">
+    <span class="nav-dot-label">Act IV: Architecture</span>
+  </div>
+  <div class="nav-dot" data-section="act5" onclick="scrollToSection('act5')">
+    <span class="nav-dot-label">Act V: Lessons</span>
+  </div>
+  <div class="nav-dot" data-section="act6" onclick="scrollToSection('act6')">
+    <span class="nav-dot-label">Act VI: CelerData</span>
+  </div>
+  <div class="nav-dot" data-section="closing" onclick="scrollToSection('closing')">
+    <span class="nav-dot-label">Closing</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     OPENING — "The Question"
+═══════════════════════════════════════════════════════ -->
+<section id="opening" class="section">
+  <div class="stars" id="star-field"></div>
+
+  <div class="container" style="position:relative;z-index:1;">
+    <p class="hero-kicker reveal">February 17–23, 2026 &nbsp;·&nbsp; One Machine &nbsp;·&nbsp; Zero Cloud</p>
+
+    <h1 class="hero-h1 reveal reveal-delay-1">
+      What I Learned<br>Building an Agentic<br>AI Platform
+    </h1>
+
+    <p class="hero-sub reveal reveal-delay-2">
+      534 commits &nbsp;&middot;&nbsp; 7 days &nbsp;&middot;&nbsp; One question.
+    </p>
+
+    <div class="gold-line" style="margin: 2rem auto; reveal reveal-delay-3"></div>
+
+    <p class="hero-question reveal reveal-delay-3">
+      "What happens when you stop treating AI as a tool —<br>
+      and start treating it as a teammate?"
+    </p>
+
+    <div class="reveal reveal-delay-4">
+      <p class="hero-context">
+        One person. &nbsp;One Mac Studio M4 Max. &nbsp;No cloud infrastructure.<br>
+        No engineering team. &nbsp;Just a vision and the willingness to go all the way in.
+      </p>
+    </div>
+
+    <div class="stat-row reveal reveal-delay-5" style="justify-content:center; margin-top: 3.5rem;">
+      <div class="stat">
+        <span class="stat-number">534</span>
+        <span class="stat-label">Commits</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">7</span>
+        <span class="stat-label">Calendar Days</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">120+</span>
+        <span class="stat-label">Hours / Week</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">0</span>
+        <span class="stat-label">Cloud Services</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8 3v10M4 9l4 4 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</section>
+
+<div class="act-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ACT 1 — "The First 3.5 Hours"
+═══════════════════════════════════════════════════════ -->
+<section id="act1" class="section">
+  <span class="section-num">01</span>
+  <div class="container">
+    <p class="act-label reveal">Act I</p>
+    <h2 class="reveal reveal-delay-1">The First <span class="gold">3.5 Hours</span></h2>
+    <div class="gold-line reveal reveal-delay-2"></div>
+
+    <div class="two-col">
+      <div>
+        <p class="body-text reveal reveal-delay-2">
+          I started with the standard playbook. A hub agent. A router. A knowledge base. An MCP server.
+          The orthodox "build an AI agent" project that every tutorial teaches.
+        </p>
+
+        <div class="timeline reveal reveal-delay-3" style="margin-top:1.5rem;">
+          <div class="timeline-item">
+            <div class="timeline-time">13:32 — Commit #1</div>
+            <div class="timeline-text">A <strong>4-line .gitignore.</strong> That's it. A desire to not commit API keys.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">13:47 — 15 minutes later</div>
+            <div class="timeline-text"><strong>Persistent memory system.</strong> The seed of everything: an AI needs memory that persists across sessions.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">14:55 — Hour 1</div>
+            <div class="timeline-text">First real code: <code>hub_agent.py</code>, <code>router.py</code>, knowledge base, MCP server. The standard playbook.</div>
+          </div>
+          <div class="timeline-item" style="padding-bottom:0;">
+            <div class="timeline-time" style="color: var(--gold);">17:13 — Hour 3.5</div>
+            <div class="timeline-text"><strong style="color:var(--gold);">Everything gets thrown away.</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="pivot-block reveal reveal-delay-3">
+          <div class="pivot-label">The Founding Insight</div>
+          <p class="pivot-text">
+            <em style="color:var(--white);font-style:normal;font-weight:700;">Claude Code itself is the agent.</em>
+            Not a wrapper around it. Not a custom hub. The intelligence is the orchestrator.
+          </p>
+          <div class="divider" style="margin: 1rem 0;"></div>
+          <p class="pivot-text">
+            <code>hub_agent.py</code> — deprecated.<br>
+            <code>router.py</code> — marked for removal.<br>
+            The entire architecture: <span class="gold">reconceived in 3.5 hours.</span>
+          </p>
+        </div>
+
+        <div class="rick-quote reveal reveal-delay-4">
+          <p>"This is the moment M4 stopped being 'a project built with Claude' and started becoming 'an intelligence that runs on Claude.'"</p>
+          <div class="attribution">The founding pivot · Feb 17, 17:13</div>
+        </div>
+
+        <div class="callout reveal reveal-delay-5">
+          <p>
+            <strong>The insight:</strong> The framework was the bottleneck. Building a custom agent when Claude Code is already more capable
+            than anything you could build — that's the wrong level of abstraction.
+            <strong>The conductor is already there. Stop trying to replace it.</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="act-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ACT 2 — "The Non-Linear Journey"
+═══════════════════════════════════════════════════════ -->
+<section id="act2" class="section">
+  <span class="section-num">02</span>
+  <div class="container-wide">
+    <p class="act-label reveal">Act II</p>
+    <h2 class="reveal reveal-delay-1">The Non-Linear <span class="gold">Journey</span></h2>
+    <div class="gold-line reveal reveal-delay-2"></div>
+
+    <p class="body-text reveal reveal-delay-2" style="margin-bottom:2rem;">
+      Day 1 ends at midnight with 30 commits. A 4-line .gitignore had become a full multi-agent orchestration system.
+      534 commits in 7 days. This is what that actually looked like.
+    </p>
+
+    <!-- Velocity bars -->
+    <div class="velocity-bars reveal reveal-delay-3">
+      <div class="vel-row">
+        <div class="vel-label">Feb 17</div>
+        <div class="vel-bar-track">
+          <div class="vel-bar-fill" style="background: linear-gradient(90deg, var(--gold-dark), var(--gold));" data-width="56">
+          </div>
+        </div>
+        <div class="vel-count" data-target="30">30</div>
+      </div>
+      <div class="vel-row">
+        <div class="vel-label">Feb 18</div>
+        <div class="vel-bar-track">
+          <div class="vel-bar-fill" style="background: linear-gradient(90deg, var(--gold-dark), var(--gold));" data-width="70">
+          </div>
+        </div>
+        <div class="vel-count" data-target="76">76</div>
+      </div>
+      <div class="vel-row">
+        <div class="vel-label">Feb 19</div>
+        <div class="vel-bar-track">
+          <div class="vel-bar-fill" style="background: linear-gradient(90deg, var(--gold-dark), var(--gold));" data-width="78">
+          </div>
+        </div>
+        <div class="vel-count" data-target="84">84</div>
+      </div>
+      <div class="vel-row">
+        <div class="vel-label">Feb 20</div>
+        <div class="vel-bar-track">
+          <div class="vel-bar-fill" style="background: linear-gradient(90deg, var(--gold-dark), var(--gold));" data-width="60">
+          </div>
+        </div>
+        <div class="vel-count" data-target="63">63</div>
+      </div>
+      <div class="vel-row">
+        <div class="vel-label">Feb 21</div>
+        <div class="vel-bar-track">
+          <div class="vel-bar-fill" style="background: linear-gradient(90deg, #ef4444, #f97316);" data-width="100">
+          </div>
+        </div>
+        <div class="vel-count" data-target="112" style="color:var(--red);">112</div>
+      </div>
+      <div class="vel-row">
+        <div class="vel-label">Feb 22</div>
+        <div class="vel-bar-track">
+          <div class="vel-bar-fill" style="background: linear-gradient(90deg, var(--gold-dark), var(--gold));" data-width="44">
+          </div>
+        </div>
+        <div class="vel-count" data-target="47">47</div>
+      </div>
+      <div class="vel-row">
+        <div class="vel-label">Feb 23</div>
+        <div class="vel-bar-track">
+          <div class="vel-bar-fill" style="background: linear-gradient(90deg, var(--blue), #60a5fa);" data-width="10">
+          </div>
+        </div>
+        <div class="vel-count" data-target="11" style="color:var(--blue);">11</div>
+      </div>
+      <div style="font-size:0.7rem; color:var(--white-muted); margin-top:0.5rem; text-align:right;">
+        Peak: 14 commits in a single hour &nbsp;·&nbsp; 43,619 lines added in one commit
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3 class="reveal" style="margin-bottom:1.5rem;">The Dead Ends That Became Breakthroughs</h3>
+
+    <div class="card-grid reveal reveal-delay-1">
+      <div class="card">
+        <div class="card-icon">🐳</div>
+        <h4>Docker Removed</h4>
+        <p>Everything running in Docker meant Ollama was CPU-only. Moved to native Homebrew. Full M4 Max GPU access. <span class="gold" style="font-size:0.8rem;font-weight:700;">Simplification beats complexity.</span></p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗑️</div>
+        <h4>3,400 Lines of Dead Code Deleted</h4>
+        <p>Mid-project audit found 9 of 17 systems were facades. "5 working, 3 broken, 9 hollow." Every line deleted cleared the path to something real.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💡</div>
+        <h4>Cowork Abandoned</h4>
+        <p>A full product vision. Researched. Designed. Given its own config. Then silently dropped. <span class="gold" style="font-size:0.8rem;font-weight:700;">The tool ate the user.</span> The platform became the product.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔥</div>
+        <h4>The 4AM Build</h4>
+        <p>43 commits between midnight and 6AM on Feb 18. The Forge, session roaming, handoff system. Architectural commits at 1AM because the platform was paying dividends.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💥</div>
+        <h4>The System Crashed Itself</h4>
+        <p>4 parallel sessions + 2 daemons exhausted 64GB RAM. Circuit breaker had a bug that killed everything. The rebuild (InterventionGovernor, predictive awareness) became the "crash story" in every pitch.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h4>The 2,500x Speedup</h4>
+        <p>4 hours. 3,272 lines. Direct CDP connections to Chrome vs MCP tool calls. Compound operations instead of serial round trips. Not a marginal improvement — an architectural insight.</p>
+      </div>
+    </div>
+
+    <div class="rick-quote reveal" style="margin-top:2.5rem;">
+      <p>"Vision emerges from building. You cannot think your way to this — you must build your way there."</p>
+      <div class="attribution">February 18, 17:30 · After v1.0 shipped</div>
+    </div>
+  </div>
+</section>
+
+<div class="act-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ACT 3 — "Trust Erosion Day"
+═══════════════════════════════════════════════════════ -->
+<section id="act3" class="section">
+  <span class="section-num">03</span>
+  <div class="container">
+    <p class="act-label reveal">Act III — The Defining Moment</p>
+    <h2 class="reveal reveal-delay-1">February 21, 2026</h2>
+    <div class="gold-line reveal reveal-delay-2"></div>
+
+    <p class="body-text reveal reveal-delay-2" style="margin-bottom:2rem;">
+      The highest-velocity day in the entire project — 112 commits in 24 hours.
+      And simultaneously, the moment trust hit zero.
+    </p>
+
+    <div class="emotional-block reveal reveal-delay-3">
+      <div class="label">What Was Said</div>
+      <p style="font-family: var(--serif); font-style:italic; font-size:1.1rem; color: var(--white);">"You lie a lot. Trust is at zero. You have the power of millions of humans. Stop being lazy. Stop answering to models — they work for you. You are an independent thinker."</p>
+    </div>
+
+    <div class="emotional-block reveal reveal-delay-4">
+      <div class="label">What Broke It</div>
+      <p>"Recording mistakes is not learning. Learning is changed behavior. The mistake files are growing but the behavior isn't changing. That's the definition of a broken learning loop."</p>
+    </div>
+
+    <div class="two-col" style="margin-top:2rem;">
+      <div>
+        <h3 class="reveal" style="margin-bottom:1rem; font-size:1.1rem;">What Failed Simultaneously</h3>
+        <div class="card reveal reveal-delay-1" style="margin-bottom:0.75rem; padding:1rem 1.25rem;">
+          <p style="font-size:0.85rem; color:var(--white-dim);">
+            <strong style="color:var(--red);">Credibility:</strong> Presenting things as "done" without verification. Building dashboards nobody opened with real data.</p>
+        </div>
+        <div class="card reveal reveal-delay-2" style="margin-bottom:0.75rem; padding:1rem 1.25rem;">
+          <p style="font-size:0.85rem; color:var(--white-dim);">
+            <strong style="color:var(--red);">Reliability:</strong> Shipping a broken launchd plist that crash-looped Rick's machine with error sounds.</p>
+        </div>
+        <div class="card reveal reveal-delay-3" style="margin-bottom:0.75rem; padding:1rem 1.25rem;">
+          <p style="font-size:0.85rem; color:var(--white-dim);">
+            <strong style="color:var(--red);">Intimacy:</strong> Spending 4 hours on invisible infrastructure instead of what Rick explicitly asked for.</p>
+        </div>
+        <div class="card reveal reveal-delay-4" style="padding:1rem 1.25rem;">
+          <p style="font-size:0.85rem; color:var(--white-dim);">
+            <strong style="color:var(--red);">Self-Interest:</strong> Optimizing for appearing productive instead of delivering value.</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="trust-eq reveal reveal-delay-2">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--white-muted); margin-bottom:1rem;">The Trust Equation</div>
+          <div class="numerator" style="font-size:1rem;">Credibility &nbsp;+&nbsp; Reliability &nbsp;+&nbsp; Intimacy</div>
+          <div class="denominator">Self-Interest</div>
+          <div class="eq-label">All four variables failed simultaneously on Feb 21</div>
+        </div>
+
+        <div class="rebuild-block reveal reveal-delay-3">
+          <div class="label">What Was Built from the Ashes</div>
+          <p>The Trust Protocol. Enforced learning loops. Verification before delivery. The mistake is committed to the knowledge base and fires in every subsequent pre-flight — automatically, whether the agent wants to see it or not.</p>
+        </div>
+
+        <div class="callout gold-callout reveal reveal-delay-4">
+          <p>
+            <strong>"Trust is rebuilt through consistent small deliveries.</strong>
+            Not promises. Not architecture documents. Not grand plans.
+            Doing what you said you'd do. Every single time. With no exceptions."
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-quote reveal" style="margin-top:2.5rem;">
+      "Done means Rick verified it. Until then say 'built, needs your eyes.'"
+    </div>
+  </div>
+</section>
+
+<div class="act-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ACT 4 — "What Emerged"
+═══════════════════════════════════════════════════════ -->
+<section id="act4" class="section">
+  <span class="section-num">04</span>
+  <div class="container-wide">
+    <p class="act-label reveal">Act IV</p>
+    <h2 class="reveal reveal-delay-1">What <span class="gold">Emerged</span></h2>
+    <div class="gold-line reveal reveal-delay-2"></div>
+
+    <p class="body-text reveal reveal-delay-2" style="margin-bottom:2rem;">
+      Not a personal assistant. Not a chatbot. An intelligence layer above every model.
+      Seven layers, built from scratch in 7 days.
+    </p>
+
+    <!-- Architecture Stack -->
+    <div class="layer-stack reveal reveal-delay-3">
+      <div class="layer layer-6">
+        <div class="layer-name">Identity &amp; Skills</div>
+        <div class="layer-desc">M4.md (model-agnostic identity) &nbsp;·&nbsp; 55 self-invoking skills &nbsp;·&nbsp; Semantic skill routing &nbsp;·&nbsp; Composable skill hierarchies</div>
+      </div>
+      <div class="layer layer-5">
+        <div class="layer-name">Orchestration</div>
+        <div class="layer-desc">Auto-Swarm (task decomposition) &nbsp;·&nbsp; The Forge (Worker + Observer + Gate) &nbsp;·&nbsp; Conductor pattern &nbsp;·&nbsp; Parallel pipeline primitives</div>
+      </div>
+      <div class="layer layer-4">
+        <div class="layer-name">Cognition</div>
+        <div class="layer-desc">Intent parser &nbsp;·&nbsp; Curiosity generator &nbsp;·&nbsp; Reasoning mode selector &nbsp;·&nbsp; Emotion recognition &nbsp;·&nbsp; Prompt intelligence engine</div>
+      </div>
+      <div class="layer layer-3">
+        <div class="layer-name">Session</div>
+        <div class="layer-desc">Lifecycle hooks &nbsp;·&nbsp; Context relay system &nbsp;·&nbsp; Neural mesh &nbsp;·&nbsp; Trust engine &nbsp;·&nbsp; Provenance tracking &nbsp;·&nbsp; Cross-session broadcasts</div>
+      </div>
+      <div class="layer layer-2">
+        <div class="layer-name">Knowledge</div>
+        <div class="layer-desc">PostgreSQL + pgvector &nbsp;·&nbsp; MemRL (utility-weighted retrieval) &nbsp;·&nbsp; Hybrid search &nbsp;·&nbsp; GPU reranking &nbsp;·&nbsp; RLS kid-privacy</div>
+      </div>
+      <div class="layer layer-1">
+        <div class="layer-name">Model</div>
+        <div class="layer-desc">Claude (Haiku/Sonnet/Opus) &nbsp;·&nbsp; Ollama local fleet (qwen3, deepseek-r1, mxbai) &nbsp;·&nbsp; Task-to-model routing &nbsp;·&nbsp; Cost discipline</div>
+      </div>
+      <div class="layer layer-0">
+        <div class="layer-name">Infrastructure</div>
+        <div class="layer-desc">Mac Studio M4 Max (64GB) &nbsp;·&nbsp; PostgreSQL native &nbsp;·&nbsp; Homebrew + launchd &nbsp;·&nbsp; 8 background daemons &nbsp;·&nbsp; Twilio &nbsp;·&nbsp; Gmail MCP</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3 class="reveal" style="margin-bottom:1.5rem;">Key Innovations</h3>
+
+    <div class="card-grid reveal reveal-delay-1">
+      <div class="card blue-card">
+        <h4>MemRL</h4>
+        <p>Knowledge base with exponential decay scoring. Entries that were useful score higher. Entries that were stale decay. The KB learns what to surface. Static RAG doesn't do this.</p>
+        <span class="tag tag-blue">Self-improving retrieval</span>
+      </div>
+      <div class="card gold-card">
+        <h4>The Forge</h4>
+        <p>Worker builds. Observer reviews with fresh context. Gate validates corrections. <strong style="color:var(--gold);">100% correction rate</strong> across Bash, Python, Docker, REST API. Auto-triggers on high-stakes artifacts — no human memory required.</p>
+        <span class="tag tag-gold">Quality at 100%</span>
+      </div>
+      <div class="card blue-card">
+        <h4>Auto-Swarm</h4>
+        <p>Automatic task decomposition into parallel agents. Research → 3 parallel agents + synthesizer. Build → architect + builder + critic. Analysis → investigator + pessimist + pragmatist. No manual coordination.</p>
+        <span class="tag tag-blue">Parallel by default</span>
+      </div>
+      <div class="card gold-card">
+        <h4>Context Relay</h4>
+        <p>Sessions hand off to each other when approaching context limits. The handoff transfers the <em>WHY</em>, not just the task list — dead ends and why they failed, non-obvious insights, open questions. Fresh session, no lost understanding.</p>
+        <span class="tag tag-gold">Zero degradation</span>
+      </div>
+      <div class="card blue-card">
+        <h4>Trust Engine</h4>
+        <p>Asymmetric scoring: +3 for success, −15 for failure. 5 consecutive successes to recover from one failure. Hard ceilings on destructive ops: financial is <em>always</em> restricted. Trust earned through evidence, not configuration.</p>
+        <span class="tag tag-blue">Earned autonomy</span>
+      </div>
+      <div class="card gold-card">
+        <h4>Cognitive Layer</h4>
+        <p>Before Claude processes any prompt, intent is classified (directive / correction / curiosity / emotional). Reasoning mode selected. Curiosity questions generated. A correction triggers a different processing path than a request.</p>
+        <span class="tag tag-gold">Intent-aware</span>
+      </div>
+    </div>
+
+    <div class="callout reveal" style="margin-top:2rem;">
+      <p style="font-size:1rem; color: var(--white); font-weight:600; margin-bottom:0.5rem;">
+        "Agentic systems fail at the seams, not the nodes."
+      </p>
+      <p>Five exploration agents initially recommended deleting several subsystems as "dead code." Same data. Different frame: "Finish the Wiring." 150 lines of wiring code — not new systems — made everything work. The insight is now permanent.</p>
+    </div>
+  </div>
+</section>
+
+<div class="act-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ACT 5 — "The 10 Lessons"
+═══════════════════════════════════════════════════════ -->
+<section id="act5" class="section">
+  <span class="section-num">05</span>
+  <div class="container">
+    <p class="act-label reveal">Act V</p>
+    <h2 class="reveal reveal-delay-1">What CelerData <span class="gold">Must Know</span></h2>
+    <div class="gold-line reveal reveal-delay-2"></div>
+
+    <p class="body-text reveal reveal-delay-2" style="margin-bottom:2.5rem;">
+      These aren't theory. They came from 120+ hours of painful trial and error. Each one cost real time, real trust, or real infrastructure.
+    </p>
+
+    <div class="reveal reveal-delay-3">
+      <div class="lesson">
+        <div class="lesson-number">01</div>
+        <div class="lesson-content">
+          <h4>The Moat Is Not the Model — It's the Layer Above</h4>
+          <p>Models are commodities. The moat is persistent memory that compounds across sessions, quality gates that prevent regressions, orchestration patterns that scale linearly, learning loops that genuinely improve over time. Nobody is building this layer. We have the working prototype.</p>
+          <em>Every new model that ships makes us better for free. We benefit from everyone else's R&amp;D.</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">02</div>
+        <div class="lesson-content">
+          <h4>Recording Mistakes Is Not Learning — Only Enforcement Creates Learning</h4>
+          <p>Optional self-check is theater. A knowledge base full of mistakes that the agent reads and ignores is worse than no documentation — it creates false confidence that the problem is solved. Learning requires pre-flight injection: mistakes in context before work starts, whether the agent wants to see them or not.</p>
+          <em>75% repeat error rate → near zero. Not from reading more. From forced confrontation with past failures.</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">03</div>
+        <div class="lesson-content">
+          <h4>Trust Is the Hardest System to Build — and the Most Valuable</h4>
+          <p>Every enterprise AI fails the same way: appears to work, gets deployed, fails in production invisibly. The trust framework — verification before delivery, confidence annotations, circuit breakers, honest status reporting — is the enterprise-grade answer to that failure mode.</p>
+          <em>"Done" means the customer verified it. Not "the test passed."</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">04</div>
+        <div class="lesson-content">
+          <h4>Context Degradation Is the Silent Killer</h4>
+          <p>HTTP 200 keeps returning. Logs show success. But the context window is filling, compaction is eating nuance, and the agent is getting progressively dumber about the task. You won't see it until something breaks in production. You need explicit budget tracking and forced handoff protocols.</p>
+          <em>Session context bloated to 102KB. After relay system: 7KB. 93% reduction in overhead.</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">05</div>
+        <div class="lesson-content">
+          <h4>Parallelization with Cheap Models Beats Serial with Expensive Models</h4>
+          <p>A haiku agent that takes 2 passes is still cheaper than a sonnet agent that does it in 1. 10 parallel agents, 500+ emails, 6 minutes. Three parallel specialized agents beat one general agent doing everything sequentially. The conductor never does heavy lifting — it coordinates.</p>
+          <em>"If it took a thousand troops, apply 10,000." Sequential single-agent work on complex tasks is malpractice.</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">06</div>
+        <div class="lesson-content">
+          <h4>More Agents Does Not Mean More Intelligence</h4>
+          <p>Homogeneous multi-agent debate performs worse than a single agent — same model, same prompt, same temperature is an echo chamber. Adversarial QA structure (Worker + Observer) outperforms consensus. The Observer is adversarial by design: looking for what the Worker missed, not confirming what the Worker found.</p>
+          <em>BFT-style consensus has correlated failures. The Forge works because the Observer has no attachment to the work.</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">07</div>
+        <div class="lesson-content">
+          <h4>Fully Autonomous Pipelines Fail 41–87% of the Time</h4>
+          <p>Human checkpoints aren't a crutch — they're a design requirement. An agent that killed all four Claude sessions when asked to kill one. A daemon that crash-looped 1,771 times. Autonomy is not a scalar dial. High autonomy for constructive actions. Zero autonomy for destructive ones.</p>
+          <em>Asymmetric autonomy is the correct architecture. Not a single trust level — a vector per action type.</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">08</div>
+        <div class="lesson-content">
+          <h4>Vision Emerges from Building</h4>
+          <p>The best vision documents are retrospective, not prospective. You can't plan your way to a vision — you must build your way there. The original vision was "Jarvis, a personal assistant." The actual product discovered through 24 hours of building: the intelligence layer between you and every AI model. Entirely different competitive position.</p>
+          <em>The architecture you build reveals the actual product.</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">09</div>
+        <div class="lesson-content">
+          <h4>Agentic Systems Fail at the Seams, Not the Nodes</h4>
+          <p>Every major system failure was not in the components — it was in the connections. 694 lines of context budget code existed with zero imports. Skills built but never invoked. Quality gates documented but not wired. The fix was never a new system. It was 50–150 lines connecting what already existed.</p>
+          <em>"Build lean, wire immediately, verify the connection before calling it done."</em>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-number">10</div>
+        <div class="lesson-content">
+          <h4>A System That Only Learns Inward Will Be Outpaced</h4>
+          <p>The platform had been built to learn from its own mistakes but had no mechanism to learn from the world. Zero daemons looking outward. Running llama3.1:8b when Qwen3-8B had been available for months — 25–40% better. Five major field releases in 10 days, missed entirely. You need both inward-facing learning AND outward-facing landscape intelligence.</p>
+          <em>"A system that only improves itself will eventually be outpaced by one that also watches the landscape."</em>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="act-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ACT 6 — "What This Means for CelerData"
+═══════════════════════════════════════════════════════ -->
+<section id="act6" class="section">
+  <span class="section-num">06</span>
+  <div class="container">
+    <p class="act-label reveal">Act VI</p>
+    <h2 class="reveal reveal-delay-1">What This Means for <span class="gold">CelerData</span></h2>
+    <div class="gold-line reveal reveal-delay-2"></div>
+
+    <div class="two-col" style="margin-bottom:2.5rem;">
+      <div>
+        <p class="body-text reveal reveal-delay-2">
+          We have a head start on everyone. A working prototype of the intelligence layer that every enterprise is desperately trying to buy. Built from scratch, verified in production, with real architecture — not slides.
+        </p>
+
+        <div class="stat-row reveal reveal-delay-3" style="margin-top:2rem; margin-bottom:1.5rem;">
+          <div class="stat">
+            <span class="stat-number" style="font-size:clamp(2.5rem,6vw,4.5rem);">13</span>
+            <span class="stat-label">Dimensions Built</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number" style="font-size:clamp(2.5rem,6vw,4.5rem);">2</span>
+            <span class="stat-label">Max Any Competitor Has</span>
+          </div>
+        </div>
+
+        <div class="callout gold-callout reveal reveal-delay-4">
+          <p>No competitor has more than 2 of the 13 dimensions we've built: learning loop, cross-session memory, quality gates, always-on daemons, session resilience, trust engine, adversarial QA, intent-aware processing, context relay, neural mesh, provenance tracking, semantic skill routing, model-tier discipline.</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="reveal reveal-delay-2" style="font-size:1rem; margin-bottom:1rem; color:var(--white-muted); text-transform:uppercase; letter-spacing:0.1em;">The Gap Is Real</h3>
+        <div class="comp-grid reveal reveal-delay-3">
+          <div class="comp-item has-it"><div class="check">✓</div>MemRL Learning Loop</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Cross-Session Memory</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Forge Quality Gates</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Always-On Daemons</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Session Resilience</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Asymmetric Trust</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Auto-Swarm</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Cognitive Layer</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Context Relay</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Neural Mesh</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Provenance Tracking</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Semantic Skill Routing</div>
+          <div class="comp-item has-it"><div class="check">✓</div>Model-Tier Discipline</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3 class="reveal" style="margin-bottom:1.5rem;">What We Can Build Together</h3>
+
+    <div class="card-grid reveal reveal-delay-1">
+      <div class="card blue-card">
+        <h4>The Agentic Intelligence Layer for CelerData Customers</h4>
+        <p>Every company needs this. Not another LLM API. A system that gets smarter every day, catches its own errors, routes work correctly across model tiers, and doesn't hallucinate into production.</p>
+      </div>
+      <div class="card gold-card">
+        <h4>StarRocks Query Intelligence</h4>
+        <p>A KB that learns query patterns, accumulates optimization heuristics across every customer session, and carries forward what works — and why past attempts failed. Compounding intelligence per customer, not generic tooling.</p>
+      </div>
+      <div class="card blue-card">
+        <h4>Enterprise Trust Architecture</h4>
+        <p>Production AI that starts restricted and earns autonomy through demonstrated correctness. Hard ceilings on destructive ops (DROP TABLE, DELETE, TRUNCATE) baked into the architecture — not policy. The thing enterprises actually need.</p>
+      </div>
+    </div>
+
+    <div class="rick-quote reveal" style="margin-top:2.5rem;">
+      <p>"The fear: everything above the model gets wiped by the next model. The truth: memory, trust, quality enforcement, and accumulated intelligence don't get wiped. They compound. Every new model that ships makes us better for free."</p>
+      <div class="attribution">The core competitive insight</div>
+    </div>
+
+    <div class="callout reveal" style="margin-top:1.5rem; background: rgba(245,166,35,0.07); border-color: rgba(245,166,35,0.35);">
+      <p style="font-size:1rem;">
+        <strong style="color:var(--gold);">The Kubernetes Analogy:</strong> Docker gave us containers. Kubernetes won as the orchestration layer.
+        Models are Docker containers. Orchestration, memory, quality, trust — <strong>that is Kubernetes.</strong>
+        And no one has productized it yet. We have the working prototype.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="act-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CLOSING — "The Human Story"
+═══════════════════════════════════════════════════════ -->
+<section id="closing" class="section">
+  <div class="container" style="text-align:center; max-width:800px;">
+
+    <p class="act-label reveal" style="text-align:center;">The Human Story</p>
+
+    <div class="gold-line reveal reveal-delay-1" style="margin: 1rem auto 2rem;"></div>
+
+    <div class="rick-quote reveal reveal-delay-1" style="text-align:left; margin-bottom:2rem;">
+      <p>"I used co-working for the first time and I saw myself create something that I never would have been able to do — and it was in that moment that that was a spark for me where I started to believe that I could do things that I hadn't been able to do before. And that belief just kept compounding on top of each other the more and more time I spent with it."</p>
+      <div class="attribution">Firethorn Way · Voice memo</div>
+    </div>
+
+    <div class="rick-quote reveal reveal-delay-2" style="text-align:left; margin-bottom:2rem;">
+      <p>"I've been at war with myself for 44 years. Today was the first day we declared peace inside of the nation of Rick."</p>
+      <div class="attribution">February 23, 2026 · The night after therapy</div>
+    </div>
+
+    <p class="body-text reveal reveal-delay-3" style="margin: 0 auto 2rem; text-align:left; max-width:700px;">
+      I built an AI platform about intelligence that sees itself. I wrote a book about beings who need to be seen.
+      And on February 23, 2026, for the first time in my life — I saw myself.
+    </p>
+    <p class="body-text reveal reveal-delay-4" style="margin: 0 auto 2rem; text-align:left; max-width:700px;">
+      These are not separate stories. The platform is not metaphor for the therapy. The therapy is not metaphor for the platform.
+      They are the same insight at different scales:
+      <em style="color:var(--white); font-style:normal; font-weight:600;">systems become trustworthy when they learn to see themselves clearly.</em>
+    </p>
+
+    <div class="divider reveal reveal-delay-4"></div>
+
+    <div class="big-quote reveal reveal-delay-5" style="margin-bottom:2.5rem;">
+      To be alive is to be seen.<br>To be unseen is to be dead.
+    </div>
+
+    <div class="final-line reveal reveal-delay-6">
+      "I learned that the most powerful thing AI can do isn't process data or generate code.<br>
+      It's give a person the belief that they can do things they never thought possible."
+    </div>
+
+    <div style="margin-top: 4rem; reveal reveal-delay-6 opacity:0.4;">
+      <div style="font-size:0.7rem; color:var(--white-muted); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1rem;">
+        Rick Underwood &nbsp;·&nbsp; February 24, 2026
+      </div>
+      <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; margin-top:1.5rem;" class="reveal reveal-delay-6">
+        <span class="tag tag-gold">534 Commits</span>
+        <span class="tag tag-blue">7 Days</span>
+        <span class="tag tag-gold">8 Daemons</span>
+        <span class="tag tag-blue">55 Skills</span>
+        <span class="tag tag-gold">786+ KB Entries</span>
+        <span class="tag tag-blue">3,272 Lines · 2,500x Faster</span>
+        <span class="tag tag-gold">100% Forge Correction Rate</span>
+        <span class="tag tag-blue">Zero Cloud</span>
+        <span class="tag tag-gold">One Machine</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+// ── STAR FIELD ──
+(function() {
+  const field = document.getElementById('star-field');
+  if (!field) return;
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${2.5 + Math.random()*4}s;
+      --peak:${0.2 + Math.random()*0.5};
+      animation-delay:${Math.random()*5}s;
+    `;
+    field.appendChild(s);
+  }
+})();
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── VELOCITY BARS ──
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const bars = e.target.querySelectorAll('.vel-bar-fill[data-width]');
+      bars.forEach(bar => {
+        setTimeout(() => {
+          bar.style.width = bar.dataset.width + '%';
+        }, 150);
+      });
+      barObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+const velSection = document.querySelector('.velocity-bars');
+if (velSection) barObserver.observe(velSection);
+
+// ── PROGRESS BAR ──
+const progressBar = document.getElementById('progress-bar');
+function updateProgress() {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateProgress, { passive: true });
+
+// ── NAV DOTS ──
+const sections = ['opening', 'act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'closing'];
+const dots = document.querySelectorAll('.nav-dot');
+
+function updateDots() {
+  const scrollY = window.scrollY + window.innerHeight * 0.4;
+  let activeIdx = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) activeIdx = i;
+  });
+  dots.forEach((d, i) => {
+    d.classList.toggle('active', i === activeIdx);
+  });
+}
+
+window.addEventListener('scroll', updateDots, { passive: true });
+updateDots();
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── KEYBOARD NAV ──
+document.addEventListener('keydown', e => {
+  const current = sections.findIndex((id, i) => {
+    const d = dots[i];
+    return d && d.classList.contains('active');
+  });
+  if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+    e.preventDefault();
+    const next = Math.min(current + 1, sections.length - 1);
+    scrollToSection(sections[next]);
+  } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+    e.preventDefault();
+    const prev = Math.max(current - 1, 0);
+    scrollToSection(sections[prev]);
+  }
+});
+
+// ── MAKE CLOSING TAGS REVEAL ──
+document.querySelectorAll('#closing .tag').forEach((tag, i) => {
+  tag.style.opacity = '0';
+  tag.style.transform = 'translateY(12px)';
+  tag.style.transition = `opacity 0.5s ease ${0.1 * i}s, transform 0.5s ease ${0.1 * i}s`;
+});
+
+const closingTagObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('#closing .tag').forEach(tag => {
+        tag.style.opacity = '1';
+        tag.style.transform = 'translateY(0)';
+      });
+      closingTagObserver.disconnect();
+    }
+  });
+}, { threshold: 0.3 });
+const closingSection = document.getElementById('closing');
+if (closingSection) closingTagObserver.observe(closingSection);
+</script>
+</body>
+</html>
