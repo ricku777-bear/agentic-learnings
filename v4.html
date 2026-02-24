@@ -108,6 +108,8 @@
     transition: opacity 0.65s ease, transform 0.65s ease;
   }
   .reveal.visible { opacity: 1; transform: translateY(0); }
+  /* Fallback: if JS fails, show everything */
+  .no-js .reveal { opacity: 1; transform: none; }
   .reveal-delay-1 { transition-delay: 0.1s; }
   .reveal-delay-2 { transition-delay: 0.22s; }
   .reveal-delay-3 { transition-delay: 0.36s; }
@@ -1550,6 +1552,9 @@ function makeStars(containerId, count) {
 makeStars('star-field', 80);
 makeStars('star-field-2', 60);
 
+// Force opening section visible immediately
+document.querySelectorAll('#opening .reveal').forEach(el => el.classList.add('visible'));
+
 // ─── PROGRESS BAR ────────────────────────────────────────────────────────────
 const bar = document.getElementById('progress-bar');
 window.addEventListener('scroll', () => {
@@ -1604,14 +1609,31 @@ window.addEventListener('scroll', () => {
 });
 
 // ─── REVEAL ON SCROLL ────────────────────────────────────────────────────────
-const revealEls = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) e.target.classList.add('visible');
-  });
-}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+try {
+  const revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+    revealEls.forEach(el => observer.observe(el));
+  } else {
+    // No IntersectionObserver support — show everything
+    revealEls.forEach(el => el.classList.add('visible'));
+  }
+} catch(err) {
+  // If anything fails, make all content visible
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+}
 
-revealEls.forEach(el => observer.observe(el));
+// Safety net: if nothing is visible after 2 seconds, force-show everything
+setTimeout(() => {
+  const hidden = document.querySelectorAll('.reveal:not(.visible)');
+  if (hidden.length > 10) {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }
+}, 2000);
 </script>
 
 </body>
