@@ -545,7 +545,7 @@ auth-systems (0.91) &rarr; security (0.74) &rarr; architecture (0.62)</pre>
           <div class="mech-num green">5</div>
           <div class="mech-origin" style="background:var(--green-dim); color:var(--green); border: 1px solid var(--green-border);">Neural Router &mdash; MLX</div>
           <h4>Learned Skill Routing</h4>
-          <p>MLP: <code>1024&rarr;256&rarr;64&rarr;12</code>. Input: prompt embedding. Output: skill scores. Trained on <code>routing_decisions</code> table with AES feedback.</p>
+          <p>MLP: <code>1024&rarr;256&rarr;64&rarr;12</code>. Prompt embedding &rarr; domain classification. Trained on <code>routing_decisions</code> table (161 labeled examples, 8 domains). AES outcome feedback closes the loop. <strong style="color:var(--green);">Live &mdash; trained and routing.</strong></p>
         </div>
         <div class="mech-card" style="border-top: 3px solid var(--pink);">
           <div class="mech-num pink">6</div>
@@ -571,6 +571,102 @@ auth-systems (0.91) &rarr; security (0.74) &rarr; architecture (0.62)</pre>
       </div>
       <div class="callout">
         <p><strong>Why 7 mechanisms, not 1:</strong> Each covers a different timescale. MemRL: milliseconds (individual retrievals). ExpeL: minutes (task completion). Reflexion: hours (domain experience). Neural Router: days (session outcomes). Code review: weeks (codebase evolution). Checklists: months (error accumulation). CoreMemory: permanent. <strong>Together, they cover every timescale of learning.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 5.5: UNIFIED TELEMETRY — THE FEEDBACK LOOP IN ACTION -->
+<!-- ============================================================ -->
+<section class="section" id="s-telemetry" style="background: linear-gradient(155deg, #0a1628 0%, #0f1e38 50%, #0a1628 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">Built &amp; Running &mdash; Not Theoretical</div>
+      <h2>Unified Telemetry.<br><span class="gold">Decision &rarr; Call &rarr; Outcome &rarr; Retrain.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">The learning loop isn't a diagram. It's running code. Every model call &mdash; across 14 models, 3 providers, 5 backends &mdash; logs to a single telemetry stream. Every routing decision writes to PostgreSQL. Outcomes feed back into the neural router's training data. The system gets smarter with every call.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <h3 style="margin-bottom:1.2rem;">The Pipeline &mdash; Four Stages</h3>
+      <div class="step-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="step-card sc-gold">
+          <div class="step-num" style="background:var(--gold); color:#0a1628;">1</div>
+          <h4>Route</h4>
+          <p><code>record_routing_decision()</code> writes to JSONL + PostgreSQL. Embeds the prompt via <code>mxbai-embed-large</code>. Returns a <code>decision_id</code> for linking.</p>
+        </div>
+        <div class="step-card sc-teal">
+          <div class="step-num" style="background:var(--teal); color:#0a1628;">2</div>
+          <h4>Call</h4>
+          <p><code>record_call(decision_id=N)</code> logs model, provider, task type, latency, tokens, success. Links back to the routing decision.</p>
+        </div>
+        <div class="step-card sc-green">
+          <div class="step-num" style="background:var(--green); color:#0a1628;">3</div>
+          <h4>Outcome</h4>
+          <p><code>record_outcome(N, success, latency)</code> updates the DB row. Ties model performance to the routing decision that chose it.</p>
+        </div>
+        <div class="step-card sc-purple">
+          <div class="step-num" style="background:var(--purple); color:#0a1628;">4</div>
+          <h4>Retrain</h4>
+          <p><code>maybe_retrain()</code> on session end. When labeled data &ge; 50, triggers <code>LearnedRouter.train()</code>. MLX classifier updates in seconds.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3" style="margin-top:2rem;">
+      <h3 style="margin-bottom:1.2rem;">14 Models. 3 Providers. One Telemetry Stream.</h3>
+      <div class="compare-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div class="compare-card" style="border-left: 4px solid var(--green);">
+          <div class="compare-header" style="color:var(--green);">Local (Free)</div>
+          <h4>Ollama &mdash; 6 Models</h4>
+          <p><code>qwen3:8b</code> (fast), <code>deepseek-r1:32b</code> (reasoning), <code>qwen3-coder:30b</code> (code), <code>qwen3:30b-a3b</code> (general), <code>glm4:9b</code> (alt), <code>mxbai-embed-large</code> (embeddings). M4 Max GPU. $0.00.</p>
+        </div>
+        <div class="compare-card" style="border-left: 4px solid var(--blue);">
+          <div class="compare-header" style="color:var(--blue);">Cloud APIs</div>
+          <h4>OpenAI + Google &mdash; 5 Models</h4>
+          <p><code>gpt-4o</code>, <code>gpt-4o-mini</code>, <code>o3-mini</code> (OpenAI). <code>gemini-2.0-flash</code>, <code>gemini-2.5-pro</code> (Google). Routed when cloud has unique advantage.</p>
+        </div>
+        <div class="compare-card" style="border-left: 4px solid var(--gold);">
+          <div class="compare-header" style="color:var(--gold);">Orchestration</div>
+          <h4>Claude &mdash; 3 Tiers</h4>
+          <p><code>opus</code> (conductor), <code>sonnet</code> (workhorse), <code>haiku</code> (fast sub-agents). Via Task tool &mdash; full tool access. Rate-limit aware.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4" style="margin-top:2rem;">
+      <div class="code-block">
+        <div class="code-label">Real Telemetry Output &mdash; python3 scripts/model-usage.py</div>
+<pre><span class="hl-gold">==============================================================</span>
+<span class="hl-gold">  Model Usage Report  &mdash;  Last 24 Hours</span>
+<span class="hl-gold">  Total calls: 16</span>
+<span class="hl-gold">==============================================================</span>
+
+<span class="hl-teal">BY MODEL</span>
+  Model              Calls  Avg Latency  Error Rate  In Tokens  Out Tokens
+  <span class="hl-muted">---------------</span>  <span class="hl-muted">-----</span>  <span class="hl-muted">-----------</span>  <span class="hl-muted">----------</span>  <span class="hl-muted">---------</span>  <span class="hl-muted">----------</span>
+  qwen3:8b              11      22,138ms       0.0%      8,049       6,539
+  deepseek-r1:32b        1     101,489ms       0.0%         34       1,149
+  gpt-4o                 1       7,752ms       0.0%         46         380
+  o3-mini                1       2,464ms       0.0%         21         264
+  gpt-4o-mini            1      13,123ms       0.0%         50         636
+  qwen3:30b-a3b          1      12,161ms       0.0%         53         264
+
+<span class="hl-teal">BY PROVIDER</span>
+  ollama       13    <span class="hl-green">81.2%</span>
+  openai        3    <span class="hl-blue">18.8%</span>
+
+<span class="hl-teal">BY TASK TYPE</span>
+  analyze       7    <span class="hl-gold">43.8%</span>     <span class="hl-muted">&larr; cognitive layer, session analysis</span>
+  generate      6    <span class="hl-gold">37.5%</span>     <span class="hl-muted">&larr; rerank, summarize, score</span>
+  chat          3    <span class="hl-gold">18.8%</span>     <span class="hl-muted">&larr; cloud API calls</span></pre>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-5">
+      <div class="callout">
+        <p><strong>Why this matters:</strong> Without telemetry, you're flying blind. Is the system over-relying on one model? Are cloud calls worth the latency? Which task types fail most? This data feeds the neural router's training loop &mdash; routing decisions that lead to fast, successful outcomes get reinforced. Bad routes get corrected. <strong style="color:var(--gold);">The system watches itself and improves.</strong></p>
       </div>
     </div>
   </div>
@@ -1122,7 +1218,7 @@ window.addEventListener('scroll', function() {
 });
 
 // NAV DOTS
-var sectionIds = ['s-opening','s-reframe','s-tiers','s-prompt','s-mechanisms','s-orchestration','s-mesh','s-knowledge','s-collective','s-moat','s-compounding','s-evolution','s-closing'];
+var sectionIds = ['s-opening','s-reframe','s-tiers','s-prompt','s-mechanisms','s-telemetry','s-orchestration','s-mesh','s-knowledge','s-collective','s-moat','s-compounding','s-evolution','s-closing'];
 var dots = document.querySelectorAll('.nav-dot');
 function updateDots() {
   var mid = window.scrollY + window.innerHeight / 2;
