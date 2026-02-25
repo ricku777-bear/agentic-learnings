@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V7 — The Complete Agentic Blueprint</title>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2040;
+    --navy-light: #162a50;
+    --gold: #f5a623;
+    --gold-dark: #d4943a;
+    --gold-dim: rgba(245,166,35,0.12);
+    --gold-glow: rgba(245,166,35,0.25);
+    --gold-border: rgba(245,166,35,0.25);
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.85);
+    --white-muted: rgba(255,255,255,0.5);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.1);
+    --blue-border: rgba(59,130,246,0.25);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.1);
+    --green-border: rgba(34,197,94,0.25);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.1);
+    --red-border: rgba(239,68,68,0.3);
+    --amber: #f59e0b;
+    --teal: #06b6d4;
+    --teal-dim: rgba(6,182,212,0.08);
+    --teal-border: rgba(6,182,212,0.25);
+    --teal-glow: rgba(6,182,212,0.18);
+    --purple: #a855f7;
+    --purple-dim: rgba(168,85,247,0.1);
+    --purple-border: rgba(168,85,247,0.25);
+    --pink: #ec4899;
+    --pink-dim: rgba(236,72,153,0.1);
+    --pink-border: rgba(236,72,153,0.25);
+    --serif: 'Georgia', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body { background: var(--navy); color: var(--white); font-family: var(--sans); overflow-x: hidden; line-height: 1.6; }
+
+  #progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--gold), var(--teal), var(--purple), var(--pink)); z-index: 1000; transition: width 0.1s linear; }
+
+  #nav-dots { position: fixed; right: 1.25rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5rem; z-index: 999; }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); cursor: pointer; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.08); position: relative; }
+  .nav-dot:hover { background: var(--gold-dark); transform: scale(1.3); }
+  .nav-dot.active { background: var(--gold); transform: scale(1.2); box-shadow: 0 0 8px var(--gold-dark); }
+  .nav-dot-label { position: absolute; right: 1.4rem; top: 50%; transform: translateY(-50%); white-space: nowrap; font-size: 0.6rem; color: var(--white-muted); background: rgba(10,22,40,0.92); padding: 0.2rem 0.5rem; border-radius: 4px; opacity: 0; pointer-events: none; transition: opacity 0.2s; letter-spacing: 0.04em; text-transform: uppercase; }
+  .nav-dot:hover .nav-dot-label { opacity: 1; }
+
+  .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 5rem 2rem; position: relative; overflow: hidden; }
+  .section-short { min-height: auto; padding: 4rem 2rem; }
+  .container { max-width: 960px; margin: 0 auto; width: 100%; }
+  .container-wide { max-width: 1200px; margin: 0 auto; width: 100%; }
+
+  .section::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.025; background-image: radial-gradient(circle at 20% 80%, var(--gold) 1px, transparent 1px), radial-gradient(circle at 80% 20%, var(--teal) 1px, transparent 1px); background-size: 40px 40px; }
+
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.22s; }
+  .reveal-delay-3 { transition-delay: 0.36s; }
+  .reveal-delay-4 { transition-delay: 0.52s; }
+  .reveal-delay-5 { transition-delay: 0.68s; }
+
+  .eyebrow { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+  h1 { font-size: clamp(2.2rem, 5.5vw, 4.5rem); font-weight: 800; line-height: 1.08; letter-spacing: -0.025em; }
+  h2 { font-size: clamp(1.7rem, 3.8vw, 3rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.015em; }
+  h3 { font-size: clamp(1rem, 2.2vw, 1.45rem); font-weight: 600; line-height: 1.3; }
+  .subtitle { font-size: clamp(0.95rem, 2vw, 1.35rem); color: var(--white-dim); line-height: 1.6; margin-top: 0.85rem; }
+  .body-text { font-size: clamp(0.9rem, 1.7vw, 1.08rem); color: var(--white-dim); line-height: 1.8; max-width: 760px; }
+  .gold { color: var(--gold); }
+  .blue { color: var(--blue); }
+  .teal { color: var(--teal); }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .purple { color: var(--purple); }
+  .pink { color: var(--pink); }
+  .muted { color: var(--white-muted); }
+
+  .gold-line { width: 56px; height: 3px; background: linear-gradient(90deg, var(--gold), var(--teal)); border-radius: 2px; margin: 1.4rem 0; }
+
+  .callout { background: linear-gradient(135deg, var(--gold-dim), rgba(245,166,35,0.06)); border: 1px solid var(--gold-border); border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1.75rem 0; }
+  .callout p { font-size: 0.95rem; color: var(--white-dim); line-height: 1.7; }
+  .callout strong { color: var(--gold); }
+
+  .research-card { background: linear-gradient(135deg, rgba(6,182,212,0.07), rgba(6,182,212,0.03)); border: 1px solid var(--teal-border); border-left: 4px solid var(--teal); border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .research-pill { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.58rem; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); background: rgba(6,182,212,0.12); border: 1px solid var(--teal-border); border-radius: 4px; padding: 0.18rem 0.5rem; margin-bottom: 0.6rem; }
+  .research-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+  .research-source { font-size: 0.88rem; font-weight: 700; color: var(--white); margin-bottom: 0.35rem; }
+  .research-finding { font-size: 0.84rem; color: var(--white-dim); line-height: 1.65; margin-bottom: 0.5rem; }
+  .research-finding strong { color: var(--teal); }
+  .research-attribution { font-size: 0.7rem; color: var(--white-muted); font-style: italic; }
+
+  .stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle var(--dur) ease-in-out infinite; opacity: 0; }
+  @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:var(--peak);} }
+
+  .code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1.25rem 0; overflow-x: auto; position: relative; }
+  .code-block pre { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; color: var(--white-dim); white-space: pre; }
+  .code-block .code-label { position: absolute; top: 0.5rem; right: 0.75rem; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white-muted); background: rgba(0,0,0,0.4); padding: 0.15rem 0.5rem; border-radius: 4px; }
+  .hl-gold { color: var(--gold); }
+  .hl-teal { color: var(--teal); }
+  .hl-blue { color: var(--blue); }
+  .hl-green { color: var(--green); }
+  .hl-purple { color: var(--purple); }
+  .hl-red { color: var(--red); }
+  .hl-pink { color: var(--pink); }
+  .hl-muted { color: var(--white-muted); }
+
+  .canvas-wrap { position: relative; width: 100%; max-width: 1100px; margin: 2rem auto; border: 1px solid rgba(245,166,35,0.15); border-radius: 20px; overflow: hidden; background: radial-gradient(ellipse at center, rgba(15,32,64,0.9) 0%, rgba(6,14,28,0.98) 70%); }
+  .canvas-wrap::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+  .viz-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  .agent-node { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: default; text-align: center; z-index: 10; transition: transform 0.3s, box-shadow 0.3s; }
+  .agent-node:hover { transform: translate(-50%, -50%) scale(1.12); }
+  .agent-label { position: absolute; bottom: -1.5rem; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .agent-icon { font-size: 1.1rem; line-height: 1; }
+  .agent-sub { position: absolute; top: -1.3rem; left: 50%; transform: translateX(-50%); font-size: 0.5rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; padding: 0.1rem 0.4rem; border-radius: 3px; }
+
+  .an-gold { width: 80px; height: 80px; background: radial-gradient(circle, rgba(245,166,35,0.3) 0%, rgba(245,166,35,0.1) 70%); border: 2px solid rgba(245,166,35,0.6); box-shadow: 0 0 30px rgba(245,166,35,0.4); animation: pulse-gold 3s ease-in-out infinite; color: var(--gold); }
+  .an-conductor { width: 100px; height: 100px; background: radial-gradient(circle, rgba(245,166,35,0.4) 0%, rgba(245,166,35,0.15) 60%); border: 2.5px solid rgba(245,166,35,0.8); box-shadow: 0 0 50px rgba(245,166,35,0.5), 0 0 100px rgba(245,166,35,0.2); animation: pulse-center 3s ease-in-out infinite; color: var(--gold); }
+  .an-teal { width: 64px; height: 64px; background: radial-gradient(circle, rgba(6,182,212,0.25) 0%, rgba(6,182,212,0.08) 70%); border: 2px solid rgba(6,182,212,0.5); box-shadow: 0 0 20px rgba(6,182,212,0.35); animation: pulse-teal 3.5s ease-in-out infinite; color: var(--teal); }
+  .an-blue { width: 64px; height: 64px; background: radial-gradient(circle, rgba(59,130,246,0.25) 0%, rgba(59,130,246,0.08) 70%); border: 2px solid rgba(59,130,246,0.45); box-shadow: 0 0 18px rgba(59,130,246,0.3); animation: pulse-blue 4s ease-in-out infinite; color: var(--blue); }
+  .an-purple { width: 64px; height: 64px; background: radial-gradient(circle, rgba(168,85,247,0.25) 0%, rgba(168,85,247,0.08) 70%); border: 2px solid rgba(168,85,247,0.45); box-shadow: 0 0 18px rgba(168,85,247,0.3); animation: pulse-purple 4.5s ease-in-out infinite; color: var(--purple); }
+  .an-green { width: 64px; height: 64px; background: radial-gradient(circle, rgba(34,197,94,0.25) 0%, rgba(34,197,94,0.08) 70%); border: 2px solid rgba(34,197,94,0.4); box-shadow: 0 0 18px rgba(34,197,94,0.3); animation: pulse-green 3.8s ease-in-out infinite; color: var(--green); }
+  .an-red { width: 56px; height: 56px; background: radial-gradient(circle, rgba(239,68,68,0.25) 0%, rgba(239,68,68,0.08) 70%); border: 2px solid rgba(239,68,68,0.4); box-shadow: 0 0 16px rgba(239,68,68,0.3); animation: pulse-red 3.2s ease-in-out infinite; color: var(--red); }
+  .an-pink { width: 64px; height: 64px; background: radial-gradient(circle, rgba(236,72,153,0.25) 0%, rgba(236,72,153,0.08) 70%); border: 2px solid rgba(236,72,153,0.45); box-shadow: 0 0 18px rgba(236,72,153,0.3); animation: pulse-pink 3.6s ease-in-out infinite; color: var(--pink); }
+  .an-small { width: 48px; height: 48px; }
+  .an-small .agent-icon { font-size: 0.9rem; }
+
+  @keyframes pulse-gold { 0%,100%{box-shadow:0 0 30px rgba(245,166,35,0.4);} 50%{box-shadow:0 0 50px rgba(245,166,35,0.7), 0 0 80px rgba(245,166,35,0.2);} }
+  @keyframes pulse-center { 0%,100%{box-shadow:0 0 50px rgba(245,166,35,0.5), 0 0 100px rgba(245,166,35,0.2);} 50%{box-shadow:0 0 80px rgba(245,166,35,0.8), 0 0 130px rgba(245,166,35,0.3);} }
+  @keyframes pulse-teal { 0%,100%{box-shadow:0 0 20px rgba(6,182,212,0.35);} 50%{box-shadow:0 0 35px rgba(6,182,212,0.6), 0 0 60px rgba(6,182,212,0.2);} }
+  @keyframes pulse-blue { 0%,100%{box-shadow:0 0 18px rgba(59,130,246,0.3);} 50%{box-shadow:0 0 32px rgba(59,130,246,0.55), 0 0 50px rgba(59,130,246,0.15);} }
+  @keyframes pulse-purple { 0%,100%{box-shadow:0 0 18px rgba(168,85,247,0.3);} 50%{box-shadow:0 0 32px rgba(168,85,247,0.55), 0 0 50px rgba(168,85,247,0.15);} }
+  @keyframes pulse-green { 0%,100%{box-shadow:0 0 18px rgba(34,197,94,0.3);} 50%{box-shadow:0 0 30px rgba(34,197,94,0.5), 0 0 50px rgba(34,197,94,0.15);} }
+  @keyframes pulse-red { 0%,100%{box-shadow:0 0 16px rgba(239,68,68,0.3);} 50%{box-shadow:0 0 28px rgba(239,68,68,0.5), 0 0 45px rgba(239,68,68,0.15);} }
+  @keyframes pulse-pink { 0%,100%{box-shadow:0 0 18px rgba(236,72,153,0.3);} 50%{box-shadow:0 0 32px rgba(236,72,153,0.55), 0 0 50px rgba(236,72,153,0.15);} }
+
+  .timeline { position: relative; padding-left: 2rem; margin: 2rem 0; }
+  .timeline::before { content: ''; position: absolute; left: 0.75rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--gold), var(--teal), var(--blue), var(--purple), var(--pink)); }
+  .tl-item { position: relative; margin-bottom: 2rem; padding-left: 1.5rem; }
+  .tl-dot { position: absolute; left: -1.35rem; top: 0.3rem; width: 12px; height: 12px; border-radius: 50%; border: 2px solid; }
+  .tl-dot-gold { border-color: var(--gold); background: var(--gold-dim); box-shadow: 0 0 8px rgba(245,166,35,0.4); }
+  .tl-dot-teal { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 0 8px rgba(6,182,212,0.4); }
+  .tl-dot-blue { border-color: var(--blue); background: var(--blue-dim); box-shadow: 0 0 8px rgba(59,130,246,0.4); }
+  .tl-dot-purple { border-color: var(--purple); background: var(--purple-dim); box-shadow: 0 0 8px rgba(168,85,247,0.4); }
+  .tl-dot-green { border-color: var(--green); background: var(--green-dim); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  .tl-dot-pink { border-color: var(--pink); background: var(--pink-dim); box-shadow: 0 0 8px rgba(236,72,153,0.4); }
+  .tl-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .tl-title { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
+  .tl-body { font-size: 0.84rem; color: var(--white-dim); line-height: 1.65; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+  .compare-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem; transition: all 0.3s; }
+  .compare-card:hover { border-color: var(--gold-border); background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+  .compare-header { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .compare-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
+  .compare-card p { font-size: 0.82rem; color: var(--white-dim); line-height: 1.65; }
+  .compare-stat { font-size: 1.8rem; font-weight: 900; line-height: 1; margin-bottom: 0.3rem; }
+
+  .metrics-row { display: flex; flex-wrap: wrap; gap: 0.85rem; margin: 1.5rem 0; }
+  .metric-chip { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.6rem 1rem; text-align: center; min-width: 100px; }
+  .metric-chip .mv { font-size: 1.4rem; font-weight: 800; line-height: 1; display: block; margin-bottom: 0.2rem; }
+  .metric-chip .ml { font-size: 0.65rem; color: var(--white-muted); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+
+  .section-divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(245,166,35,0.2), transparent); margin: 2.5rem 0; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 1.5rem; font-size: 0.7rem; }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; color: var(--white-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .closing-statement { font-family: var(--serif); font-size: clamp(1.3rem, 3vw, 2.1rem); font-style: italic; line-height: 1.55; color: var(--white-dim); text-align: center; max-width: 780px; margin: 0 auto; }
+
+  .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .step-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem; position: relative; overflow: hidden; }
+  .step-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 14px 0 0 14px; }
+  .step-card.sc-gold::before { background: var(--gold); }
+  .step-card.sc-teal::before { background: var(--teal); }
+  .step-card.sc-blue::before { background: var(--blue); }
+  .step-card.sc-purple::before { background: var(--purple); }
+  .step-card.sc-green::before { background: var(--green); }
+  .step-card.sc-pink::before { background: var(--pink); }
+  .step-card.sc-red::before { background: var(--red); }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 900; margin-bottom: 0.75rem; }
+  .step-card h4 { font-size: 0.92rem; font-weight: 700; color: var(--white); margin-bottom: 0.4rem; }
+  .step-card p { font-size: 0.8rem; color: var(--white-dim); line-height: 1.6; }
+
+  .chip { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.22rem 0.6rem; border-radius: 4px; letter-spacing: 0.04em; }
+  .chip-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+  .chip-teal { background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal-border); }
+  .chip-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue-border); }
+  .chip-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
+  .chip-green { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
+  .chip-pink { background: var(--pink-dim); color: var(--pink); border: 1px solid var(--pink-border); }
+
+  .mech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin: 2rem 0; }
+  .mech-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.5rem; position: relative; overflow: hidden; transition: all 0.3s; }
+  .mech-card:hover { border-color: var(--gold-border); background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+  .mech-card .mech-num { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 0.5rem; }
+  .mech-card h4 { font-size: 1.05rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
+  .mech-card .mech-origin { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.6rem; display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; }
+  .mech-card p { font-size: 0.82rem; color: var(--white-dim); line-height: 1.65; }
+  .mech-card code { font-family: var(--mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+  .formula-block { background: rgba(0,0,0,0.5); border: 1px solid rgba(245,166,35,0.2); border-radius: 12px; padding: 1.5rem 2rem; margin: 1.5rem 0; text-align: center; }
+  .formula-block .formula { font-family: var(--mono); font-size: 1.1rem; color: var(--gold); line-height: 2; letter-spacing: 0.02em; }
+  .formula-block .formula-label { font-size: 0.7rem; color: var(--white-muted); margin-top: 0.5rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* STACK LAYERS (Section 2) */
+  .stack-layer { border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 0.75rem; transition: all 0.4s ease; cursor: default; position: relative; overflow: hidden; }
+  .stack-layer:hover { transform: translateX(6px); }
+  .stack-layer h4 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .stack-layer p { font-size: 0.84rem; line-height: 1.6; }
+  .stack-layer .layer-num { position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); font-size: 2.5rem; font-weight: 900; opacity: 0.15; }
+
+  /* TIER CARDS (Section 3) */
+  .tier-card { border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; position: relative; overflow: hidden; }
+  .tier-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .tier-card p { font-size: 0.84rem; line-height: 1.65; }
+  .tier-badge { display: inline-block; font-size: 0.6rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.75rem; }
+  .tier-arrow { text-align: center; font-size: 1.5rem; margin: 0.25rem 0; opacity: 0.4; }
+
+  /* STAIRCASE (Section 10) */
+  .stair-step { display: flex; align-items: stretch; margin-bottom: 0.5rem; }
+  .stair-bar { width: 4px; border-radius: 2px; margin-right: 1rem; flex-shrink: 0; }
+  .stair-content { flex: 1; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 1rem 1.25rem; }
+  .stair-content h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .stair-content p { font-size: 0.82rem; color: var(--white-dim); line-height: 1.6; }
+
+  @media (max-width: 720px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .step-grid { grid-template-columns: 1fr; }
+    .mech-grid { grid-template-columns: 1fr; }
+    #nav-dots { display: none; }
+    .canvas-wrap { min-height: 380px; }
+  }
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav id="nav-dots">
+  <div class="nav-dot active"><span class="nav-dot-label">Opening</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">The Reframe</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Three Tiers</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Prompt Engine</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">7 Mechanisms</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Orchestration</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Neural Mesh</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Knowledge Arch</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Collective</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Insights to Moat</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Compounding</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Evolution</span></div>
+  <div class="nav-dot"><span class="nav-dot-label">Closing</span></div>
+</nav>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: OPENING -->
+<!-- ============================================================ -->
+<section class="section" id="s-opening" style="background: linear-gradient(155deg, #050e1e 0%, #0a1628 55%, #0c1e38 100%);">
+  <div class="stars" id="star-field"></div>
+  <div class="container">
+    <div class="reveal">
+      <div class="eyebrow">The Complete Agentic Blueprint &mdash; V7</div>
+      <h1>Models Commoditize.<br><span class="gold">The Learning Engine Doesn't.</span></h1>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="gold-line"></div>
+      <p class="subtitle" style="max-width:740px;">
+        V6 showed the 7 layers. V6.1 opened the swarm. V6.2 revealed the learning loop. V7 shows why the value lives <em>above</em> the models &mdash; and how individual learning becomes <strong style="color:var(--gold);">collective intelligence</strong>.
+      </p>
+    </div>
+    <div class="reveal reveal-delay-3">
+      <div class="metrics-row">
+        <div class="metric-chip"><span class="mv" style="color:var(--gold);">546</span><span class="ml">Commits</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--teal);">7</span><span class="ml">Critical Layers</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--blue);">24</span><span class="ml">Research Citations</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--purple);">7</span><span class="ml">Learning Mechanisms</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--green);">100%</span><span class="ml">Forge Rate</span></div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-4">
+      <div class="callout">
+        <p><strong>This is not a slideshow about what AI could do.</strong> Every visualization maps to running code. Every metric is from production. Every file path is real. The system has been operating daily for months, learning from every session, compounding intelligence with every interaction.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: THE REFRAME -->
+<!-- ============================================================ -->
+<section class="section" id="s-reframe" style="background: linear-gradient(155deg, #06101e 0%, #0a1526 55%, #0b1c34 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">The Reframe &mdash; Stop Thinking in Models</div>
+      <h2>You're Thinking in Claude.<br>This Is <span class="gold">Above Claude.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">OpenAI Swarm is a framework. Claude agent teams are a model-vendor feature. OpenClaw is a routing layer. What we built sits <em>above all of them</em>. The models are interchangeable components at the bottom of a 4-layer stack. The value &mdash; the moat &mdash; lives at the top.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="stack-layer" style="background: linear-gradient(135deg, rgba(245,166,35,0.18), rgba(245,166,35,0.06)); border: 2px solid rgba(245,166,35,0.5); box-shadow: 0 0 40px rgba(245,166,35,0.15);">
+        <div class="layer-num" style="color:var(--gold);">4</div>
+        <h4 style="color:var(--gold);">Learning Engine</h4>
+        <p style="color:var(--white-dim);">The moat. MemRL utility scoring, ExpeL rule extraction, Reflexion, neural router, mistake tracking. Gets smarter with every interaction. <strong style="color:var(--gold);">No model vendor offers this.</strong></p>
+      </div>
+      <div class="stack-layer" style="background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(168,85,247,0.04)); border: 1px solid rgba(168,85,247,0.35);">
+        <div class="layer-num" style="color:var(--purple);">3</div>
+        <h4 style="color:var(--purple);">Orchestration</h4>
+        <p style="color:var(--white-dim);">Auto-Swarm, The Forge, Neural Mesh, session relay. Model-agnostic coordination. Works with Claude, would work with GPT, would work with any model.</p>
+      </div>
+      <div class="stack-layer" style="background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.03)); border: 1px solid rgba(6,182,212,0.3);">
+        <div class="layer-num" style="color:var(--teal);">2</div>
+        <h4 style="color:var(--teal);">Knowledge Architecture</h4>
+        <p style="color:var(--white-dim);">PostgreSQL + pgvector. Hybrid search, RRF fusion, GPU rerank. Not tied to any model's context window or memory system.</p>
+      </div>
+      <div class="stack-layer" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); opacity: 0.65;">
+        <div class="layer-num" style="color:var(--white-muted);">1</div>
+        <h4 style="color:var(--white-muted);">Models</h4>
+        <p style="color:var(--white-muted);">Claude, GPT, Gemini, Ollama, Qwen, DeepSeek. Interchangeable. Commoditizing quarterly. <em>This layer is not the product.</em></p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <h3 style="margin-top:2rem; margin-bottom:1rem;">Already Running 5+ Models</h3>
+      <div class="step-grid">
+        <div class="step-card sc-gold">
+          <h4>Claude Opus</h4>
+          <p>Primary reasoning &amp; code generation. The conductor. Could be replaced by GPT-5 or Gemini Ultra without changing the architecture.</p>
+        </div>
+        <div class="step-card sc-teal">
+          <h4>Qwen 3:8b</h4>
+          <p>Cognitive layer, GPU reranking, scoring. Runs locally on Apple Silicon. Zero API cost. 400ms latency. <code>lib/cognitive.py</code></p>
+        </div>
+        <div class="step-card sc-blue">
+          <h4>mxbai-embed-large</h4>
+          <p>All text embeddings. 1024-dim vectors. Local inference via Ollama. Powers pgvector semantic search.</p>
+        </div>
+        <div class="step-card sc-purple">
+          <h4>MLX Neural Router</h4>
+          <p>Trained MLP on Apple Silicon. Routes prompts to skills based on learned session outcomes. <code>lib/learned_router.py</code></p>
+        </div>
+        <div class="step-card sc-green">
+          <h4>DeepSeek-R1:32b</h4>
+          <p>Complex reasoning fallback. Matches Sonnet quality for pure reasoning tasks. Zero cost when Claude is rate-limited.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="callout">
+        <p><strong>When Claude improves, this gets better.</strong> When GPT-5 drops, we can route tasks to it. When Qwen gets faster, our cognitive layer gets faster. The learning engine doesn't care which model is underneath. Claude agent teams, OpenAI Swarm, OpenClaw &mdash; these are model-vendor implementations. What we built sits above all of them.</p>
+      </div>
+      <div class="research-card">
+        <div class="research-pill">Research Foundation</div>
+        <div class="research-source">a16z &mdash; "Who Owns the Generative AI Platform?" (2023)</div>
+        <div class="research-finding">a16z's analysis shows <strong>value migrates up the stack</strong>. Model providers compete on price and benchmarks. The defensible value lives in the application layer &mdash; where domain-specific knowledge, learned behaviors, and user context create switching costs. Our 4-layer stack is designed around this thesis: the models are commodities, the learning engine is the moat.</div>
+        <div class="research-attribution">a16z &mdash; "Who Owns the Generative AI Platform?" (2023) | Andreessen Horowitz Research</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: THREE MEMORY TIERS -->
+<!-- ============================================================ -->
+<section class="section" id="s-tiers" style="background: linear-gradient(155deg, #071220 0%, #0a1628 55%, #0d1f3a 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">Answering James's Question &mdash; Three Designs or One Ladder?</div>
+      <h2>Three Memory Tiers.<br><span class="gold">They're Not the Same.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">James identified three designs and asked if design 3 is the same as design 2. The answer: no. They are an ascending ladder. Each tier includes the one below it, then adds the feedback loops that make the difference between a database and an intelligence.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="tier-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
+        <div class="tier-badge" style="background:rgba(255,255,255,0.08); color:var(--white-muted);">Tier 1</div>
+        <h4 style="color:var(--white-muted);">Project Memory &mdash; What Claude Code Does</h4>
+        <p>Auto-Memory records patterns from conversations. Scoped to one project, one user. No scoring, no learning, no cross-pollination. <strong style="color:var(--white-muted);">Like a personal notebook.</strong> CLAUDE.md and MEMORY.md files. Useful but limited &mdash; no way to know which memories are valuable, no way to share across agents.</p>
+      </div>
+      <div class="tier-arrow">&#8595;</div>
+
+      <div class="tier-card" style="background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.03)); border: 1px solid var(--blue-border);">
+        <div class="tier-badge" style="background:var(--blue-dim); color:var(--blue); border: 1px solid var(--blue-border);">Tier 2</div>
+        <h4 style="color:var(--blue);">Shared Knowledge Base &mdash; What CelerData Is Building</h4>
+        <p>PostgreSQL + pgvector (or S3 + Kafka + StarRocks). Shared across users and agents. Data flows IN from pipelines. Agents read OUT via search. One direction. <strong style="color:var(--blue);">Like a company wiki.</strong> James's text2sql example lives here: record question + SQL + tables used. Any agent can retrieve it. But the wiki doesn't know which entries are good.</p>
+      </div>
+      <div class="tier-arrow">&#8595;</div>
+
+      <div class="tier-card" style="background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(245,166,35,0.04)); border: 2px solid rgba(245,166,35,0.4); box-shadow: 0 0 30px rgba(245,166,35,0.08);">
+        <div class="tier-badge" style="background:var(--gold-dim); color:var(--gold); border: 1px solid var(--gold-border);">Tier 3</div>
+        <h4 style="color:var(--gold);">The Learning Loop &mdash; What We Built on Top</h4>
+        <p>Session outcomes <strong style="color:var(--gold);">write back automatically</strong>. MemRL utility scoring &mdash; knowledge ranked by usefulness. ExpeL rule extraction &mdash; patterns mined from experience. Mistake tracking &mdash; same error never happens twice. Neural router &mdash; trained on session outcomes, improves routing. <strong style="color:var(--gold);">Like a colleague who remembers everything, learns from mistakes, and gets better every day.</strong></p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3" style="margin-top: 2rem;">
+      <h3 style="margin-bottom:1rem;">The text2sql Example &mdash; Tier 2 vs. Tier 3</h3>
+      <div class="compare-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="compare-card" style="border-left: 4px solid var(--blue);">
+          <div class="compare-header" style="color:var(--blue);">Tier 2: Shared Memory</div>
+          <h4>Record &amp; Retrieve</h4>
+          <p>User asks "Q4 revenue by region." Agent generates SQL, succeeds. Recorded to KB: question, tables used (<code>fact_revenue</code>, <code>dim_region</code>), SQL text, outcome. Next similar question &rarr; KB retrieval &rarr; faster SQL. <strong>Static storage. Every entry is equal.</strong></p>
+        </div>
+        <div class="compare-card" style="border-left: 4px solid var(--gold); box-shadow: 0 0 15px rgba(245,166,35,0.1);">
+          <div class="compare-header" style="color:var(--gold);">Tier 3: Learning Loop</div>
+          <h4>Score, Extract, Prevent</h4>
+          <p>Same data, but now: utility scoring shows this pattern has <code>0.92</code> utility. Rule extracted: <em>"Revenue queries use fact_revenue + dim_region, always filter on quarter."</em> Mistake tracked: <em>"Don't join on user_id &mdash; table uses account_id since 2025 migration."</em> <strong style="color:var(--gold);">Same data. Fundamentally smarter.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="callout">
+        <p><strong>The ladder is the product.</strong> Tier 1 is free (Claude gives it away). Tier 2 is infrastructure (StarRocks, pgvector &mdash; table stakes). Tier 3 is what compounds. A competitor can build Tier 2 in weeks. They cannot replicate thousands of sessions of utility-scored, domain-specific, mistake-aware knowledge. That's the moat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: PROMPT INTELLIGENCE ENGINE -->
+<!-- ============================================================ -->
+<section class="section" id="s-prompt" style="background: linear-gradient(155deg, #071428 0%, #0a1a36 50%, #0c2040 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">The Prompt Intelligence Engine</div>
+      <h2>4 Threads. <span class="gold">&lt;2 Seconds.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Every time a user hits Enter, a hook fires <em>before</em> the model sees the prompt. Four parallel threads run simultaneously: KB preflight, skill detection, the learning engine, and deep cognitive reasoning. Their outputs merge into a single intelligence injection that transforms a naive prompt into an informed one.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="step-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="step-card sc-gold">
+          <div class="step-num" style="background:var(--gold); color:#0a1628;">1</div>
+          <h4>KB Preflight</h4>
+          <p>Hybrid search: pgvector cosine + full-text, fused via RRF. Returns domain mistakes, known patterns, repeat error flags. GPU rerank via <code>qwen3:8b</code>. ~800ms.</p>
+        </div>
+        <div class="step-card sc-teal">
+          <div class="step-num" style="background:var(--teal); color:#0a1628;">2</div>
+          <h4>Skill Detection</h4>
+          <p>LearnedRouter (MLX neural net) trained on session outcomes. Falls back to keyword matching if confidence &lt;0.40. Returns ranked skill matches. ~200ms.</p>
+        </div>
+        <div class="step-card sc-purple">
+          <div class="step-num" style="background:var(--purple); color:#0a1628;">3</div>
+          <h4>Learning Engine</h4>
+          <p>Three sub-engines: ReflexionEngine (domain reflections), ExperienceEngine (high-confidence rules), CoreMemoryEngine (self-edit check). ~300ms combined.</p>
+        </div>
+        <div class="step-card sc-blue">
+          <div class="step-num" style="background:var(--blue); color:#0a1628;">4</div>
+          <h4>Deep Reasoning</h4>
+          <p>Single <code>qwen3:8b</code> call: intent type, reasoning mode, emotion detection, curiosity questions. Local GPU, $0.00. ~400ms.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="code-block">
+        <div class="code-label">Merged Intelligence Output</div>
+<pre><span class="hl-muted">## Preflight Intelligence</span>
+<span class="hl-gold">Domain:</span> authentication  <span class="hl-gold">Risk:</span> high  <span class="hl-gold">Complexity:</span> compound
+
+<span class="hl-teal">## KB Context (3 relevant items)</span>
+<span class="hl-red">KNOWN MISTAKE:</span> Used HS256 for cross-service JWT (session #412)
+  Fix: RS256 required when auth and API are separate deployments
+<span class="hl-green">PATTERN:</span> Token rotation needed for sessions > 24 hours
+<span class="hl-green">PATTERN:</span> Always validate kid header in JWKS endpoint
+
+<span class="hl-purple">## Learning Engine</span>
+<span class="hl-purple">RULE [0.87]:</span> "Separate deployments = asymmetric keys"
+<span class="hl-purple">RULE [0.82]:</span> "Always test token expiry with real clock"
+
+<span class="hl-blue">## Cognitive Layer</span>
+<span class="hl-blue">Intent:</span> directive  <span class="hl-blue">Mode:</span> systematic  <span class="hl-blue">Emotion:</span> neutral (0.1)
+<span class="hl-blue">Hold:</span> What trust boundary model are we assuming?
+
+<span class="hl-gold">## Matched Skills</span>
+auth-systems (0.91) &rarr; security (0.74) &rarr; architecture (0.62)</pre>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="research-card">
+        <div class="research-pill">Research Foundation</div>
+        <div class="research-source">MemRL (Google DeepMind 2024) + ExpeL (NeurIPS 2023) + Reflexion (NeurIPS 2023)</div>
+        <div class="research-finding"><strong>MemRL</strong> proves agents with utility-scored memory outperform static RAG by 23%. <strong>ExpeL</strong> shows rule extraction enables GPT-3.5 to match GPT-4 on novel tasks. <strong>Reflexion</strong> demonstrates self-reflection improves task success from 34% to 91%. The prompt intelligence engine implements all three.</div>
+        <div class="research-attribution">Google DeepMind &mdash; MemRL (2024) | Zhao et al. &mdash; ExpeL (NeurIPS 2023) | Shinn et al. &mdash; Reflexion (NeurIPS 2023)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: 7 LEARNING MECHANISMS -->
+<!-- ============================================================ -->
+<section class="section section-short" id="s-mechanisms" style="background: linear-gradient(155deg, #0a1628 0%, #0d1c35 50%, #0a1628 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">The Seven Learning Mechanisms</div>
+      <h2>The <span class="gold">Compound Engine.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Each mechanism addresses a different timescale of learning. Together, they create a system where every interaction improves future interactions &mdash; not linearly, but compoundingly.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="mech-grid">
+        <div class="mech-card" style="border-top: 3px solid var(--gold);">
+          <div class="mech-num gold">1</div>
+          <div class="mech-origin" style="background:var(--gold-dim); color:var(--gold); border: 1px solid var(--gold-border);">MemRL &mdash; DeepMind</div>
+          <h4>Utility-Scored Memory</h4>
+          <p>Every KB entry has a <code>utility_score</code> updated via EMA. Helpful retrieval &rarr; score up. Unhelpful &rarr; decay. Temporal decay prevents stale dominance. High-utility surfaces first.</p>
+        </div>
+        <div class="mech-card" style="border-top: 3px solid var(--teal);">
+          <div class="mech-num teal">2</div>
+          <div class="mech-origin" style="background:var(--teal-dim); color:var(--teal); border: 1px solid var(--teal-border);">ExpeL &mdash; NeurIPS 2023</div>
+          <h4>Rule Extraction</h4>
+          <p>After task completion, reusable rules extracted: <code>"Separate deployments = asymmetric keys"</code>. Confidence 0-1. Success &rarr; &times;1.05. Failure &rarr; &times;0.9.</p>
+        </div>
+        <div class="mech-card" style="border-top: 3px solid var(--purple);">
+          <div class="mech-num purple">3</div>
+          <div class="mech-origin" style="background:var(--purple-dim); color:var(--purple); border: 1px solid var(--purple-border);">Reflexion &mdash; NeurIPS 2023</div>
+          <h4>Domain Self-Reflection</h4>
+          <p>Reflections stored indexed by domain. New prompt in known domain &rarr; 3 most recent reflections auto-inject. Guarantees contextual awareness.</p>
+        </div>
+        <div class="mech-card" style="border-top: 3px solid var(--blue);">
+          <div class="mech-num blue">4</div>
+          <div class="mech-origin" style="background:var(--blue-dim); color:var(--blue); border: 1px solid var(--blue-border);">Code Review Learning</div>
+          <h4>Bidirectional KB</h4>
+          <p>New findings &rarr; KB. Recurring findings (3+) &rarr; HIGH priority. Resolved &rarr; fix pattern documented. Known issues &rarr; <code>KNOWN REPEAT</code> flag.</p>
+        </div>
+        <div class="mech-card" style="border-top: 3px solid var(--green);">
+          <div class="mech-num green">5</div>
+          <div class="mech-origin" style="background:var(--green-dim); color:var(--green); border: 1px solid var(--green-border);">Neural Router &mdash; MLX</div>
+          <h4>Learned Skill Routing</h4>
+          <p>MLP: <code>1024&rarr;256&rarr;64&rarr;12</code>. Input: prompt embedding. Output: skill scores. Trained on <code>routing_decisions</code> table with AES feedback.</p>
+        </div>
+        <div class="mech-card" style="border-top: 3px solid var(--pink);">
+          <div class="mech-num pink">6</div>
+          <div class="mech-origin" style="background:var(--pink-dim); color:var(--pink); border: 1px solid var(--pink-border);">Dynamic Checklists</div>
+          <h4>Domain Enrichment</h4>
+          <p>Preflight detects domain, enriches with domain-specific items from KB. Includes reasoning traps. 17 repeat error themes tracked.</p>
+        </div>
+        <div class="mech-card" style="border-top: 3px solid var(--red);">
+          <div class="mech-num red">7</div>
+          <div class="mech-origin" style="background:var(--red-dim); color:var(--red); border: 1px solid var(--red-border);">CoreMemory</div>
+          <h4>Safe Self-Editing</h4>
+          <p>The system can edit its own operating instructions. Tightly constrained: append-only, never deletes, high-confidence required. Permanent behavioral change.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="formula-block">
+        <div class="formula">
+          utility_score = <span class="hl-gold">EMA</span>(score, feedback, <span class="hl-teal">&alpha;=0.15</span>) &times; <span class="hl-blue">temporal_decay</span>(age, <span class="hl-teal">rate=0.005</span>, <span class="hl-teal">floor=0.6</span>)
+        </div>
+        <div class="formula-label">MemRL Utility Scoring &mdash; Exponential Moving Average with Temporal Decay Floor</div>
+      </div>
+      <div class="callout">
+        <p><strong>Why 7 mechanisms, not 1:</strong> Each covers a different timescale. MemRL: milliseconds (individual retrievals). ExpeL: minutes (task completion). Reflexion: hours (domain experience). Neural Router: days (session outcomes). Code review: weeks (codebase evolution). Checklists: months (error accumulation). CoreMemory: permanent. <strong>Together, they cover every timescale of learning.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: MULTI-AGENT ORCHESTRATION -->
+<!-- ============================================================ -->
+<section class="section" id="s-orchestration" style="background: linear-gradient(155deg, #060f20 0%, #081528 55%, #060f20 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">Multi-Agent Orchestration</div>
+      <h2>Auto-Swarm + <span class="gold">The Forge.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Two complementary systems. Auto-Swarm decomposes tasks into parallel sub-agents enriched with KB context. The Forge runs adversarial quality gates. Neither is tied to a specific model vendor.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <h3 style="margin-bottom:1rem;">Auto-Swarm: Classify &rarr; Plan &rarr; KB Inject &rarr; Launch &rarr; Synthesize</h3>
+      <div class="step-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="step-card sc-gold">
+          <div class="step-num" style="background:var(--gold); color:#0a1628;">1</div>
+          <h4>Classify</h4>
+          <p>Task &rarr; pattern detection: research, build, or analysis. Determines agent topology.</p>
+        </div>
+        <div class="step-card sc-teal">
+          <div class="step-num" style="background:var(--teal); color:#0a1628;">2</div>
+          <h4>Plan</h4>
+          <p>Generate agent manifest: roles, models (haiku/sonnet), prompts, output paths.</p>
+        </div>
+        <div class="step-card sc-blue">
+          <div class="step-num" style="background:var(--blue); color:#0a1628;">3</div>
+          <h4>KB Inject</h4>
+          <p>Each sub-agent prompt enriched with relevant KB context via <code>knowledge_inject.py</code>.</p>
+        </div>
+        <div class="step-card sc-purple">
+          <div class="step-num" style="background:var(--purple); color:#0a1628;">4</div>
+          <h4>Launch</h4>
+          <p>All independent agents spawn in parallel. Background execution, file-based output.</p>
+        </div>
+        <div class="step-card sc-green">
+          <div class="step-num" style="background:var(--green); color:#0a1628;">5</div>
+          <h4>Synthesize</h4>
+          <p>Synthesis agent combines all outputs. Divergent findings flagged. Final report generated.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3" style="margin-top:2rem;">
+      <h3 style="margin-bottom:1rem;">The Forge: Worker + Observer + Gate</h3>
+      <div class="compare-grid">
+        <div class="compare-card" style="border-top: 3px solid var(--teal);">
+          <div class="compare-header" style="color:var(--teal);">Worker</div>
+          <h4>Builds the artifact</h4>
+          <p>Executes the task step-by-step. Writes output to shared directory. Has zero visibility into what the Observer is checking. Different model, different context.</p>
+        </div>
+        <div class="compare-card" style="border-top: 3px solid var(--purple);">
+          <div class="compare-header" style="color:var(--purple);">Observer</div>
+          <h4>Validates each step</h4>
+          <p>Reviews Worker output against the spec. Flags errors, omissions, anti-patterns. <strong>Zero shared context with Worker.</strong> Different priors, different failure modes.</p>
+        </div>
+        <div class="compare-card" style="border-top: 3px solid var(--gold);">
+          <div class="compare-header" style="color:var(--gold);">Gate</div>
+          <h4>Pass or fail</h4>
+          <p>Interpreter reads both outputs. If Observer found issues: Worker must fix. Cycle repeats until Gate passes. 100% correction rate across Bash, Python, Docker, REST.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="callout">
+        <p><strong>The Forge is NOT Claude agent teams.</strong> Claude agent teams = model-vendor parallel execution. The Forge = adversarial quality gate built ON TOP of any agent framework. The Worker and Observer have zero shared context &mdash; different models, different priors, different failure modes. This works with Claude today. It would work with GPT tomorrow. It would work with any model.</p>
+      </div>
+      <div class="research-card">
+        <div class="research-pill">Research Foundation</div>
+        <div class="research-source">Multi-Agent Debate &mdash; Diverse > Identical</div>
+        <div class="research-finding">Du et al. (2023) demonstrate that <strong>multi-agent debate with diverse agents achieves 91% accuracy vs. 82% for identical agents</strong>. The Forge implements this principle: Worker and Observer use different models, different system prompts, and different evaluation criteria. Adversarial verification catches errors that self-review misses.</div>
+        <div class="research-attribution">Du et al. &mdash; "Improving Factuality and Reasoning in LLMs through Multi-Agent Debate" (2023)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: NEURAL MESH -->
+<!-- ============================================================ -->
+<section class="section" id="s-mesh" style="background: linear-gradient(155deg, #0a1628 0%, #0c1e38 55%, #0a1628 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">The Neural Mesh</div>
+      <h2>Cross-Session <span class="gold">Awareness.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Multiple agents run in parallel on the same codebase. The mesh gives them awareness of each other &mdash; without shared memory, without message queues, without coordination overhead. Files, not queues.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="compare-grid">
+        <div class="compare-card" style="border-top: 3px solid var(--gold);">
+          <div class="compare-header" style="color:var(--gold);">Broadcast Channel</div>
+          <h4>feed.jsonl</h4>
+          <p>Append-only file. Each session writes events: git push, dependency change, error resolution. Post-tool-use hook checks mtime every 10 tool calls (~1ms). New broadcasts injected as <code>&lt;cross-session-broadcast&gt;</code>.</p>
+        </div>
+        <div class="compare-card" style="border-top: 3px solid var(--teal);">
+          <div class="compare-header" style="color:var(--teal);">Mesh Digest</div>
+          <h4>Session Start Injection</h4>
+          <p>When a new session starts, the hook injects a digest of all active sessions: who's working on what, which files they own, what they've committed. Prevents conflicts before they happen.</p>
+        </div>
+        <div class="compare-card" style="border-top: 3px solid var(--purple);">
+          <div class="compare-header" style="color:var(--purple);">Signal Channels</div>
+          <h4>human-input.txt</h4>
+          <p>Rick can signal any session from any terminal: <code>signal "stop and review"</code>. Hook reads and clears the file, injecting as <code>&lt;human-signal&gt;</code>. Checked after every single tool call.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <h3 style="margin-top:2rem; margin-bottom:1rem;">How It Actually Fires</h3>
+      <div class="code-block">
+        <div class="code-label">Mesh Timeline</div>
+<pre><span class="hl-gold">T+0ms</span>    Session A: git push (auth refactor, 3 files)
+<span class="hl-gold">T+1ms</span>    post-tool-use.sh appends to feed.jsonl: {type: "code-pushed", files: [...]}
+
+<span class="hl-teal">T+800ms</span>  Session B: tool call #40 fires post-tool-use hook
+<span class="hl-teal">T+801ms</span>  Hook checks feed.jsonl mtime &mdash; changed since last check
+<span class="hl-teal">T+802ms</span>  Hook reads new entries, detects file overlap with Session B's work
+<span class="hl-teal">T+803ms</span>  Injects: <span class="hl-red">&lt;code-pushed session="A"&gt;</span> auth refactor touched auth/jwt.py
+<span class="hl-teal">T+804ms</span>  Session B sees the signal, pulls latest, adjusts its approach</pre>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <h3 style="margin-bottom:1rem;">Why Files, Not Queues?</h3>
+      <div class="compare-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="compare-card" style="border-left: 4px solid var(--red);">
+          <div class="compare-header" style="color:var(--red);">Message Queues (Redis, RabbitMQ)</div>
+          <p>External dependency. Crash recovery complexity. Consumer groups, ack semantics, dead letter queues. For a system running on one machine with 2-5 concurrent sessions? <strong>Massive overkill.</strong></p>
+        </div>
+        <div class="compare-card" style="border-left: 4px solid var(--gold); box-shadow: 0 0 15px rgba(245,166,35,0.08);">
+          <div class="compare-header" style="color:var(--gold);">Append-Only Files</div>
+          <p>Zero dependencies. Atomic append via OS. mtime check: 1ms. Crash recovery: the file is the log. Works on any OS, any filesystem. <strong>UNIX philosophy: do the simplest thing that works.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 8: KNOWLEDGE ARCHITECTURE -->
+<!-- ============================================================ -->
+<section class="section section-short" id="s-knowledge" style="background: linear-gradient(155deg, #071220 0%, #0a1828 50%, #0c2040 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">Knowledge Architecture</div>
+      <h2>PostgreSQL + pgvector + <span class="gold">WAL.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">Not a document store. A scored, searchable, self-improving memory system with zero-loss writes, hybrid retrieval, and GPU-accelerated reranking.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="code-block">
+        <div class="code-label">Knowledge Table Schema</div>
+<pre><span class="hl-blue">CREATE TABLE</span> knowledge (
+    <span class="hl-gold">id</span>            SERIAL PRIMARY KEY,
+    <span class="hl-gold">title</span>         TEXT NOT NULL,
+    <span class="hl-gold">content</span>       TEXT NOT NULL,
+    <span class="hl-gold">category</span>      TEXT,          <span class="hl-muted">-- identity | operational | patterns | mistakes</span>
+    <span class="hl-gold">scope</span>         TEXT,          <span class="hl-muted">-- system | family | personal | child</span>
+    <span class="hl-gold">tags</span>          TEXT[],
+    <span class="hl-gold">embedding</span>     <span class="hl-teal">vector(1024)</span>, <span class="hl-muted">-- mxbai-embed-large (local, free)</span>
+    <span class="hl-gold">utility_score</span> FLOAT DEFAULT 1.0,     <span class="hl-muted">-- MemRL EMA</span>
+    <span class="hl-gold">retrieval_count</span> INT DEFAULT 0,
+    <span class="hl-gold">owner_id</span>      UUID REFERENCES users(id)  <span class="hl-muted">-- RLS enforcement</span>
+);
+
+<span class="hl-blue">CREATE INDEX</span> ON knowledge <span class="hl-blue">USING</span> ivfflat (embedding vector_cosine_ops);
+<span class="hl-blue">CREATE INDEX</span> ON knowledge <span class="hl-blue">USING</span> gin (to_tsvector(<span class="hl-green">'english'</span>, title || content));
+<span class="hl-blue">CREATE INDEX</span> ON knowledge (category, utility_score <span class="hl-blue">DESC</span>);</pre>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <h3 style="margin-bottom:1rem;">Hybrid Search: Semantic + Full-Text + RRF + GPU Rerank</h3>
+      <div class="compare-grid">
+        <div class="compare-card" style="border-left: 4px solid var(--teal);">
+          <div class="compare-header" style="color:var(--teal);">Semantic</div>
+          <h4>pgvector cosine</h4>
+          <p>Query &rarr; embedding via <code>mxbai-embed-large</code>. Captures meaning: "authentication" matches "login system." Top-20 candidates.</p>
+        </div>
+        <div class="compare-card" style="border-left: 4px solid var(--blue);">
+          <div class="compare-header" style="color:var(--blue);">Full-Text</div>
+          <h4>tsvector rank</h4>
+          <p><code>ts_rank_cd()</code> on title+content. Captures exact terms: "RS256" matches "RS256." Critical for code and error messages. Top-20.</p>
+        </div>
+        <div class="compare-card" style="border-left: 4px solid var(--gold);">
+          <div class="compare-header" style="color:var(--gold);">RRF + GPU Rerank</div>
+          <h4>Reciprocal Rank Fusion</h4>
+          <p><code>RRF(d) = &sum; 1/(k + rank_i(d))</code>, k=60. Merges lists without score normalization. Top-10 &rarr; <code>qwen3:8b</code> reranker. Final top-5.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <h3 style="margin-top:2rem; margin-bottom:1rem;">Write-Ahead Log &mdash; Zero Knowledge Loss</h3>
+      <div class="code-block">
+        <div class="code-label">KB WAL Protocol (lib/kb_wal.py)</div>
+<pre><span class="hl-gold">1. WRITE</span>: Append to <span class="hl-teal">pending.jsonl</span> (content-hash dedup via SHA256)
+<span class="hl-gold">2. REPLAY</span>: Process pending.jsonl &rarr; PostgreSQL (upsert + embedding)
+<span class="hl-gold">3. RECOVER</span>: On startup, replay un-replayed entries
+
+<span class="hl-muted">Handles: crash during write, DB down, embedding failure</span>
+<span class="hl-muted">Guarantee: if it hit pending.jsonl, it WILL reach PostgreSQL</span>
+<span class="hl-muted">Same pattern as PostgreSQL WAL, SQLite WAL, Kafka append-only log</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 9: INDIVIDUAL TO COLLECTIVE -->
+<!-- ============================================================ -->
+<section class="section" id="s-collective" style="background: linear-gradient(155deg, #060f20 0%, #081528 55%, #060f20 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">Individual &rarr; Collective Learning</div>
+      <h2>One Agent Learns.<br><span class="gold">Every Agent Benefits.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">This answers James's deepest question: how do learnings from one session benefit all agents? The answer is that individual and collective learning are NOT separate systems. They are the same system at different scopes.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <h3 style="margin-bottom:1rem;">The text2sql Example &mdash; James's Own Use Case</h3>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-gold"></div>
+          <div class="tl-label" style="color:var(--gold);">Step 1 &mdash; Raw Query</div>
+          <div class="tl-title">User asks: "Show me Q4 revenue by region"</div>
+          <div class="tl-body">Agent generates SQL. Joins <code>fact_revenue</code> + <code>dim_region</code>. Filters on <code>quarter = 'Q4'</code>. Query succeeds. Result returned to user.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-teal"></div>
+          <div class="tl-label" style="color:var(--teal);">Step 2 &mdash; Record (Tier 2)</div>
+          <div class="tl-title">Recorded to KB: question, tables, SQL, outcome</div>
+          <div class="tl-body">Standard shared memory. Any agent can retrieve this via semantic search. Next similar question gets faster SQL. This is what most systems stop at.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-purple"></div>
+          <div class="tl-label" style="color:var(--purple);">Step 3 &mdash; Score (Tier 3: MemRL)</div>
+          <div class="tl-title">Utility scoring: this pattern scores 0.92</div>
+          <div class="tl-body">Users kept asking variations of this query. Each successful retrieval increased the utility score. Low-value queries decay. This entry naturally rises to the top of future search results.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-blue"></div>
+          <div class="tl-label" style="color:var(--blue);">Step 4 &mdash; Extract (Tier 3: ExpeL)</div>
+          <div class="tl-title">Rule: "Revenue queries use fact_revenue + dim_region, filter on quarter"</div>
+          <div class="tl-body">ExpeL extracts a reusable rule with confidence 0.85. This rule fires for ANY revenue-related question, even ones phrased differently. The agent doesn't need to find the original example &mdash; it has the pattern.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-pink"></div>
+          <div class="tl-label" style="color:var(--pink);">Step 5 &mdash; Prevent (Tier 3: Mistakes)</div>
+          <div class="tl-title">Tracked: "Don't join on user_id &mdash; table uses account_id since migration"</div>
+          <div class="tl-body">A previous agent made this mistake. It was recorded. Now ANY agent asking a revenue question gets this warning injected BEFORE it starts writing SQL. The mistake happens once. Never again.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="canvas-wrap" id="collective-canvas" style="height:480px;">
+        <svg class="viz-svg" id="collective-svg"></svg>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gold); box-shadow:0 0 6px rgba(245,166,35,0.6);"></div><span>Agent Sessions</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--teal); box-shadow:0 0 6px rgba(6,182,212,0.5);"></div><span>Knowledge Base</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--purple); box-shadow:0 0 6px rgba(168,85,247,0.5);"></div><span>Learning Loop</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green); box-shadow:0 0 6px rgba(34,197,94,0.5);"></div><span>Collective Intelligence</span></div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <h3 style="margin-top:2rem; margin-bottom:1rem;">Two Scenarios James Described</h3>
+      <div class="compare-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="compare-card" style="border-top: 3px solid var(--blue);">
+          <div class="compare-header" style="color:var(--blue);">Scenario 1: Individual + Sub-Agents</div>
+          <h4>One person, AI assistant with sub-agents</h4>
+          <p>Each sub-agent writes findings to KB. The orchestrator learns which sub-agent configurations work best for which tasks (neural router). ExpeL extracts rules from successful task completions. MemRL scores which knowledge actually helped. <strong>Individual learning &mdash; one person's agent gets smarter over time.</strong></p>
+        </div>
+        <div class="compare-card" style="border-top: 3px solid var(--gold); box-shadow: 0 0 15px rgba(245,166,35,0.08);">
+          <div class="compare-header" style="color:var(--gold);">Scenario 2: Team + Shared Agents</div>
+          <h4>Multiple people, shared workflow</h4>
+          <p>All agents share the same KB. Person A's agent discovers "RS256 required for separate deployments" &rarr; immediately available to Person B's agent. Mistakes from Monday prevent errors on Tuesday. <strong style="color:var(--gold);">Collective learning &mdash; the whole team gets smarter.</strong></p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>The key insight:</strong> Individual and collective learning are NOT separate systems. They're the SAME system at different scopes. The KB is the shared substrate. The learning loop is the shared feedback mechanism. Scale the KB &rarr; scale the learning. One person's mistake prevention is every person's mistake prevention.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 10: INSIGHTS TO MOAT -->
+<!-- ============================================================ -->
+<section class="section" id="s-moat" style="background: linear-gradient(155deg, #0a1628 0%, #0d1c35 50%, #0a1628 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">Insights &rarr; Skills &rarr; Moat</div>
+      <h2>Deeper Insights Become <span class="gold">Skills.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">James's insight was right: "deeper insights should be created as a skill." Here's how raw observations compound into an unreplicable advantage through four ascending stages of value.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="stair-step">
+        <div class="stair-bar" style="background: var(--white-muted);"></div>
+        <div class="stair-content">
+          <h4 style="color:var(--white-muted);">Stage 1: Observation</h4>
+          <p>"This query pattern works well for revenue questions." Raw KB entry. Unscored. Retrieved by semantic similarity only. <strong>Any system can do this.</strong></p>
+        </div>
+      </div>
+      <div class="stair-step">
+        <div class="stair-bar" style="background: var(--blue);"></div>
+        <div class="stair-content">
+          <h4 style="color:var(--blue);">Stage 2: Pattern</h4>
+          <p>"Revenue queries always need these 3 tables, filtered by quarter." ExpeL rule, confidence 0.85. Fires proactively on matching prompts. <strong>Requires learning loop.</strong></p>
+        </div>
+      </div>
+      <div class="stair-step">
+        <div class="stair-bar" style="background: var(--purple);"></div>
+        <div class="stair-content">
+          <h4 style="color:var(--purple);">Stage 3: Skill</h4>
+          <p>Codified procedure: "When user asks about revenue &rarr; use these tables, apply these filters, avoid these joins, prefer these aggregations." Formalized in skill registry. <strong>Requires pattern maturity + codification.</strong></p>
+        </div>
+      </div>
+      <div class="stair-step">
+        <div class="stair-bar" style="background: var(--gold); box-shadow: 0 0 8px rgba(245,166,35,0.4);"></div>
+        <div class="stair-content" style="border-color: rgba(245,166,35,0.25); background: rgba(245,166,35,0.04);">
+          <h4 style="color:var(--gold);">Stage 4: Moat</h4>
+          <p>500 sessions of accumulated, scored, validated patterns covering every domain the team touches. No competitor can replicate this &mdash; it requires the same volume of domain-specific experience. <strong style="color:var(--gold);">This is the product.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="formula-block">
+        <div class="formula">
+          Moat = <span class="hl-gold">&sum;</span>(utility_scored_knowledge &times; <span class="hl-teal">time</span> &times; <span class="hl-blue">unique_domain_experience</span>)
+        </div>
+        <div class="formula-label">Moat Compounds with Usage &mdash; Not Replicable by Architecture Alone</div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-4">
+      <div class="research-card">
+        <div class="research-pill">Strategic Insight</div>
+        <div class="research-source">Compounding Knowledge as Defensible Advantage</div>
+        <div class="research-finding">Models commoditize. Prompts commoditize. RAG pipelines commoditize. But <strong>accumulated institutional knowledge &mdash; scored, validated, self-improving &mdash; does not commoditize</strong>. A competitor can copy the architecture in weeks. They cannot copy thousands of sessions of utility-scored, domain-specific knowledge. The architecture is open. The data is the moat.</div>
+        <div class="research-attribution">a16z &mdash; "Who Owns the Generative AI Platform?" (2023) | Luo et al. &mdash; MemRL (Google DeepMind, 2024)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 11: COMPOUNDING TIMELINE -->
+<!-- ============================================================ -->
+<section class="section" id="s-compounding" style="background: linear-gradient(155deg, #060f20 0%, #081528 55%, #060f20 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">The Compounding Effect</div>
+      <h2>Session 1 vs. <span class="gold">Session 1,000.</span></h2>
+      <div class="gold-line"></div>
+      <p class="body-text">The learning loop doesn't add value linearly. Each mechanism feeds the others. Mistakes prevented create positive compounding &mdash; the system avoids entire classes of errors, freeing capacity for novel problems.</p>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-gold"></div>
+          <div class="tl-label" style="color:var(--gold);">Session 1 &mdash; Cold Start</div>
+          <div class="tl-title">Raw prompts, no context, keyword-only routing</div>
+          <div class="tl-body">KB empty. Preflight returns nothing. Skill routing uses keyword heuristics. Every decision from first principles. Error rate highest.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-teal"></div>
+          <div class="tl-label" style="color:var(--teal);">Sessions 10-50 &mdash; Pattern Formation</div>
+          <div class="tl-title">KB accumulates. First rules extracted. Repeat errors tracked.</div>
+          <div class="tl-body">MemRL differentiates useful vs. useless knowledge. ExpeL extracts first reusable rules. 17 repeat-error themes populate. Preflight starts returning relevant warnings.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-blue"></div>
+          <div class="tl-label" style="color:var(--blue);">Sessions 50-200 &mdash; Router Training</div>
+          <div class="tl-title">Neural router has enough data. Keyword fallback decreasing.</div>
+          <div class="tl-body">Hundreds of <code>routing_decisions</code> entries with AES scores. MLX training produces a router outperforming keyword matching. ExpeL rules reach critical mass.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-purple"></div>
+          <div class="tl-label" style="color:var(--purple);">Sessions 200-500 &mdash; Institutional Memory</div>
+          <div class="tl-title">The system knows more than any single session can hold.</div>
+          <div class="tl-body">Thousands of KB entries with calibrated utility scores. Temporal decay prunes stale knowledge. The system prevents errors the current agent has never seen &mdash; because a previous session learned the lesson.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-green"></div>
+          <div class="tl-label" style="color:var(--green);">Sessions 500+ &mdash; Compound Intelligence</div>
+          <div class="tl-title">The learning loop IS the competitive moat.</div>
+          <div class="tl-body">Every new session starts with accumulated intelligence of all prior sessions. Neural router accurately predicts skill requirements. ExpeL rules cover most domains. <strong style="color:var(--green);">The system's effective intelligence is the sum of every session that preceded it.</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 12: THE EVOLUTION -->
+<!-- ============================================================ -->
+<section class="section" id="s-evolution" style="background: linear-gradient(155deg, #0a1628 0%, #0c1e38 55%, #0a1628 100%);">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="eyebrow">The Evolution</div>
+      <h2>Where This <span class="gold">Goes.</span></h2>
+      <div class="gold-line"></div>
+    </div>
+
+    <div class="reveal reveal-delay-2" style="margin-top:2rem;">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-gold"></div>
+          <div class="tl-label" style="color:var(--gold);">Phase 1 &mdash; Single Machine (Now)</div>
+          <div class="tl-title">One Mac, one PostgreSQL, one learning engine</div>
+          <div class="tl-body">All components running locally: Ollama for local models, PostgreSQL + pgvector for knowledge, MLX for neural router training. Proves the architecture works. 546 commits, 7 learning mechanisms, production-daily use.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-teal"></div>
+          <div class="tl-label" style="color:var(--teal);">Phase 2 &mdash; StarRocks Backbone</div>
+          <div class="tl-title">Replace PostgreSQL with StarRocks for analytics workloads</div>
+          <div class="tl-body">Knowledge writes still go to PostgreSQL (OLTP). Analytics, scoring, and pattern extraction run on StarRocks. Real-time materialized views for utility scores. S3 as the durable layer. Same learning engine, faster analytics.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-blue"></div>
+          <div class="tl-label" style="color:var(--blue);">Phase 3 &mdash; Multi-Machine Mesh</div>
+          <div class="tl-title">Learning engine distributed across a team</div>
+          <div class="tl-body">Multiple developers, each with their own agent. Shared KB via StarRocks. Neural mesh over network instead of filesystem. One person's learning benefits the entire team. The collective intelligence scales with headcount.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-purple"></div>
+          <div class="tl-label" style="color:var(--purple);">Phase 4 &mdash; Customer-Facing Agent Mesh</div>
+          <div class="tl-title">Learning engine as a product</div>
+          <div class="tl-body">Every customer interaction teaches the system. Utility scoring across millions of queries. Rule extraction from production workloads. The moat isn't the code &mdash; it's the accumulated intelligence of every customer who's ever used the system.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 13: CLOSING -->
+<!-- ============================================================ -->
+<section class="section" id="s-closing" style="background: linear-gradient(155deg, #050e20 0%, #070f1e 55%, #040810 100%);">
+  <div class="stars" id="star-field-2"></div>
+  <div class="container">
+    <div class="reveal">
+      <div class="eyebrow">The Architecture Is Learning</div>
+      <h2>Models Come and Go.<br><span class="gold">The Learning Engine Compounds.</span></h2>
+      <div class="gold-line"></div>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <p class="subtitle" style="max-width:700px; margin-bottom:2rem;">Every mechanism in this presentation is implemented, running, and improving with each interaction. The formulas are real. The tables are queryable. The neural router is training on real session data.</p>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <div class="metrics-row" style="justify-content:center;">
+        <div class="metric-chip"><span class="mv" style="color:var(--gold);">546</span><span class="ml">Commits</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--teal);">7</span><span class="ml">Mechanisms</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--blue);">5+</span><span class="ml">Models Used</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--purple);">3</span><span class="ml">Memory Tiers</span></div>
+        <div class="metric-chip"><span class="mv" style="color:var(--green);">0</span><span class="ml">Knowledge Loss</span></div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3" style="margin-top:2rem;">
+      <div class="section-divider"></div>
+      <p class="closing-statement">
+        "A stateless agent is a tool. A learning agent is a colleague. A learning engine shared across a team is an <span style="color:var(--gold); font-style:normal; font-weight:700;">unfair advantage</span> that compounds with every interaction."
+      </p>
+    </div>
+
+    <div class="reveal reveal-delay-4" style="margin-top:2rem; text-align:center;">
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center;">
+        <span class="chip chip-gold">prompt_intel.py</span>
+        <span class="chip chip-teal">cognitive.py</span>
+        <span class="chip chip-blue">preflight.py</span>
+        <span class="chip chip-purple">skill_learn.py</span>
+        <span class="chip chip-green">knowledge.py</span>
+        <span class="chip chip-pink">kb_wal.py</span>
+        <span class="chip chip-gold">review_learning.py</span>
+        <span class="chip chip-teal">learned_router.py</span>
+        <span class="chip chip-blue">auto_swarm.py</span>
+        <span class="chip chip-purple">forge_launcher.py</span>
+        <span class="chip chip-green">knowledge_inject.py</span>
+        <span class="chip chip-pink">orchestrate.py</span>
+        <span class="chip chip-gold">user-prompt-submit.sh</span>
+        <span class="chip chip-teal">post-tool-use.sh</span>
+        <span class="chip chip-blue">session-start.sh</span>
+        <span class="chip chip-purple">db.py</span>
+      </div>
+      <p style="margin-top:1rem; font-size:0.7rem; color:var(--white-muted); font-style:italic;">All source files. All running. All learning.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+// STARS
+(function() {
+  function makeStars(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    for (var i = 0; i < 60; i++) {
+      var s = document.createElement('div');
+      s.className = 'star';
+      s.style.cssText = 'left:' + (Math.random()*100).toFixed(1) + '%;top:' + (Math.random()*100).toFixed(1) + '%;--dur:' + (3 + Math.random()*5).toFixed(2) + 's;--peak:' + (0.1 + Math.random()*0.5).toFixed(2) + ';animation-delay:' + (Math.random()*6).toFixed(2) + 's';
+      el.appendChild(s);
+    }
+  }
+  makeStars('star-field');
+  makeStars('star-field-2');
+})();
+
+// SCROLL REVEAL
+try {
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+    revealEls.forEach(function(el) { obs.observe(el); });
+  } else {
+    revealEls.forEach(function(el) { el.classList.add('visible'); });
+  }
+  document.querySelectorAll('#s-opening .reveal').forEach(function(el) { el.classList.add('visible'); });
+} catch(err) {
+  document.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('visible'); });
+}
+
+// PROGRESS BAR
+window.addEventListener('scroll', function() {
+  var bar = document.getElementById('progress-bar');
+  if (!bar) return;
+  var h = document.documentElement.scrollHeight - window.innerHeight;
+  bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+});
+
+// NAV DOTS
+var sectionIds = ['s-opening','s-reframe','s-tiers','s-prompt','s-mechanisms','s-orchestration','s-mesh','s-knowledge','s-collective','s-moat','s-compounding','s-evolution','s-closing'];
+var dots = document.querySelectorAll('.nav-dot');
+function updateDots() {
+  var mid = window.scrollY + window.innerHeight / 2;
+  var active = 0;
+  sectionIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.offsetTop <= mid) active = i;
+  });
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === active); });
+}
+window.addEventListener('scroll', updateDots, { passive: true });
+dots.forEach(function(dot, i) {
+  dot.addEventListener('click', function() {
+    var target = document.getElementById(sectionIds[i]);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// KEYBOARD NAVIGATION
+document.addEventListener('keydown', function(e) {
+  var cur = 0;
+  var mid = window.scrollY + window.innerHeight / 2;
+  sectionIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && el.offsetTop <= mid) cur = i;
+  });
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    var next = document.getElementById(sectionIds[Math.min(cur + 1, sectionIds.length - 1)]);
+    if (next) next.scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    var prev = document.getElementById(sectionIds[Math.max(cur - 1, 0)]);
+    if (prev) prev.scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
+// VIZ BUILDER
+function buildViz(wrapId, svgId, nodes, connections, pathPrefix) {
+  var wrap = document.getElementById(wrapId);
+  var svg = document.getElementById(svgId);
+  if (!wrap || !svg) return;
+
+  var W = wrap.offsetWidth || 1100;
+  var H = parseInt(wrap.style.height) || wrap.offsetHeight || 480;
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+  var nodeMap = {};
+  nodes.forEach(function(n) {
+    n.px = Math.round(n.x / 100 * W);
+    n.py = Math.round(n.y / 100 * H);
+    nodeMap[n.id] = n;
+  });
+
+  connections.forEach(function(c, i) {
+    var from = nodeMap[c[0]], to = nodeMap[c[1]];
+    if (!from || !to) return;
+    var mx = (from.px + to.px) / 2, my = (from.py + to.py) / 2;
+    var dx = to.px - from.px, dy = to.py - from.py;
+    var len = Math.sqrt(dx*dx + dy*dy) || 1;
+    var curve = Math.min(len * 0.18, 50);
+    var nx = -dy / len * curve, ny = dx / len * curve;
+
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    var d = 'M ' + from.px + ' ' + from.py + ' Q ' + (mx+nx) + ' ' + (my+ny) + ' ' + to.px + ' ' + to.py;
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', c[2]);
+    path.setAttribute('stroke-width', '1.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('id', pathPrefix + '-' + i);
+    path.style.strokeDasharray = '300';
+    path.style.strokeDashoffset = '300';
+    path.style.transition = 'stroke-dashoffset 1s ease ' + (0.3 + i * 0.07) + 's';
+    svg.appendChild(path);
+
+    var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', '2.5');
+    var fc = c[2];
+    if (fc.startsWith('rgba')) {
+      if (fc.indexOf('245') >= 0) fc = '#f5a623';
+      else if (fc.indexOf('6,182') >= 0) fc = '#06b6d4';
+      else if (fc.indexOf('59') >= 0) fc = '#3b82f6';
+      else if (fc.indexOf('168') >= 0) fc = '#a855f7';
+      else if (fc.indexOf('34,197') >= 0) fc = '#22c55e';
+      else if (fc.indexOf('236') >= 0) fc = '#ec4899';
+      else if (fc.indexOf('239') >= 0) fc = '#ef4444';
+      else fc = '#ffffff';
+    }
+    circle.setAttribute('fill', fc);
+    circle.setAttribute('opacity', '0.8');
+    var am = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+    am.setAttribute('dur', (2.5 + Math.random()*2).toFixed(1) + 's');
+    am.setAttribute('repeatCount', 'indefinite');
+    am.setAttribute('begin', (i*0.25) + 's');
+    var mp = document.createElementNS('http://www.w3.org/2000/svg', 'mpath');
+    mp.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#' + pathPrefix + '-' + i);
+    am.appendChild(mp);
+    circle.appendChild(am);
+    svg.appendChild(circle);
+  });
+
+  function drawLines() {
+    svg.querySelectorAll('path').forEach(function(p) { p.style.strokeDashoffset = '0'; });
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { if (e.isIntersecting) drawLines(); });
+    }, { threshold: 0.1 }).observe(wrap);
+  } else drawLines();
+
+  nodes.forEach(function(n) {
+    var el = document.createElement('div');
+    el.className = 'agent-node ' + n.cls;
+    el.style.left = n.px + 'px';
+    el.style.top = n.py + 'px';
+    el.innerHTML = '<div class="agent-icon">' + n.icon + '</div>';
+
+    var label = document.createElement('div');
+    label.className = 'agent-label';
+    label.textContent = n.label;
+    var clr = n.cls.indexOf('conductor') >= 0 ? 'rgba(245,166,35,0.85)' :
+              n.cls.indexOf('gold') >= 0 ? 'rgba(245,166,35,0.85)' :
+              n.cls.indexOf('teal') >= 0 ? 'rgba(6,182,212,0.85)' :
+              n.cls.indexOf('blue') >= 0 ? 'rgba(59,130,246,0.85)' :
+              n.cls.indexOf('purple') >= 0 ? 'rgba(168,85,247,0.85)' :
+              n.cls.indexOf('green') >= 0 ? 'rgba(34,197,94,0.85)' :
+              n.cls.indexOf('pink') >= 0 ? 'rgba(236,72,153,0.85)' :
+              n.cls.indexOf('red') >= 0 ? 'rgba(239,68,68,0.85)' : 'rgba(255,255,255,0.7)';
+    label.style.color = clr;
+    el.appendChild(label);
+
+    if (n.sub) {
+      var sub = document.createElement('div');
+      sub.className = 'agent-sub';
+      sub.textContent = n.sub;
+      sub.style.color = clr;
+      sub.style.background = 'rgba(0,0,0,0.4)';
+      el.appendChild(sub);
+    }
+    wrap.appendChild(el);
+  });
+}
+
+// SECTION 2: 4-LAYER STACK CANVAS (reframe)
+// (Stack layers are CSS-based above, no canvas needed)
+
+// SECTION 9: COLLECTIVE LEARNING VISUALIZATION
+buildViz('collective-canvas', 'collective-svg', [
+  { id: 'agentA', label: 'Agent Session A', icon: '&#9670;', cls: 'an-gold', x: 12, y: 18 },
+  { id: 'agentB', label: 'Agent Session B', icon: '&#9670;', cls: 'an-gold an-small', x: 12, y: 50 },
+  { id: 'agentC', label: 'Agent Session C', icon: '&#9670;', cls: 'an-gold an-small', x: 12, y: 82 },
+  { id: 'kb', label: 'Knowledge Base', icon: '&#9635;', cls: 'an-conductor', x: 50, y: 50 },
+  { id: 'memrl', label: 'MemRL Scoring', icon: '&#9733;', cls: 'an-teal an-small', x: 72, y: 20, sub: 'SCORE' },
+  { id: 'expel', label: 'ExpeL Rules', icon: '&#9654;', cls: 'an-purple an-small', x: 72, y: 50, sub: 'EXTRACT' },
+  { id: 'mistakes', label: 'Mistake Tracker', icon: '&#10006;', cls: 'an-red', x: 72, y: 80, sub: 'PREVENT' },
+  { id: 'enriched', label: 'Collective Intel', icon: '&#10004;', cls: 'an-green', x: 90, y: 50, sub: 'OUTPUT' },
+], [
+  ['agentA', 'kb', '#f5a623'],
+  ['agentB', 'kb', 'rgba(245,166,35,0.5)'],
+  ['agentC', 'kb', 'rgba(245,166,35,0.5)'],
+  ['kb', 'memrl', '#06b6d4'],
+  ['kb', 'expel', '#a855f7'],
+  ['kb', 'mistakes', '#ef4444'],
+  ['memrl', 'kb', 'rgba(6,182,212,0.4)'],
+  ['expel', 'kb', 'rgba(168,85,247,0.4)'],
+  ['mistakes', 'kb', 'rgba(239,68,68,0.4)'],
+  ['memrl', 'enriched', '#22c55e'],
+  ['expel', 'enriched', 'rgba(34,197,94,0.5)'],
+  ['enriched', 'agentA', 'rgba(34,197,94,0.3)'],
+  ['enriched', 'agentB', 'rgba(34,197,94,0.3)'],
+  ['enriched', 'agentC', 'rgba(34,197,94,0.3)'],
+], 'cl');
+</script>
+</body>
+</html>
